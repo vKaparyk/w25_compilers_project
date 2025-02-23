@@ -1,0 +1,8 @@
+In this package, we provide a SampleParser that shows you how to build
+a scanner and a parser together with JFlex and CUP.  It's intended to 
+shorten your learning curve for these tools and you are allowed to use it
+as a starting point to build your project implementations.
+
+Also included are five C- programs from the C-Specification for your
+convenience during development and testing.
+

@@ -1,0 +1,15 @@
+/* A program to compute the factorial value of an integer */
+
+void main(void) {
+  int x; 
+  int fac;
+
+  x = input();
+  fac = 1;
+  while (x > 1) {
+    fac = fac * x;
+    x = x - 1;
+  } 
+
+  output(fac);
+}
