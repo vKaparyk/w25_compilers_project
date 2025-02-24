@@ -4,6 +4,7 @@ JAVAC=javac
 #CLASSPATH=-cp /usr/share/java/cup.jar:.
 #CUP=cup
 # JFLEX=~/Projects/jflex/bin/jflex
+# TODO: modify CP properly s.t. it can run on school lunix server
 JFLEX=jflex
 CUP=$(JAVA) java_cup.Main
 

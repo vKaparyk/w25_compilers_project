@@ -5,3 +5,12 @@ preferred format: date, followed by jot notes of stuffs
  - started work on compilers
  - will try to get scanning done
  - reading over the doc/specifications/sample given
+
+
+
+
+
+
+TODO: 
+ - FIX beofre submission
+   - fix classpath in makefile s.t. it works on school servers
