@@ -68,7 +68,7 @@ parser code {:
    
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
    
-terminal BOOL, ELSE, IF, INT, RETURN, VOID, WHILE, TRUE, FALSE;          //keywords
+terminal BOOL, ELSE, IF, INT, RETURN, VOID, WHILE, TRUE, FALSE, SEMI;          //keywords
 terminal ADD, SUB, MULT, DIV, LT, LTE, GT, GTE, EQ, NEQ, BITWISEOR, OR, AND, ASSIGN, SEMICOLON, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, COMMA; // special symbols
 terminal ID, NUM, TRUTH;
 terminal ERROR;
@@ -79,5 +79,20 @@ non terminal program;
    
 start with program;
 
-program	     ::= ;
+program              ::= declaration-list
+                        ;
+declaration-list     ::= declaration-list declaration
+                        | declaration
+                        ;
+declaration          ::= var-declaration
+                        | fun-declaration
+                        | fun-prototype
+                        ;
+var-declaration      ::= type-specifier ID SEMI
+                        | type-specifier ID LBRACKET NUM RBRACKET SEMI
+                        ;
+type-specifier       ::= BOOL
+                        | INT
+                        | VOID
+                        ;
 

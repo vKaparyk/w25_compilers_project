@@ -102,8 +102,7 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "return"           { return symbol(sym.RETURN); }
 "void"             { return symbol(sym.VOID); }
 "while"            { return symbol(sym.WHILE); }
-"true"             { return symbol(sym.TRUE); }
-"false"            { return symbol(sym.FALSE); }
+{"true" | "false"} { return symbol(sym.TRUTH, (yytext().equals("true") ? sym.TRUE : sym.FALSE )); }
 "+"                { return symbol(sym.ADD); }
 "-"                { return symbol(sym.SUB); }
 "*"                { return symbol(sym.MULT); }
