@@ -1,0 +1,8 @@
+*.class
+parser.java
+Lexer.java
+sym.java
+SamplerParser/parser.java
+SamplerParser/Lexer.java
+SamplerParser/sym.java
+.vscode/
