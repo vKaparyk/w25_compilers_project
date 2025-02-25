@@ -6,3 +6,4 @@ SamplerParser/parser.java
 SamplerParser/Lexer.java
 SamplerParser/sym.java
 .vscode/
+*.java~
