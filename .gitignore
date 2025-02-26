@@ -7,5 +7,5 @@ SamplerParser/Lexer.java
 SamplerParser/sym.java
 .vscode/
 *.java~
-SampleParser/**/*
+# SampleParser/**/*
 .vscode/**/*
