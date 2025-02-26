@@ -1,11 +1,9 @@
 package absyn;
 
 public class NilExp extends Exp {
-
-	public int pos;
-
-	public NilExp(int pos) {
-		this.pos = pos;
+	public NilExp(int row, int column) {
+		this.row = row;
+		this.column = column;
 	}
 
 	public void accept(AbsynVisitor visitor, int level) {

@@ -3,8 +3,9 @@ package absyn;
 public class ReturnExp extends Exp {
 	public Exp exp;
 
-	public ReturnExp(int pos, Exp exp) {
-		this.pos = pos;
+	public ReturnExp(int row, int column, Exp exp) {
+		this.row = row;
+		this.column = column;
 		this.exp = exp;
 	}
 

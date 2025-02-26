@@ -4,8 +4,9 @@ public class AssignExp extends Exp {
 	public VarExp lhs;
 	public Exp rhs;
 
-	public AssignExp(int pos, VarExp lhs, Exp rhs) {
-		this.pos = pos;
+	public AssignExp(int row, int column, VarExp lhs, Exp rhs) {
+		this.row = row;
+		this.column = column;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}

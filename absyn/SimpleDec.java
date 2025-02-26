@@ -1,10 +1,12 @@
 package absyn;
 
-public class SimpleDec {
+public class SimpleDec extends VarDec {
 	public NameTy typ;
 	public String name;
 
-	public SimpleDec(int pos, NameTy typ, String name) {
+	public SimpleDec(int row, int column, NameTy typ, String name) {
+		this.row = row;
+		this.column = column;
 		this.typ = typ;
 		this.name = name;
 	}
