@@ -108,6 +108,7 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "*"                { return symbol(sym.MULT); }
 "/"                { return symbol(sym.DIV); }
 "<"                { return symbol(sym.LT); }
+">"                { return symbol(sym.GT); }
 "<="               { return symbol(sym.LTE); }
 ">="               { return symbol(sym.GTE); }
 "=="               { return symbol(sym.EQ); }

@@ -147,7 +147,17 @@ abool-expression     ::= abool-expression AND ubool-expression
 
 ubool-expression     ::= BITWISEOR ubool-expression | simple-expression ;
 
-simple-expression    ::= additive-expression addop term
+simple-expression    ::= additive-expression relop additive-expression
+                        | additive-expression ;
+
+relop                ::= LTE
+                        | LT
+                        | GT
+                        | GTE
+                        | EQ
+                        | NEQ ;
+
+additive-expression  ::= additive-expression addop term
                         | term ;
 
 addop                ::= ADD
