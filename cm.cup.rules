@@ -79,20 +79,100 @@ non terminal program;
    
 start with program;
 
-program              ::= declaration-list
-                        ;
+program              ::= declaration-list ;
+
 declaration-list     ::= declaration-list declaration
-                        | declaration
-                        ;
+                        | declaration ;
+
 declaration          ::= var-declaration
                         | fun-declaration
-                        | fun-prototype
-                        ;
+                        | fun-prototype ;
+
 var-declaration      ::= type-specifier ID SEMI
-                        | type-specifier ID LBRACKET NUM RBRACKET SEMI
-                        ;
+                        | type-specifier ID LBRACKET NUM RBRACKET SEMI ;
+
 type-specifier       ::= BOOL
                         | INT
-                        | VOID
-                        ;
+                        | VOID ;
+
+fun-declaration      ::= type-specifier ID LPAREN params RPAREN compound-stmt ;
+
+fun-prototype        ::= type-specifier ID LPAREN params RPAREN SEMI ;
+
+params               ::= param-list
+                        | VOID ;
+
+param-list           ::= param-list COMMA param
+                        | param ;
+
+param                ::= type-specifier ID
+                        | type-specifier ID LBRACKET RBRACKET ;
+
+compunt-stmt         ::= LBRACE local-declarations statement-list RBRACE ;
+
+local-declarations   ::= local-declarations var-declarations 
+                        | ;
+
+statement-list       ::= statement-list statement 
+                        | ;
+
+statement            ::= expression-stmt
+                        | compound-stmt
+                        | selection-stmt
+                        | iteration-stmt
+                        | return-stmt ;
+
+expression-stmt      ::= expression SEMI
+                        | SEMI ;
+
+selection-stmt       ::= IF LPAREN expression RPAREN statement
+                        | IF LPAREN expression RPAREN statement ELSE statement ;
+
+iteration-stmt       ::= WHILE LPAREN expression RPAREN statement ;
+
+return-stmt          ::= RETURN expression SEMI 
+                        | RETURN SEMI ;
+
+expression           ::= var ASSIGN expression
+                        | obool-expression ;
+
+var                  ::= ID
+                        | ID LBRACKET expression RBRACKET ;
+
+obool-expression     ::= obool-expression OR abool-expression
+                        | abool-expression ;
+
+abool-expression     ::= abool-expression AND ubool-expression
+                        | ubool-expression ;
+
+ubool-expression     ::= BITWISEOR ubool-expression | simple-expression ;
+
+simple-expression    ::= additive-expression addop term
+                        | term ;
+
+addop                ::= ADD
+                        | SUB ;
+
+term                 ::= term mulop signed-factor
+                        | signed-factor ;
+
+mulop                ::= MULT
+                        | DIV ;
+
+signed-factor        ::= SUB signed_factor
+                        | factor ;
+
+factor               ::= LPAREN expression RPAREN 
+                        | var
+                        | call
+                        | NUM
+                        | TRUTH ;
+
+call                 ::= ID LPAREN args RPAREN ;
+
+args                 ::= arg-list 
+                        | ;
+
+arg-list             ::= arg-list COMMA expression
+                        | expression ;
 
