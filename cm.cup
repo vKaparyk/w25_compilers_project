@@ -68,16 +68,129 @@ parser code {:
    
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
    
-terminal BOOL, ELSE, IF, INT, RETURN, VOID, WHILE, TRUE, FALSE;          //keywords
-terminal ADD, SUB, MULT, DIV, LT, LTE, GT, GTE, EQ, NEQ, BITWISEOR, OR, AND, ASSIGN, SEMICOLON, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, COMMA; // special symbols
+terminal BOOL, ELSE, IF, INT, RETURN, VOID, WHILE, SEMI;          //keywords
+terminal ADD, SUB, MULT, DIV, LT, LTE, GT, GTE, EQ, NEQ, BITWISEOR, OR, AND, ASSIGN, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, COMMA; // special symbols
 terminal ID, NUM, TRUTH;
 terminal ERROR;
-   
-non terminal program;
 
+non terminal program, declaration_list, declaration;                                   // core
+non terminal params, compound_stmt, args, call;                                        // fucntion contents
+non terminal statement_list, param_list, arg_list;                                     // lists containing sub-nonterminals
+non terminal statement, expression_stmt, selection_stmt, iteration_stmt, return_stmt;  // statements
+
+non terminal var_declaration, fun_declaration, fun_prototype, local_declarations;      // declarations
+non terminal expression, obool_expression, abool_expression, ubool_expression, simple_expression, additive_expression;  // expressions
+
+non terminal var, term, signed_factor, factor, param;       // almost only terminals 
+non terminal type_specifier, relop, addop, mulop;           // only has terminals inside it
 /* ----------------------------Grammar Section-------------------- */
    
 start with program;
 
-program	     ::= ;
+program              ::= declaration_list ;
+
+declaration_list     ::= declaration_list declaration
+                        | declaration ;
+
+declaration          ::= var_declaration
+                        | fun_declaration
+                        | fun_prototype ;
+
+var_declaration      ::= type_specifier ID SEMI
+                        | type_specifier ID LBRACKET NUM RBRACKET SEMI ;
+
+type_specifier       ::= BOOL
+                        | INT
+                        | VOID ;
+
+fun_declaration      ::= type_specifier ID LPAREN params RPAREN compound_stmt ;
+
+fun_prototype        ::= type_specifier ID LPAREN params RPAREN SEMI ;
+
+params               ::= param_list
+                        | VOID ;
+
+param_list           ::= param_list COMMA param
+                        | param ;
+
+param                ::= type_specifier ID
+                        | type_specifier ID LBRACKET RBRACKET ;
+
+compound_stmt        ::= LBRACE local_declarations statement_list RBRACE ;
+
+local_declarations   ::= local_declarations var_declaration 
+                        | ;
+
+statement_list       ::= statement_list statement 
+                        | ;
+
+statement            ::= expression_stmt
+                        | compound_stmt
+                        | selection_stmt
+                        | iteration_stmt
+                        | return_stmt ;
+
+expression_stmt      ::= expression SEMI
+                        | SEMI ;
+
+selection_stmt       ::= IF LPAREN expression RPAREN statement
+                        | IF LPAREN expression RPAREN statement ELSE statement ;
+
+iteration_stmt       ::= WHILE LPAREN expression RPAREN statement ;
+
+return_stmt          ::= RETURN expression SEMI 
+                        | RETURN SEMI ;
+
+expression           ::= var ASSIGN expression
+                        | obool_expression ;
+
+var                  ::= ID
+                        | ID LBRACKET expression RBRACKET ;
+
+obool_expression     ::= obool_expression OR abool_expression
+                        | abool_expression ;
+
+abool_expression     ::= abool_expression AND ubool_expression
+                        | ubool_expression ;
+
+ubool_expression     ::= BITWISEOR ubool_expression | simple_expression ;
+
+simple_expression    ::= additive_expression relop additive_expression
+                        | additive_expression ;
+
+relop                ::= LTE
+                        | LT
+                        | GT
+                        | GTE
+                        | EQ
+                        | NEQ ;
+
+additive_expression  ::= additive_expression addop term
+                        | term ;
+
+addop                ::= ADD
+                        | SUB ;
+
+term                 ::= term mulop signed_factor
+                        | signed_factor ;
+
+mulop                ::= MULT
+                        | DIV ;
+
+signed_factor        ::= SUB signed_factor
+                        | factor ;
+
+factor               ::= LPAREN expression RPAREN 
+                        | var
+                        | call
+                        | NUM
+                        | TRUTH ;
+
+call                 ::= ID LPAREN args RPAREN ;
+
+args                 ::= arg_list 
+                        | ;
+
+arg_list             ::= arg_list COMMA expression
+                        | expression ;
 
