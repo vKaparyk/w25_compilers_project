@@ -1,4 +1,4 @@
-import absyn.*;
+import sample_absyn.*;
 
 public class ShowTreeVisitor implements AbsynVisitor {
 
