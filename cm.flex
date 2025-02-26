@@ -81,7 +81,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
    or just a zero.  */
 digit = [0-9]
 number = {digit}+
-   
+truth = "true" | "false"
+
 /* A identifier integer is a word beginning a letter between A and
    Z, a and z, or an underscore followed by zero or more letters
    between A and Z, a and z, zero and nine, or an underscore. */
@@ -102,7 +103,7 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "return"           { return symbol(sym.RETURN); }
 "void"             { return symbol(sym.VOID); }
 "while"            { return symbol(sym.WHILE); }
-{"true" | "false"} { return symbol(sym.TRUTH, (yytext().equals("true") ? sym.TRUE : sym.FALSE )); }
+{truth}            { return symbol(sym.TRUTH, (yytext().equals("true") ? sym.TRUE : sym.FALSE )); }
 "+"                { return symbol(sym.ADD); }
 "-"                { return symbol(sym.SUB); }
 "*"                { return symbol(sym.MULT); }
