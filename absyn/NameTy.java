@@ -1,6 +1,6 @@
 package absyn;
 
-public class NameTy extends absyn {
+public class NameTy extends Absyn {
 	final static int BOOL = 0;
 	final static int INT = 1;
 	final static int VOID = 2;
