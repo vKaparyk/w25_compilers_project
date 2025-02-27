@@ -48,6 +48,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
 	}
 
 	public void visit(DecList exp, int level) {
+		if (exp.head == null)
+			return;
 		while (exp != null) {
 			exp.head.accept(this, level);
 			exp = exp.tail;
@@ -71,6 +73,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
 	}
 
 	public void visit(ExpList expList, int level) {
+		if (expList.head == null)
+			return;
 		while (expList != null) {
 			expList.head.accept(this, level);
 			expList = expList.tail;
@@ -171,6 +175,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
 	}
 
 	public void visit(VarDecList exp, int level) {
+		if (exp.head == null)
+			return;
 		while (exp != null) {
 			exp.head.accept(this, level);
 			exp = exp.tail;
