@@ -73,53 +73,75 @@ terminal ADD, SUB, MULT, DIV, LT, LTE, GT, GTE, EQ, NEQ, BITWISEOR, OR, AND, ASS
 terminal ID, NUM, TRUTH;
 terminal ERROR;
 
-non terminal program, declaration_list, declaration;                                   // core
-non terminal params, compound_stmt, args, call;                                        // fucntion contents
-non terminal statement_list, param_list, arg_list;                                     // lists containing sub-nonterminals
-non terminal statement, expression_stmt, selection_stmt, iteration_stmt, return_stmt;  // statements
+non terminal DecList program, declaration_list;           // list of declarations
+non terminal ExpList statement_list, args, arg_list;      // list of expressions
+non terminal VarDecList params, param_list, local_declarations;   // list of variable declarations (function args and params)
 
-non terminal var_declaration, fun_declaration, fun_prototype, local_declarations;      // declarations
-non terminal expression, obool_expression, abool_expression, ubool_expression, simple_expression, additive_expression;  // expressions
+non terminal VarDec var_declaration, param;
+non terminal Dec declaration, fun_declaration, fun_prototype;                                // generic 
+non terminal Exp expression, statement;                                                      // generic expresisions
+non terminal Exp compound_stmt, expression_stmt, selection_stmt, iteration_stmt, call, return_stmt;  // statements
+non terminal Exp obool_expression, abool_expression, ubool_expression;                       // expressions but w/ logic
+non terminal Exp simple_expression, additive_expression, term, signed_factor, factor, var;  // expressions but w/ math
 
-non terminal var, term, signed_factor, factor, param;       // almost only terminals 
-non terminal type_specifier, relop, addop, mulop;           // only has terminals inside it
+non terminal NameTy type_specifier;                 // NameTy
+
+non terminal Integer relop, addop, mulop;           // only has terminals inside it
+
 /* ----------------------------Grammar Section-------------------- */
    
 start with program;
 
-program              ::= declaration_list
+program              ::= declaration_list:d
+                        {: RESULT = d; :}
                         ;
 
 declaration_list     ::= declaration_list declaration
+                        // DecList
                         | declaration
+                        // DecList but wrapped
                         ;
 
-declaration          ::= var_declaration
-                        | fun_declaration
-                        | fun_prototype
+declaration          ::= var_declaration:v
+                        {: RESULT = v; :}
+                        | fun_declaration:f
+                        {: RESULT = f; :}
+                        | fun_prototype:f
+                        {: RESULT = f; :}
                         ;
 
 var_declaration      ::= type_specifier ID SEMI
+                        // SimpleDec
                         | type_specifier ID LBRACKET NUM RBRACKET SEMI
+                        // ArrayDec
                         ;
 
 type_specifier       ::= BOOL
+                        // NameTy
                         | INT
+                        // NameTy
                         | VOID
+                        // NameTy
                         ;
 
 fun_declaration      ::= type_specifier ID LPAREN params RPAREN compound_stmt
+                        // FunctionDec
                         ;
 
 fun_prototype        ::= type_specifier ID LPAREN params RPAREN SEMI
+                        // FunctionDec w/ NilExp body
                         ;
 
 params               ::= param_list
+                        // p
                         | VOID
+                        // NameTy
                         ;
 
 param_list           ::= param_list COMMA param
+                        // VarDecList param
                         | param
+                        // new param
                         ;
 
 param                ::= type_specifier ID
@@ -130,10 +152,12 @@ compound_stmt        ::= LBRACE local_declarations statement_list RBRACE
                         ;
 
 local_declarations   ::= local_declarations var_declaration 
+                        // VarDecList
                         |
                         ;
 
 statement_list       ::= statement_list statement 
+                        // ExpList, but check if null
                         |
                         ;
 
@@ -145,7 +169,9 @@ statement            ::= expression_stmt
                         ;
 
 expression_stmt      ::= expression SEMI
+                        // e = e
                         | SEMI
+                        // Nil
                         ;
 
 selection_stmt       ::= IF LPAREN expression RPAREN statement
@@ -156,7 +182,9 @@ iteration_stmt       ::= WHILE LPAREN expression RPAREN statement
                         ;
 
 return_stmt          ::= RETURN expression SEMI 
+                        // ReturnExp
                         | RETURN SEMI
+                        // ReturnExp w/ Nil
                         ;
 
 expression           ::= var ASSIGN expression
@@ -164,7 +192,9 @@ expression           ::= var ASSIGN expression
                         ;
 
 var                  ::= ID
+                        // VarExp w/ SimpleVar
                         | ID LBRACKET expression RBRACKET
+                        // VarExp w/ IndexVar
                         ;
 
 obool_expression     ::= obool_expression OR abool_expression
@@ -183,6 +213,7 @@ simple_expression    ::= additive_expression relop additive_expression
                         ;
 
 relop                ::= LTE
+                        // OpExp.LTE or smthm
                         | LT
                         | GT
                         | GTE
@@ -195,6 +226,7 @@ additive_expression  ::= additive_expression addop term
                         ;
 
 addop                ::= ADD
+                        // OpExp.ADD or smthm
                         | SUB
                         ;
 
@@ -203,6 +235,7 @@ term                 ::= term mulop signed_factor
                         ;
 
 mulop                ::= MULT
+                        // OpExp.Mult or smthm
                         | DIV
                         ;
 
@@ -211,20 +244,30 @@ signed_factor        ::= SUB signed_factor
                         ;
 
 factor               ::= LPAREN expression RPAREN 
+                        // e
                         | var
+                        // e
                         | call
+                        // e
                         | NUM
+                        // IntExp
                         | TRUTH
+                        // BoolExp
                         ;
 
 call                 ::= ID LPAREN args RPAREN
+                        // CallExp
                         ;
 
 args                 ::= arg_list 
+                        // ExpList
                         |
+                        // ExpList w/ null
                         ;
 
 arg_list             ::= arg_list COMMA expression
+                        // ExpList
                         | expression
+                        // ExpList
                         ;
 
