@@ -130,9 +130,9 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "{"                { return symbol(sym.LBRACE); }
 "}"                { return symbol(sym.RBRACE); }
 ","                { return symbol(sym.COMMA); }
-{number}           { return symbol(sym.NUM, yytext()); }
+{number}           { return symbol(sym.NUM, Integer.parseInt(yytext())); }
 {identifier}       { return symbol(sym.ID, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
 "//".*             { /* Skip single-line comments */ }
 "/\*"[\s\S]*?"\*/" { /* Skip multi-line comments */ }
-.                  { return symbol(sym.ERROR); }
+.                  { return symbol(sym.error); }
