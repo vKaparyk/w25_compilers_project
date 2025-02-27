@@ -51,12 +51,16 @@ import java_cup.runtime.*;
        the current token, the token will have no value in this
        case. */
     private Symbol symbol(int type) {
+        // l=yyline
+        // r=yycolumn   
         return new Symbol(type, yyline, yycolumn);
     }
     
     /* Also creates a new java_cup.runtime.Symbol with information
        about the current token, but this object has a value. */
     private Symbol symbol(int type, Object value) {
+        // l=yyline
+        // r=yycolumn   
         return new Symbol(type, yyline, yycolumn, value);
     }
 %}
@@ -114,7 +118,7 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 ">="               { return symbol(sym.GTE); }
 "=="               { return symbol(sym.EQ); }
 "!="               { return symbol(sym.NEQ); }
-"~"                { return symbol(sym.BITWISEOR); }
+"~"                { return symbol(sym.NOT); }
 "&&"               { return symbol(sym.AND); }
 "||"               { return symbol(sym.OR); }
 "="                { return symbol(sym.ASSIGN); }

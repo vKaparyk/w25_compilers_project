@@ -136,7 +136,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 				System.out.println(" >= ");
 				break;
 			case OpExp.NOT:
-				System.out.println(" !");
+				System.out.println(" ~");
 				break;
 			case OpExp.AND:
 				System.out.println(" && ");
@@ -145,7 +145,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 				System.out.println(" || ");
 				break;
 			case OpExp.UMINUS:
-				System.out.println(" - ");
+				System.out.println(" -");
 				break;
 			default:
 				System.out.println("Unrecognized operator at position (row: " + exp.row + ", col: " + exp.column + ")");
