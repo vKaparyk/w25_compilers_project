@@ -107,7 +107,7 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "return"           { return symbol(sym.RETURN); }
 "void"             { return symbol(sym.VOID); }
 "while"            { return symbol(sym.WHILE); }
-{truth}            { return symbol(sym.TRUTH, (yytext().equals("true") ? sym.TRUE : sym.FALSE )); }
+{truth}            { return symbol(sym.TRUTH, yytext().equals("true")); }
 "+"                { return symbol(sym.ADD); }
 "-"                { return symbol(sym.SUB); }
 "*"                { return symbol(sym.MULT); }
@@ -122,7 +122,7 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "&&"               { return symbol(sym.AND); }
 "||"               { return symbol(sym.OR); }
 "="                { return symbol(sym.ASSIGN); }
-";"                { return symbol(sym.SEMICOLON); }
+";"                { return symbol(sym.SEMI); }
 "("                { return symbol(sym.LPAREN); }
 ")"                { return symbol(sym.RPAREN); }
 "["                { return symbol(sym.LBRACKET); }
