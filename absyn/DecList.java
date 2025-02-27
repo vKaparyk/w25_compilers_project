@@ -1,6 +1,5 @@
 package absyn;
 
-// TODO: extends?
 public class DecList extends Absyn {
 	public Dec head;
 	public DecList tail;

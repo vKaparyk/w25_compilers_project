@@ -1,6 +1,5 @@
 package absyn;
 
-// TODO: extends?
 public class VarDecList extends Absyn {
 	public VarDec head;
 	public VarDecList tail;
