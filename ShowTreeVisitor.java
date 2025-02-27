@@ -16,7 +16,19 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
 	public void visit(NameTy exp, int level) {
 		indent(level);
-		System.out.println("NameTy: " + exp.typ);
+		System.out.print("NameTy: ");
+		switch (exp.typ) {
+			case NameTy.BOOL:
+				System.out.println("BOOL");
+				break;
+			case NameTy.INT:
+				System.out.println("INT");
+				break;
+			case NameTy.VOID:
+				System.out.println("VOID");
+				break;
+			default:
+				System.out.println("Unrecognized operator at position (row: " + exp.row + ", col: " + exp.column + ")");
 	}
 
 	public void visit(BoolExp exp, int level) {
