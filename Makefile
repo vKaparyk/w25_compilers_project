@@ -18,7 +18,7 @@ Main.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java Sc
 Lexer.java: cm.flex
 	$(JFLEX) cm.flex
 
-parser.java: cm.cup.rules
+parser.java: cm.cup
 	#$(CUP) -dump -expect 3 $^
 	$(CUP) -expect 3 $^
 

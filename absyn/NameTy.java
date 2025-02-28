@@ -1,19 +1,19 @@
 package absyn;
 
-public class NameTy extends absyn {
-	final static int BOOL = 0;
-	final static int INT  = 1; 
-	final static int VOID = 2;
+public class NameTy extends Absyn {
+	public final static int BOOL = 0;
+	public final static int INT = 1;
+	public final static int VOID = 2;
 
-	public int pos;
 	public int typ;
-	
-	public NameTy(int pos, int typ) {
-		this.pos = pos;
+
+	public NameTy(int row, int column, int typ) {
+		this.row = row;
+		this.column = column;
 		this.typ = typ;
 	}
 
-	public void accept( AbsynVisitor visitor, int level ) {
-		visitor.visit( this, level );
+	public void accept(AbsynVisitor visitor, int level) {
+		visitor.visit(this, level);
 	}
 }

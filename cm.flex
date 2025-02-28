@@ -51,12 +51,16 @@ import java_cup.runtime.*;
        the current token, the token will have no value in this
        case. */
     private Symbol symbol(int type) {
+        // l=yyline
+        // r=yycolumn   
         return new Symbol(type, yyline, yycolumn);
     }
     
     /* Also creates a new java_cup.runtime.Symbol with information
        about the current token, but this object has a value. */
     private Symbol symbol(int type, Object value) {
+        // l=yyline
+        // r=yycolumn   
         return new Symbol(type, yyline, yycolumn, value);
     }
 %}
@@ -81,7 +85,8 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
    or just a zero.  */
 digit = [0-9]
 number = {digit}+
-   
+truth = "true" | "false"
+
 /* A identifier integer is a word beginning a letter between A and
    Z, a and z, or an underscore followed by zero or more letters
    between A and Z, a and z, zero and nine, or an underscore. */
@@ -102,7 +107,7 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "return"           { return symbol(sym.RETURN); }
 "void"             { return symbol(sym.VOID); }
 "while"            { return symbol(sym.WHILE); }
-{"true" | "false"} { return symbol(sym.TRUTH, (yytext().equals("true") ? sym.TRUE : sym.FALSE )); }
+{truth}            { return symbol(sym.TRUTH, yytext().equals("true")); }
 "+"                { return symbol(sym.ADD); }
 "-"                { return symbol(sym.SUB); }
 "*"                { return symbol(sym.MULT); }
@@ -113,11 +118,11 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 ">="               { return symbol(sym.GTE); }
 "=="               { return symbol(sym.EQ); }
 "!="               { return symbol(sym.NEQ); }
-"~"                { return symbol(sym.BITWISEOR); }
+"~"                { return symbol(sym.NOT); }
 "&&"               { return symbol(sym.AND); }
 "||"               { return symbol(sym.OR); }
 "="                { return symbol(sym.ASSIGN); }
-";"                { return symbol(sym.SEMICOLON); }
+";"                { return symbol(sym.SEMI); }
 "("                { return symbol(sym.LPAREN); }
 ")"                { return symbol(sym.RPAREN); }
 "["                { return symbol(sym.LBRACKET); }
@@ -125,9 +130,9 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 "{"                { return symbol(sym.LBRACE); }
 "}"                { return symbol(sym.RBRACE); }
 ","                { return symbol(sym.COMMA); }
-{number}           { return symbol(sym.NUM, yytext()); }
+{number}           { return symbol(sym.NUM, Integer.parseInt(yytext())); }
 {identifier}       { return symbol(sym.ID, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
 "//".*             { /* Skip single-line comments */ }
 "/\*"[\s\S]*?"\*/" { /* Skip multi-line comments */ }
-.                  { return symbol(sym.ERROR); }
+.                  { return symbol(sym.error); }

@@ -1,14 +1,15 @@
 package absyn;
 
 public class BoolExp extends Exp {
-  public Boolean value;
+	public Boolean value;
 
-  public BoolExp( int pos, Boolean value ) {
-    this.pos = pos;
-    this.value = value;
-  }
+	public BoolExp(int row, int column, boolean value) {
+		this.row = row;
+		this.column = column;
+		this.value = value;
+	}
 
-  public void accept( AbsynVisitor visitor, int level ) {
-    visitor.visit( this, level );
-  }
+	public void accept(AbsynVisitor visitor, int level) {
+		visitor.visit(this, level);
+	}
 }
