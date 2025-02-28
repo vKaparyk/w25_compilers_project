@@ -29,6 +29,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 				break;
 			default:
 				System.out.println("Unrecognized operator at position (row: " + exp.row + ", col: " + exp.column + ")");
+		}
 	}
 
 	public void visit(BoolExp exp, int level) {
