@@ -85,11 +85,18 @@ non terminal Exp expression, statement;                                         
 non terminal Exp compound_stmt, expression_stmt, selection_stmt, iteration_stmt, call, return_stmt;  // statements
 non terminal Exp obool_expression, abool_expression, ubool_expression;                       // expressions but w/ logic
 non terminal Exp simple_expression, additive_expression, term, signed_factor, factor;  // expressions but w/ math
+
 non terminal VarExp var;
-
 non terminal NameTy type_specifier;                 // NameTy
-
 non terminal Integer relop, addop, mulop;           // only has terminals inside it
+
+precedence left OR;
+precedence left AND;
+precedence right NOT;
+precedence nonassoc LTE, LT, GT, GTE, EQ, NEQ;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIV;
+precedence right UMINUS;
 
 /* ----------------------------Grammar Section-------------------- */
    
