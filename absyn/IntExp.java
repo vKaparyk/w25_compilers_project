@@ -1,14 +1,15 @@
 package absyn;
 
 public class IntExp extends Exp {
-  public String value;
+	public Integer value;
 
-  public IntExp( int pos, String value ) {
-    this.pos = pos;
-    this.value = value;
-  }
+	public IntExp(int row, int column, int value) {
+		this.row = row;
+		this.column = column;
+		this.value = value;
+	}
 
-  public void accept( AbsynVisitor visitor, int level ) {
-    visitor.visit( this, level );
-  }
+	public void accept(AbsynVisitor visitor, int level) {
+		visitor.visit(this, level);
+	}
 }

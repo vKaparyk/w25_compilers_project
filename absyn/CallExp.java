@@ -1,16 +1,17 @@
 package absyn;
 
 public class CallExp extends Exp {
-    public String func;
-    public ExpList args;
+	public String func;
+	public ExpList args;
 
-    public CallExp(int pos, String func, ExpList args) {
-        this.pos = pos;
-        this.func = func;
-        this.args = args;
-    }
+	public CallExp(int row, int column, String func, ExpList args) {
+		this.row = row;
+		this.column = column;
+		this.func = func;
+		this.args = args;
+	}
 
-    public void accept(AbsynVisitor visitor, int level) {
-        visitor.visit(this, level);
-    }
+	public void accept(AbsynVisitor visitor, int level) {
+		visitor.visit(this, level);
+	}
 }

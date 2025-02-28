@@ -6,7 +6,7 @@
    
 /* ----------------------Preliminary Declarations Section--------------------*/
    
-import absyn.*;
+import sample_absyn.*;
    
 /* Parser code to change the way the parser reports errors (include
    line and column number of the error). */
