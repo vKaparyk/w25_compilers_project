@@ -219,6 +219,7 @@ expression_stmt      ::= expression:e SEMI
                         {: RESULT = new NilExp(sleft, sright); :}
                         ;
 
+// TODO: figurweo out shift/reduce conflict/warning
 selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
                         {: RESULT = new IfExp(ileft, iright, e, s, new NilExp(ileft, iright)); :}
                         | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
@@ -283,6 +284,10 @@ expression           ::= var:v ASSIGN expression:e
                         {: RESULT = new IntExp(nleft, nright, n); :}
                         | TRUTH:t
                         {: RESULT = new BoolExp(tleft, tright, t); :}
+                        | error:e
+                        {: 
+                        
+                         :}
                         ;
 
 call                 ::= ID:i LPAREN:l args:a RPAREN

@@ -1,0 +1,40 @@
+// UMINUS precedence
+// times/div precedence
+// plus/minus precedence
+// NOT precednce
+// AND precednce
+// OR precedence
+
+// nonassoc error test
+
+void main(void) {
+    var = ~ -3 * -4 + 5 / 4 && ~ 4 && 3 || 5 < 4 && 3 == 3;
+    /* Expected output:
+    assign
+      ├─var
+      └─OR
+         ├─AND
+         │  ├─AND
+         │  │  ├─NOT
+         │  │  │  └─PLUS
+         │  │  │     ├─TIMES
+         │  │  │     │   ├─UMINUS
+         │  │  │     │   │    └─3
+         │  │  │     │   └─UMINUS
+         │  │  │     │        └─4
+         │  │  │     └─DIV
+         │  │  │        ├─5
+         │  │  │        └─4
+         │  │  └─NOT
+         │  │     └─4   
+         │  └─3
+         └─AND
+            ├─LT
+            │  ├─5
+            │  └─4
+            └─EQ
+               ├─3
+               └─3
+    */
+    
+}
