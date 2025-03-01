@@ -5,8 +5,6 @@
 // AND precednce
 // OR precedence
 
-// nonassoc error test
-
 void main(void) {
     var = ~ -3 * -4 + 5 / 4 && ~ 4 && 3 || 5 < 4 && 3 == 3;
     /* Expected output:
@@ -36,5 +34,4 @@ void main(void) {
                ├─3
                └─3
     */
-    
 }

@@ -63,6 +63,17 @@ parser code {:
         System.exit(1);
     }
 
+    public void log_object(Object info){
+      // System.err.println(info);
+      if (info instanceof Absyn) {
+         AbsynVisitor visitor = new ShowTreeVisitor();
+         ((Absyn)info).accept(visitor, 0); 
+      }
+      // if (info instanceof java_cup.runtime.Symbol) {
+
+      // }
+    }
+
 :};
    
    
@@ -284,9 +295,11 @@ expression           ::= var:v ASSIGN expression:e
                         {: RESULT = new IntExp(nleft, nright, n); :}
                         | TRUTH:t
                         {: RESULT = new BoolExp(tleft, tright, t); :}
-                        | error:e
+                        | error:e expression:e1 
                         {: 
-                        
+                           parser.report_error("nah", e1);
+                           parser.log_object(e1);
+                           RESULT = new NilExp(eleft, eright);
                          :}
                         ;
 

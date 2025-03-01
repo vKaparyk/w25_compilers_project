@@ -1,0 +1,6 @@
+// nonassoc error
+
+void main(void) {
+    var = 3 < 4 < 5 < 6;
+    // try to resolve into: var = 3 < 4;
+}
