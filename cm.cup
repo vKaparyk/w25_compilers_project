@@ -179,13 +179,6 @@ type_specifier       ::= BOOL:b
                         {: RESULT = new NameTy(ileft, iright, NameTy.INT); :}
                         | VOID:v
                         {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}
-                        | ID:i
-                        {: 
-                           // TODO: get better rule to match
-                           parser.syntax_error(new Symbol(sym.ID, ileft, iright));
-                           parser.report_error("expected one of {bool, int, void}", null);
-                           RESULT = new NameTy(ileft, iright, NameTy.VOID); 
-                        :}
                         ;
 
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
