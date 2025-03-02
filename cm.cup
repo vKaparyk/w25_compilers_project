@@ -75,9 +75,7 @@ parser code {:
     public void syntax_error(Symbol info){
       System.err.print("file:"
                          + (info.left + 1) + ":" 
-                         + (info.right + 1) + ":" 
-                         + " error: got " 
-                         + info.toString() + ", ");
+                         + (info.right + 1) + ": ");
     }
     public void report_error(String message){
       System.err.println(message);
@@ -105,6 +103,7 @@ non terminal VarDec var_declaration, param, common_var_dec, simple_var_dec, arra
 non terminal Dec declaration, fun_declaration, fun_prototype;                                // generic 
 non terminal Exp expression, statement;                                                      // generic expressions
 non terminal Exp compound_stmt, expression_stmt, selection_stmt, iteration_stmt, call, return_stmt;  // statements
+non terminal Exp dangling_else;
 
 non terminal VarExp var;
 non terminal NameTy type_specifier;                 // NameTy
@@ -190,10 +189,11 @@ type_specifier       ::= BOOL:b
                         {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}
                         | ID:i
                         {: 
+                           // TODO: get better rule to match
+                           parser.syntax_error(new Symbol(sym.ID, ileft, iright));
                            parser.report_error("expected one of {bool, int, void}");
                            RESULT = new NameTy(ileft, iright, NameTy.VOID); 
                         :}
-
                         ;
 
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
@@ -211,7 +211,7 @@ params               ::= param_list:p
                         | error
                         {: 
                            // case: no params provided
-                           parser.report_error("expected void`");
+                           parser.report_error("expected void");
                            RESULT = new VarDecList(null, null); 
                         :}
                         ;
@@ -229,7 +229,7 @@ param_list           ::= param_list:pl COMMA param:p
                         | error:e param:p 
                         {:
                            // Case: some provided
-                           parser.report_error("expected COMMA or )");
+                           parser.report_error("expected , or )");
                            RESULT = new VarDecList(p, null);
                         :}
                         ;
@@ -242,6 +242,12 @@ param                ::= type_specifier:t ID:i
                         {: 
                            parser.syntax_error(new Symbol(sym.LBRACKET, lleft, lright));
                            parser.report_error("expected ]");
+                           RESULT = new ArrayDec(t.row, t.column, t, i, 0); 
+                        :}
+                        | type_specifier:t ID:i LBRACKET NUM:n RBRACKET
+                        {: 
+                           parser.syntax_error(new Symbol(sym.NUM, nleft, nright));
+                           parser.report_error("expected [], got [num]");
                            RESULT = new ArrayDec(t.row, t.column, t, i, 0); 
                         :}
                         ;
@@ -260,6 +266,7 @@ local_declarations   ::= local_declarations:l var_declaration:v
                               list.tail = new VarDecList(v, null);
                            }
                            RESULT = l;
+                           // TODO: i stg, there's GOTTA be an error production somewhere for this terminal; i just can't think of any
                         :}
                         |
                         {: RESULT = new VarDecList(null, null); :}
@@ -299,10 +306,25 @@ expression_stmt      ::= expression:e SEMI
                         ;
 
 // TODO: figurweo out shift/reduce conflict/warning
-selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
-                        {: RESULT = new IfExp(ileft, iright, e, s, new NilExp(ileft, iright)); :}
-                        | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
-                        {: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
+selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s dangling_else:d
+                        {: 
+                           IfExp if_stmt = (IfExp)d;
+                           if_stmt.row = ileft;
+                           if_stmt.column = iright;
+                           if_stmt.test = e;
+                           if_stmt.thenpart = s;
+                           if (if_stmt.elsepart instanceof NilExp){
+                              if_stmt.elsepart.row = ileft;
+                              if_stmt.elsepart.column = iright;
+                           }
+                           RESULT = d; 
+                        :}
+                        ;
+
+dangling_else        ::= ELSE statement:s2
+                        {: RESULT = new IfExp(-1, -1, null, null, s2); :}
+                        |
+                        {: RESULT = new IfExp(-1, -1, null, null, new NilExp(-1, -1)); :}
                         ;
 
 iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s

@@ -1,8 +1,7 @@
 // param
-void main(int a[);
+void main(int a[5]);
 // type
 badint a;
 // var_declaration
 int a
 int a[5]
-int a[5;
