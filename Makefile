@@ -19,8 +19,8 @@ Lexer.java: cm.flex
 	$(JFLEX) cm.flex
 
 parser.java: cm.cup
-	#$(CUP) -dump -expect 3 $^
-	$(CUP) -expect 3 $^
+	#$(CUP) -dump -nonterms -expect 5 $^
+	$(CUP) -expect 5 $^
 
 clean:
 	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~

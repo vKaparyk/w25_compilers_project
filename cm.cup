@@ -95,10 +95,20 @@ non terminal VarDec var_declaration, param, common_var_dec, simple_var_dec, arra
 non terminal Dec declaration, fun_declaration, fun_prototype;                                // generic 
 non terminal Exp expression, statement;                                                      // generic expressions
 non terminal Exp compound_stmt, expression_stmt, selection_stmt, iteration_stmt, call, return_stmt;  // statements
-non terminal Exp dangling_else;
 
 non terminal VarExp var;
 non terminal NameTy type_specifier;                 // NameTy
+
+// precedence left BOOL;
+// precedence left INT;
+// precedence left VOID;
+
+precedence right ELSE;
+
+precedence left LBRACE;
+precedence right RBRACE;
+
+precedence left SEMI;
 
 precedence left OR;
 precedence left AND;
@@ -115,16 +125,21 @@ start with program;
 program              ::= declaration_list:d
                         {: RESULT = d; :}
                         ;
+// TODO: jflex will crate error on bad characters passed in. Figure out where to catch them
 
 declaration_list     ::= declaration_list:d1 declaration:d2
                         {: DecList l = d1;
+                           Dec l2 = d2;
                            while (l.tail != null)
                               l = l.tail;
-                           l.tail = new DecList(d2, null); 
+                           if (l2 != null)
+                              l.tail = new DecList(d2, null); 
                            RESULT = d1;
                         :}
                         | declaration:d
-                        {: RESULT = new DecList(d, null); :}
+                        {: 
+                           RESULT = new DecList(d, null); 
+                        :}
                         | error 
                         {: 
                            // case: empty file
@@ -151,6 +166,11 @@ var_declaration      ::= common_var_dec:c SEMI
                            parser.syntax_error(new Symbol(sym.ID, cleft, cright));
                            parser.report_error("expected ;", null);
                            RESULT = c; 
+                        :}
+                        | error:e SEMI
+                        {: 
+                           parser.report_error("expected valid var declaration", null);
+                           RESULT = null;
                         :}
                         ;
 
@@ -196,7 +216,7 @@ params               ::= param_list:p
                         | error
                         {: 
                            // case: no params provided
-                           parser.report_error("expected void", null);
+                           parser.report_error("expected param_list or void", null);
                            RESULT = new VarDecList(null, null); 
                         :}
                         ;
@@ -239,6 +259,11 @@ param                ::= type_specifier:t ID:i
 
 compound_stmt        ::= LBRACE:lb local_declarations:l statement_list:s RBRACE
                         {: RESULT = new CompoundExp(lbleft, lbright, l, s); :}
+                        | LBRACE:lb local_declarations:l statement_list:s error
+                        {: 
+                           parser.report_error("bnah", null);
+                           RESULT = new CompoundExp(lbleft, lbright, l, s);  
+                        :}
                         ;
 
 local_declarations   ::= local_declarations:l var_declaration:v
@@ -290,26 +315,10 @@ expression_stmt      ::= expression:e SEMI
                         {: RESULT = new NilExp(sleft, sright); :}
                         ;
 
-// TODO: figurweo out shift/reduce conflict/warning
-selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s dangling_else:d
-                        {: 
-                           IfExp if_stmt = (IfExp)d;
-                           if_stmt.row = ileft;
-                           if_stmt.column = iright;
-                           if_stmt.test = e;
-                           if_stmt.thenpart = s;
-                           if (if_stmt.elsepart instanceof NilExp){
-                              if_stmt.elsepart.row = ileft;
-                              if_stmt.elsepart.column = iright;
-                           }
-                           RESULT = d; 
-                        :}
-                        ;
-
-dangling_else        ::= ELSE statement:s2
-                        {: RESULT = new IfExp(-1, -1, null, null, s2); :}
-                        |
-                        {: RESULT = new IfExp(-1, -1, null, null, new NilExp(-1, -1)); :}
+selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s ELSE statement:s2
+                        {: RESULT = new IfExp(ileft, iright, e, s, s2); :}
+                        | IF:i LPAREN expression:e RPAREN statement:s
+                        {: RESULT = new IfExp(ileft, iright, e, s, new NilExp(ileft, iright)); :}
                         ;
 
 iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s
@@ -370,13 +379,11 @@ expression           ::= var:v ASSIGN expression:e
                         {: RESULT = new IntExp(nleft, nright, n); :}
                         | TRUTH:t
                         {: RESULT = new BoolExp(tleft, tright, t); :}
-                        // | error:e 
-                        // {: 
-                           
-                        //    parser.report_error("nah", e);
-                        //    parser.log_object(e);
-                        //    RESULT = new NilExp(eleft, eright);
-                        //  :}
+                        | error:e 
+                        {: 
+                           parser.report_error("nonassociativity error", e);
+                           RESULT = new NilExp(eleft, eright);
+                         :}
                         ;
 
 call                 ::= ID:i LPAREN:l args:a RPAREN
