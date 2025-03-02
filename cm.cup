@@ -101,7 +101,7 @@ non terminal DecList program, declaration_list;           // list of declaration
 non terminal ExpList statement_list, args, arg_list;      // list of expressions
 non terminal VarDecList params, param_list, local_declarations;   // list of variable declarations (function args and params)
 
-non terminal VarDec var_declaration, param;
+non terminal VarDec var_declaration, param, common_var_dec, simple_var_dec, array_var_dec;
 non terminal Dec declaration, fun_declaration, fun_prototype;                                // generic 
 non terminal Exp expression, statement;                                                      // generic expressions
 non terminal Exp compound_stmt, expression_stmt, selection_stmt, iteration_stmt, call, return_stmt;  // statements
@@ -137,6 +137,9 @@ declaration_list     ::= declaration_list:d1 declaration:d2
                         | error 
                         {: 
                            // case: empty file
+                           // TODO: figure out if that's the only case
+                           // update: no, but wait till more rules introduced.
+                           // currently: int a[] (and that's it) would throw this
                            parser.report_error("expected Declaration");
                            RESULT = new DecList(null, null); :}
                         ;
@@ -149,10 +152,34 @@ declaration          ::= var_declaration:v
                         {: RESULT = f; :}
                         ;
 
-var_declaration      ::= type_specifier:t ID:i SEMI
+// TODO: verify that modify rules are allowed
+var_declaration      ::= common_var_dec:c SEMI
+                        {: RESULT = c; :}
+                        | common_var_dec:c
+                        {: 
+                           parser.syntax_error(new Symbol(sym.ID, cleft, cright));
+                           parser.report_error("expected ;");
+                           RESULT = c; 
+                        :}
+                        ;
+
+common_var_dec       ::= simple_var_dec:s
+                        {: RESULT = s; :}
+                        | array_var_dec:a
+                        {: RESULT = a; :}
+                        ;
+
+simple_var_dec       ::= type_specifier:t ID:i
                         {: RESULT = new SimpleDec(t.row, t.column, t, i); :}
-                        | type_specifier:t ID:i LBRACKET NUM:n RBRACKET SEMI
+                        ;
+array_var_dec        ::= type_specifier:t ID:i LBRACKET NUM:n RBRACKET
                         {: RESULT = new ArrayDec(t.row, t.column, t, i, n); :}
+                        | type_specifier:t ID:i LBRACKET NUM:n
+                        {: 
+                           parser.syntax_error(new Symbol(sym.NUM, nleft, nright));
+                           parser.report_error("expected ]");
+                           RESULT = new ArrayDec(t.row, t.column, t, i, n); 
+                        :}
                         ;
 
 type_specifier       ::= BOOL:b
@@ -161,10 +188,10 @@ type_specifier       ::= BOOL:b
                         {: RESULT = new NameTy(ileft, iright, NameTy.INT); :}
                         | VOID:v
                         {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}
-                        | error:e
+                        | ID:i
                         {: 
                            parser.report_error("expected one of {bool, int, void}");
-                           RESULT = new NameTy(eleft, eright, NameTy.VOID); 
+                           RESULT = new NameTy(ileft, iright, NameTy.VOID); 
                         :}
 
                         ;
