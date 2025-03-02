@@ -31,7 +31,19 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
 	public void visit(ArrayDec exp, int level) {
 		indent(level);
-		System.out.println("ArrayDec: " + exp.name + "[" + exp.size + "]");
+		System.out.print("ArrayDec: ");
+		switch (exp.typ.typ) {
+			case NameTy.BOOL:
+				System.out.print("bool");
+				break;
+			case NameTy.INT:
+				System.out.print("int");
+				break;
+			case NameTy.VOID:
+				System.out.print("void");
+				break;
+		}
+		System.out.println(" " + exp.name + "[" + exp.size + "]");
 	}
 
 	public void visit(NameTy exp, int level) {
@@ -104,8 +116,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		System.out.println("FunctionDec: " + exp.func);
 		level++;
 		start_block(level);
-		exp.params.accept(this, level);
 		exp.result.accept(this, level);
+		exp.params.accept(this, level);
 		end_block(level);
 		exp.body.accept(this, level);
 	}
@@ -209,7 +221,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
 				System.out.println("Unrecognized operator at position (row: " + exp.row + ", col: " + exp.column + ")");
 		}
 		level++;
-		// TODO: this isn't gonna be null, it'll be nillexp
 		start_block(level);
 		if (!(exp.left instanceof NilExp))
 			exp.left.accept(this, level);
@@ -226,7 +237,19 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
 	public void visit(SimpleDec exp, int level) {
 		indent(level);
-		System.out.println("SimpleDec: " + exp.name);
+		System.out.print("SimpleDec: ");
+		switch (exp.typ.typ) {
+			case NameTy.BOOL:
+				System.out.print("bool");
+				break;
+			case NameTy.INT:
+				System.out.print("int");
+				break;
+			case NameTy.VOID:
+				System.out.print("void");
+				break;
+		}
+		System.out.println(" " + exp.name);
 	}
 
 	public void visit(SimpleVar exp, int level) {
