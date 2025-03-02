@@ -73,8 +73,16 @@ parser code {:
       // if (info instanceof java_cup.runtime.Symbol) {
     }
     public void syntax_error(Symbol info){
-      System.err.print("file:" + info.left + ":" + info.right + ": error: got " + info.toString() + ", ");
+      System.err.print("file:"
+                         + (info.left + 1) + ":" 
+                         + (info.right + 1) + ":" 
+                         + " error: got " 
+                         + info.toString() + ", ");
     }
+    public void report_error(String message){
+      System.err.println(message);
+    }
+
       // }
 
 :};
@@ -126,6 +134,11 @@ declaration_list     ::= declaration_list:d1 declaration:d2
                         :}
                         | declaration:d
                         {: RESULT = new DecList(d, null); :}
+                        | error 
+                        {: 
+                           // case: empty file
+                           parser.report_error("expected Declaration");
+                           RESULT = new DecList(null, null); :}
                         ;
 
 declaration          ::= var_declaration:v
@@ -148,6 +161,12 @@ type_specifier       ::= BOOL:b
                         {: RESULT = new NameTy(ileft, iright, NameTy.INT); :}
                         | VOID:v
                         {: RESULT = new NameTy(vleft, vright, NameTy.VOID); :}
+                        | error:e
+                        {: 
+                           parser.report_error("expected one of {bool, int, void}");
+                           RESULT = new NameTy(eleft, eright, NameTy.VOID); 
+                        :}
+
                         ;
 
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
@@ -163,8 +182,14 @@ params               ::= param_list:p
                         | VOID
                         {: RESULT = new VarDecList(null, null); :}
                         | error
+                        {: 
+                           // case: no params provided
+                           parser.report_error("expected void`");
+                           RESULT = new VarDecList(null, null); 
+                        :}
                         ;
 
+// TODO: ask if we can change the grammar to accomodate for better error recovery
 param_list           ::= param_list:pl COMMA param:p
                         {: VarDecList lisd = pl;
                            while (lisd.tail != null)
@@ -174,8 +199,10 @@ param_list           ::= param_list:pl COMMA param:p
                         :}
                         | param:p
                         {: RESULT = new VarDecList(p, null); :}
-                        | error:e param:p
+                        | error:e param:p 
                         {:
+                           // Case: some provided
+                           parser.report_error("expected COMMA or )");
                            RESULT = new VarDecList(p, null);
                         :}
                         ;
@@ -184,6 +211,12 @@ param                ::= type_specifier:t ID:i
                         {: RESULT = new SimpleDec(t.row, t.column, t, i); :}
                         | type_specifier:t ID:i LBRACKET RBRACKET
                         {: RESULT = new ArrayDec(t.row, t.column, t, i, 0); :}
+                        | type_specifier:t ID:i LBRACKET:l
+                        {: 
+                           parser.syntax_error(new Symbol(sym.LBRACKET, lleft, lright));
+                           parser.report_error("expected ]");
+                           RESULT = new ArrayDec(t.row, t.column, t, i, 0); 
+                        :}
                         ;
 
 compound_stmt        ::= LBRACE:lb local_declarations:l statement_list:s RBRACE
@@ -303,13 +336,13 @@ expression           ::= var:v ASSIGN expression:e
                         {: RESULT = new IntExp(nleft, nright, n); :}
                         | TRUTH:t
                         {: RESULT = new BoolExp(tleft, tright, t); :}
-                        | error:e 
-                        {: 
+                        // | error:e 
+                        // {: 
                            
-                           parser.report_error("nah", e);
-                           parser.log_object(e);
-                           RESULT = new NilExp(eleft, eright);
-                         :}
+                        //    parser.report_error("nah", e);
+                        //    parser.log_object(e);
+                        //    RESULT = new NilExp(eleft, eright);
+                        //  :}
                         ;
 
 call                 ::= ID:i LPAREN:l args:a RPAREN
