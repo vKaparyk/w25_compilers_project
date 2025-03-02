@@ -134,5 +134,5 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 {identifier}       { return symbol(sym.ID, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
 "//".*             { /* Skip single-line comments */ }
-"/\*"[\s\S]*?"\*/" { /* Skip multi-line comments */ }
+"/\*".*?"\*/"      { /* Skip multi-line comments */ }
 .                  { return symbol(sym.error); }
