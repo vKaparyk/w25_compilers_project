@@ -10,7 +10,7 @@ CUP=$(JAVA) java_cup.Main
 
 all: Main.class
 
-Main.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java Scanner.java Main.java
+Main.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java Scanner.java Main.java CustomParser.java
 
 %.class: %.java
 	$(JAVAC) $^
