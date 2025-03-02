@@ -72,14 +72,6 @@ parser code {:
       }
       // if (info instanceof java_cup.runtime.Symbol) {
     }
-    public void syntax_error(Symbol info){
-      System.err.print("file:"
-                         + (info.left + 1) + ":" 
-                         + (info.right + 1) + ": ");
-    }
-    public void report_error(String message){
-      System.err.println(message);
-    }
 
       // }
 
@@ -139,7 +131,7 @@ declaration_list     ::= declaration_list:d1 declaration:d2
                            // TODO: figure out if that's the only case
                            // update: no, but wait till more rules introduced.
                            // currently: int a[] (and that's it) would throw this
-                           parser.report_error("expected Declaration");
+                           parser.report_error("expected Declaration", null);
                            RESULT = new DecList(null, null); :}
                         ;
 
@@ -157,7 +149,7 @@ var_declaration      ::= common_var_dec:c SEMI
                         | common_var_dec:c
                         {: 
                            parser.syntax_error(new Symbol(sym.ID, cleft, cright));
-                           parser.report_error("expected ;");
+                           parser.report_error("expected ;", null);
                            RESULT = c; 
                         :}
                         ;
@@ -176,7 +168,7 @@ array_var_dec        ::= type_specifier:t ID:i LBRACKET NUM:n RBRACKET
                         | type_specifier:t ID:i LBRACKET NUM:n
                         {: 
                            parser.syntax_error(new Symbol(sym.NUM, nleft, nright));
-                           parser.report_error("expected ]");
+                           parser.report_error("expected ]", null);
                            RESULT = new ArrayDec(t.row, t.column, t, i, n); 
                         :}
                         ;
@@ -191,7 +183,7 @@ type_specifier       ::= BOOL:b
                         {: 
                            // TODO: get better rule to match
                            parser.syntax_error(new Symbol(sym.ID, ileft, iright));
-                           parser.report_error("expected one of {bool, int, void}");
+                           parser.report_error("expected one of {bool, int, void}", null);
                            RESULT = new NameTy(ileft, iright, NameTy.VOID); 
                         :}
                         ;
@@ -211,7 +203,7 @@ params               ::= param_list:p
                         | error
                         {: 
                            // case: no params provided
-                           parser.report_error("expected void");
+                           parser.report_error("expected void", null);
                            RESULT = new VarDecList(null, null); 
                         :}
                         ;
@@ -229,7 +221,7 @@ param_list           ::= param_list:pl COMMA param:p
                         | error:e param:p 
                         {:
                            // Case: some provided
-                           parser.report_error("expected , or )");
+                           parser.report_error("expected , or )", null);
                            RESULT = new VarDecList(p, null);
                         :}
                         ;
@@ -241,13 +233,13 @@ param                ::= type_specifier:t ID:i
                         | type_specifier:t ID:i LBRACKET:l
                         {: 
                            parser.syntax_error(new Symbol(sym.LBRACKET, lleft, lright));
-                           parser.report_error("expected ]");
+                           parser.report_error("expected ]", null);
                            RESULT = new ArrayDec(t.row, t.column, t, i, 0); 
                         :}
                         | type_specifier:t ID:i LBRACKET NUM:n RBRACKET
                         {: 
                            parser.syntax_error(new Symbol(sym.NUM, nleft, nright));
-                           parser.report_error("expected [], got [num]");
+                           parser.report_error("expected [], got [num]", null);
                            RESULT = new ArrayDec(t.row, t.column, t, i, 0); 
                         :}
                         ;
