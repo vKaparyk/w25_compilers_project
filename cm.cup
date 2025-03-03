@@ -17,42 +17,7 @@ parser code {:
        column of where the error occurred in the input as well as the
        reason for the error which is passed into the method in the
        String 'message'. */
-    public void report_error(String message, Object info) {
-   
-        /* Create a StringBuffer called 'm' with the string 'Error' in it. */
-        StringBuffer m = new StringBuffer("Error");
-   
-        /* Check if the information passed to the method is the same
-           type as the type java_cup.runtime.Symbol. */
-        if (info instanceof java_cup.runtime.Symbol) {
-            /* Declare a java_cup.runtime.Symbol object 's' with the
-               information in the object info that is being typecasted
-               as a java_cup.runtime.Symbol object. */
-            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
-   
-            /* Check if the line number in the input is greater or
-               equal to zero. */
-            if (s.left >= 0) {                
-                /* Add to the end of the StringBuffer error message
-                   the line number of the error in the input. */
-                m.append(" in line "+(s.left+1));   
-                /* Check if the column number in the input is greater
-                   or equal to zero. */
-                if (s.right >= 0)                    
-                    /* Add to the end of the StringBuffer error message
-                       the column number of the error in the input. */
-                    m.append(", column "+(s.right+1));
-            }
-        }
-   
-        /* Add to the end of the StringBuffer error message created in
-           this method the message that was passed into this method. */
-        m.append(" : "+message);
-   
-        /* Print the contents of the StringBuffer 'm', which contains
-           an error message, out on a line. */
-        System.err.println(m);
-    }
+
    
     /* Change the method report_fatal_error so when it reports a fatal
        error it will display the line and column number of where the
@@ -140,13 +105,13 @@ declaration_list     ::= declaration_list:d1 declaration:d2
                         {: 
                            RESULT = new DecList(d, null); 
                         :}
-                        | error 
+                        | error:e
                         {: 
                            // case: empty file
                            // TODO: figure out if that's the only case
                            // update: no, but wait till more rules introduced.
                            // currently: int a[] (and that's it) would throw this
-                           parser.report_error("expected Declaration", null);
+                           parser.report_error("expected Declaration", new Symbol(sym.NUM, eleft, eright));
                            RESULT = new DecList(null, null); :}
                         ;
 
@@ -163,13 +128,12 @@ var_declaration      ::= common_var_dec:c SEMI
                         {: RESULT = c; :}
                         | common_var_dec:c
                         {: 
-                           parser.syntax_error(new Symbol(sym.ID, cleft, cright));
-                           parser.report_error("expected ;", null);
+                           parser.report_error("expected ;", new Symbol(sym.NUM, c.row, c.column));
                            RESULT = c; 
                         :}
                         | error:e SEMI
                         {: 
-                           parser.report_error("expected valid var declaration", null);
+                           parser.report_error("expected valid var declaration", new Symbol(sym.NUM, eleft, eright));
                            RESULT = new SimpleDec(eleft, eright, new NameTy(eleft, eright, NameTy.VOID), "bad variable");
                         :}
                         ;
@@ -187,8 +151,7 @@ array_var_dec        ::= type_specifier:t ID:i LBRACKET NUM:n RBRACKET
                         {: RESULT = new ArrayDec(t.row, t.column, t, i, n); :}
                         | type_specifier:t ID:i LBRACKET NUM:n
                         {: 
-                           parser.syntax_error(new Symbol(sym.NUM, nleft, nright));
-                           parser.report_error("expected ]", null);
+                           parser.report_error("expected ]", new Symbol(sym.NUM, nleft, nright));
                            RESULT = new ArrayDec(t.row, t.column, t, i, n); 
                         :}
                         ;
@@ -203,6 +166,7 @@ type_specifier       ::= BOOL:b
 
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
                         {: RESULT = new FunctionDec(t.row, t.column, t, i, p, c); :}
+                        // TODO: invalid datatype
                         ;
 
 fun_prototype        ::= type_specifier:t ID:i LPAREN params:p RPAREN SEMI
@@ -213,10 +177,10 @@ params               ::= param_list:p
                         {: RESULT = p; :}
                         | VOID
                         {: RESULT = new VarDecList(null, null); :}
-                        | error
+                        | error:e
                         {: 
                            // case: no params provided
-                           parser.report_error("expected param_list or void", null);
+                           parser.report_error("expected param_list or void", new Symbol(sym.NUM, eleft, eright));
                            RESULT = new VarDecList(null, null); 
                         :}
                         ;
@@ -231,10 +195,11 @@ param_list           ::= param_list:pl COMMA param:p
                         :}
                         | param:p
                         {: RESULT = new VarDecList(p, null); :}
-                        | error:e param:p 
+                        // TODO: replace with param_list:p error:e
+                        | error:e param:p
                         {:
                            // Case: some provided
-                           parser.report_error("expected , or )", null);
+                           parser.report_error("expected , or )", new Symbol(sym.NUM, eleft, eright));
                            RESULT = new VarDecList(p, null);
                         :}
                         ;
@@ -245,14 +210,12 @@ param                ::= type_specifier:t ID:i
                         {: RESULT = new ArrayDec(t.row, t.column, t, i, 0); :}
                         | type_specifier:t ID:i LBRACKET:l
                         {: 
-                           parser.syntax_error(new Symbol(sym.LBRACKET, lleft, lright));
-                           parser.report_error("expected ]", null);
+                           parser.report_error("expected ]", new Symbol(sym.LBRACKET, lleft, lright));
                            RESULT = new ArrayDec(t.row, t.column, t, i, 0); 
                         :}
                         | type_specifier:t ID:i LBRACKET NUM:n RBRACKET
                         {: 
-                           parser.syntax_error(new Symbol(sym.NUM, nleft, nright));
-                           parser.report_error("expected [], got [num]", null);
+                           parser.report_error("expected [], got [num]", new Symbol(sym.NUM, nleft, nright));
                            RESULT = new ArrayDec(t.row, t.column, t, i, 0); 
                         :}
                         ;
@@ -292,8 +255,7 @@ statement_list       ::= statement_list:l statement:s
                         {: RESULT = new ExpList(null, null); :}
                         | statement_list:l var_declaration:v
                         {: 
-                           parser.syntax_error(new Symbol(sym.error, v.row, v.column));
-                           parser.report_error("cannot put variable declarations after expression statemetns", null);                         
+                           parser.report_error("cannot put variable declarations after expression statemetns", new Symbol(sym.NUM, v.row, v.column));                         
                            RESULT = l; 
                         :}
                         ;
@@ -314,22 +276,42 @@ expression_stmt      ::= expression:e SEMI
                         {: RESULT = e; :}
                         | SEMI:s
                         {: RESULT = new NilExp(sleft, sright); :}
+                        | error:e
+                        {: 
+                           parser.report_error("bad expression statement", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new NilExp(eleft, eright); 
+                        :}
                         ;
 
 selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s ELSE statement:s2
                         {: RESULT = new IfExp(ileft, iright, e, s, s2); :}
                         | IF:i LPAREN expression:e RPAREN statement:s
                         {: RESULT = new IfExp(ileft, iright, e, s, new NilExp(ileft, iright)); :}
+                        | IF:i LPAREN error:e RPAREN statement:s
+                        {: 
+                           parser.report_error("bad condition expression", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new IfExp(ileft, iright, new NilExp(ileft, iright), s, new NilExp(ileft, iright)); 
+                        :}
                         ;
 
 iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s
                         {: RESULT = new WhileExp(wleft, wright, e, s); :}
+                        | WHILE:w LPAREN error:e RPAREN statement:s
+                        {: 
+                           parser.report_error("bad test condition for the loop", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new WhileExp(wleft, wright, new NilExp(eleft, eright), s); 
+                        :}
                         ;
 
 return_stmt          ::= RETURN:r expression:e SEMI 
                         {: RESULT = new ReturnExp(rleft, rright, e); :}
                         | RETURN:r SEMI
                         {: RESULT = new ReturnExp(rleft, rright, new NilExp(rleft, rright)); :}
+                        | RETURN:r error:e SEMI
+                        {: 
+                           parser.report_error("bad return statement", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new ReturnExp(rleft, rright, new NilExp(rleft, rright)); 
+                        :}
                         ;
 
 var                  ::= ID:i
@@ -380,11 +362,12 @@ expression           ::= var:v ASSIGN expression:e
                         {: RESULT = new IntExp(nleft, nright, n); :}
                         | TRUTH:t
                         {: RESULT = new BoolExp(tleft, tright, t); :}
-                        | error:e 
-                        {: 
-                           parser.report_error("nonassociativity error", e);
-                           RESULT = new NilExp(eleft, eright);
-                         :}
+                        // TODO: add bracket checking
+                        // | error:e expression:e1
+                        // {: 
+                        //    parser.report_error("nonassociativity error", null);
+                        //    RESULT = new NilExp(eleft, eright);
+                        //  :}
                         ;
 
 call                 ::= ID:i LPAREN:l args:a RPAREN
@@ -400,6 +383,11 @@ args                 ::= arg_list:a
                         {: RESULT = a; :}
                         | 
                         {: RESULT = new ExpList(new NilExp(-1, -1), null); :}
+                        | error:e
+                        {:
+                           parser.report_error("bar arg list", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new ExpList(new NilExp(-1, -1), null); 
+                        :}
                         ;
 
 arg_list             ::= arg_list:a COMMA expression:e

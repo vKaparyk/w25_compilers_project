@@ -2,7 +2,15 @@
 
 void main(void) {
     var = 3 < 4 < 5 < 6;
+    if (3 < 4 < 6) a = 3;
+    if (3 < 4 ) {var = 3 < 4 < 5 < 6;}
     // try to resolve into: var = 3 < 6;
     var = 3 + 4 - 5 + 6;
     // is valid;
+    while (3 < 4 < 5) { a = 3;}
+    while (3 < 4 ) { a = 3 < 4 < 5;}
+    while (3 < 4 < 5) { a = 3 < 4 < 5;}
+
+    return 3 < 4 < 5;
+    callfunc(arg[0] arg[1]);
 }
