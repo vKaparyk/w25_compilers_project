@@ -318,6 +318,12 @@ var                  ::= ID:i
                         {: RESULT = new VarExp(ileft, iright, new SimpleVar(ileft, iright, i)); :}
                         | ID:i LBRACKET expression:e RBRACKET
                         {: RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, e)); :}
+                        | ID:i LBRACKET RBRACKET:r
+                        {: 
+                           parser.syntax_error(new Symbol(sym.error, rleft, rright));
+                           parser.report_error("expected index", null);
+                           RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, new NilExp(rleft, rright)));
+                        :}
                         ;
 
 
