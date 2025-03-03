@@ -1,0 +1,5 @@
+TODO:
+ [x] fix cm.flex
+ [] verify all current testfiles work
+ [] verify this shit runs on school servers
+ [] list of all possible errors we can recover from (optional, but ideal)

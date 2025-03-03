@@ -12,5 +12,4 @@ void main(void) {
     while (3 < 4 < 5) { a = 3 < 4 < 5;}
 
     return 3 < 4 < 5;
-    callfunc(arg[0] arg[1]);
 }

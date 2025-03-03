@@ -182,7 +182,11 @@ fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_s
                            parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
                            RESULT = new FunctionDec(t.row, t.column, t, e, p, c); 
                         :}
-                        // TODO: invalid datatype
+                        | ERROR_TOKEN:t ID:i LPAREN params:p RPAREN compound_stmt:c
+                        {: 
+                           parser.report_error("invalid function return type", new Symbol(sym.NUM, tleft, tright));
+                           RESULT = new FunctionDec(tleft, tright, new NameTy(tleft, tright, NameTy.VOID), i, p, c); 
+                        :}
                         ;
 
 fun_prototype        ::= type_specifier:t ID:i LPAREN params:p RPAREN SEMI
@@ -191,6 +195,16 @@ fun_prototype        ::= type_specifier:t ID:i LPAREN params:p RPAREN SEMI
                         {: 
                            parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
                            RESULT = new FunctionDec(t.row, t.column, t, e, p, new NilExp(t.row, t.column));
+                        :}
+                        | type_specifier:t ID:i LPAREN params:p RPAREN:r 
+                        {: 
+                           parser.report_error("semicolon missing", new Symbol(sym.NUM, rleft, rright));
+                           RESULT = new FunctionDec(t.row, t.column, t, i, p, new NilExp(t.row, t.column));
+                        :}
+                        | ERROR_TOKEN:t ID:i LPAREN params:p RPAREN:r SEMI
+                        {: 
+                           parser.report_error("invalid dataype", new Symbol(sym.NUM, tleft, tright));
+                           RESULT = new FunctionDec(tleft, tright, new NameTy(tleft, tright, NameTy.VOID), i, p, new NilExp(tleft, tleft));
                         :}
                         ;
 
@@ -420,10 +434,12 @@ call                 ::= ID:i LPAREN:l args:a RPAREN
                            RESULT = new CallExp(ileft, iright, i, a); 
                         :}
                         | ERROR_TOKEN:e LPAREN:l args:a RPAREN
-                        {: if (a.head instanceof NilExp){
+                        {: 
+                           parser.report_error("bad functioname", new Symbol(sym.NUM, eleft, eright));
+                           if (a.head instanceof NilExp){
                               a.head.row = lleft;
                               a.head.column = lright;
-                        } 
+                           } 
                            RESULT = new CallExp(eleft, eright, e, a); 
                         :}
                         ;
@@ -448,4 +464,10 @@ arg_list             ::= arg_list:a COMMA expression:e
                         :}
                         | expression:e
                         {: RESULT = new ExpList(e, null); :}
+                        | arg_list:a error:e
+                        {: 
+                           parser.report_error("invalid expression", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = a; 
+                        :}
+
                         ;
