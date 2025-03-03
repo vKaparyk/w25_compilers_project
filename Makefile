@@ -1,8 +1,8 @@
-JAVA=java
-JAVAC=javac
+JAVA=java -cp $(CLASSPATH)
+JAVAC=javac -cp $(CLASSPATH)
 #JFLEX=jflex
-#CLASSPATH=-cp /usr/share/java/cup.jar:.
-#CUP=cup
+CLASSPATH=/usr/share/java/cup.jar:.
+CUP=cup
 # JFLEX=~/Projects/jflex/bin/jflex
 # TODO: modify CP properly s.t. it can run on school lunix server
 JFLEX=jflex
