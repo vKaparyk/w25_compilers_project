@@ -12,8 +12,13 @@ void main(void) {
   int 2x;  
   int y;
 
-  /* this is an unterminated comment
   x = input();
   y = input();
   output(gcd(x, y));
+}
+
+/* this is an unterminated comment
+
+void main2(void) {
+  test
 }
