@@ -8,11 +8,11 @@ Date: 03/03/2025
 
 How to Build/Run the program
 	- make
-	- java Main <testfile.cm> 
+	- java -cp $CLASSPATH:.:/usr/share/java/cup.jar Main <testfile.cm> 
 	- optionally output can be redirected to an output file
 
 example:
-    java Main test_files/1.cm
+    java -cp $CLASSPATH:.:/usr/share/java/cup.jar Main test_files/1.cm
 
 Notes:
 	The Scanner.java, Main.java, Makefile and cm.flex, cm.cup, and all files in absyn/ are all modified 
