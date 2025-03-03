@@ -79,7 +79,7 @@ LineTerminator = \r|\n|\r\n
    
 /* White space is a line terminator, space, tab, or form feed. */
 WhiteSpace     = {LineTerminator} | [ \t\f]
-   
+mutliline_comment = "/\*""\*/"
 /* A literal integer is is a number beginning with a number between
    one and nine followed by zero or more numbers between zero and nine
    or just a zero.  */
@@ -134,5 +134,5 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 {identifier}       { return symbol(sym.ID, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
 "//".*             { /* Skip single-line comments */ }
-"/\*".*?"\*/"      { /* Skip multi-line comments */ }
+"/\*"~"\*/"        { /* Skip multi-line comments */ }
 .                  { return symbol(sym.error); }
