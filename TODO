@@ -3,3 +3,17 @@ TODO:
  [] verify all current testfiles work
  [] verify this shit runs on school servers
  [] list of all possible errors we can recover from (optional, but ideal)
+
+TODO: document
+ [] what has been done for the checkpoint
+  - flex
+  - cup
+    - layered/ordered
+    - error recovery
+  - tree printing
+  - test cases
+ [] techniques and design process
+ [] what we learned from that
+ [] what each group member did
+ [] assumptions/limitations
+ [] possible improvements
