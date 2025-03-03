@@ -1,0 +1,33 @@
+
+int 2func(int arg);
+
+int 3func(int 1badArg) {
+    int 5arr[5];
+    int arr[5c];
+    int 5arr[5c];
+    int i;
+
+    5i = 5;
+    5arr[1] = 5;
+
+    i = 0$;
+    while(i < 5@) {
+        output(arr[5$]);
+    }
+}
+
+
+int main(void) {
+    int 1x;
+    int x;
+    x = @5;
+
+    int x;
+    x = 5 ** 2;
+
+    func(x, 1x);
+
+    if (x == @4) {
+        output(test);
+    }
+}

@@ -91,6 +91,8 @@ truth = "true" | "false"
    Z, a and z, or an underscore followed by zero or more letters
    between A and Z, a and z, zero and nine, or an underscore. */
 identifier = [_a-zA-Z][_a-zA-Z0-9]*
+bad_identifier = [0-9][_a-zA-Z0-9]*
+
    
 %%
 /* ------------------------Lexical Rules Section---------------------- */
@@ -132,7 +134,8 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 ","                { return symbol(sym.COMMA); }
 {number}           { return symbol(sym.NUM, Integer.parseInt(yytext())); }
 {identifier}       { return symbol(sym.ID, yytext()); }
+{bad_identifier}   { return symbol(sym.ERROR_TOKEN, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
 "//".*             { /* Skip single-line comments */ }
 "/\*"~"\*/"        { /* Skip multi-line comments */ }
-.                  { return symbol(sym.error); }
+.                  { return symbol(sym.error, yytext()); }

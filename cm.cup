@@ -49,6 +49,7 @@ terminal BOOL, ELSE, IF, INT, RETURN, VOID, WHILE, SEMI;          //keywords
 terminal ADD, SUB, UMINUS, MULT, DIV, LT, LTE, GT, GTE, EQ, NEQ, NOT, OR, AND, ASSIGN, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, COMMA; // special symbols
 
 terminal String ID;
+terminal String ERROR_TOKEN;
 terminal Integer NUM; 
 terminal Boolean TRUTH;
 
@@ -146,6 +147,11 @@ common_var_dec       ::= simple_var_dec:s
 
 simple_var_dec       ::= type_specifier:t ID:i
                         {: RESULT = new SimpleDec(t.row, t.column, t, i); :}
+                        | type_specifier:t ERROR_TOKEN:e
+                        {: 
+                           parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new SimpleDec(t.row, t.column, t, ""); 
+                        :}
                         ;
 array_var_dec        ::= type_specifier:t ID:i LBRACKET NUM:n RBRACKET
                         {: RESULT = new ArrayDec(t.row, t.column, t, i, n); :}
@@ -153,6 +159,11 @@ array_var_dec        ::= type_specifier:t ID:i LBRACKET NUM:n RBRACKET
                         {: 
                            parser.report_error("expected ]", new Symbol(sym.NUM, nleft, nright));
                            RESULT = new ArrayDec(t.row, t.column, t, i, n); 
+                        :}
+                        | type_specifier:t ERROR_TOKEN:e LBRACKET NUM:n RBRACKET
+                        {: 
+                           parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new SimpleDec(t.row, t.column, t, ""); 
                         :}
                         ;
 
@@ -166,11 +177,21 @@ type_specifier       ::= BOOL:b
 
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
                         {: RESULT = new FunctionDec(t.row, t.column, t, i, p, c); :}
+                        | type_specifier:t ERROR_TOKEN:e LPAREN params:p RPAREN compound_stmt:c
+                        {: 
+                           parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new FunctionDec(t.row, t.column, t, "", p, c); 
+                        :}
                         // TODO: invalid datatype
                         ;
 
 fun_prototype        ::= type_specifier:t ID:i LPAREN params:p RPAREN SEMI
                         {: RESULT = new FunctionDec(t.row, t.column, t, i, p, new NilExp(t.row, t.column)); :}
+                        | type_specifier:t ERROR_TOKEN:e LPAREN params:p RPAREN SEMI
+                        {: 
+                           parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new FunctionDec(t.row, t.column, t, "", p, new NilExp(t.row, t.column));
+                        :}
                         ;
 
 params               ::= param_list:p
@@ -204,8 +225,8 @@ param_list           ::= param_list:pl COMMA param:p
                         :}
                         ;
 
-param                ::= type_specifier:t ID:i
-                        {: RESULT = new SimpleDec(t.row, t.column, t, i); :}
+param                ::= simple_var_dec:s
+                        {: RESULT = s; :}
                         | type_specifier:t ID:i LBRACKET RBRACKET
                         {: RESULT = new ArrayDec(t.row, t.column, t, i, 0); :}
                         | type_specifier:t ID:i LBRACKET:l
@@ -217,6 +238,11 @@ param                ::= type_specifier:t ID:i
                         {: 
                            parser.report_error("expected [], got [num]", new Symbol(sym.NUM, nleft, nright));
                            RESULT = new ArrayDec(t.row, t.column, t, i, 0); 
+                        :}
+                        | type_specifier:t ERROR_TOKEN:e LBRACKET RBRACKET
+                        {: 
+                           parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new ArrayDec(t.row, t.column, t, "", 0); 
                         :}
                         ;
 
@@ -324,6 +350,16 @@ var                  ::= ID:i
                            parser.report_error("expected index", null);
                            RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, new NilExp(rleft, rright)));
                         :}
+                        | ERROR_TOKEN:e
+                        {: 
+                           parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
+                           RESULT = new VarExp(eleft, eright, new SimpleVar(eleft, eright, e)); 
+                        :}
+                        | ERROR_TOKEN:err LBRACKET expression:e RBRACKET
+                        {: 
+                           parser.report_error("Invalid identifier", new Symbol(sym.NUM, errleft, errright));
+                           RESULT = new VarExp(eleft, eright, new IndexVar(errleft, errright, err, e)); 
+                        :}
                         ;
 
 
@@ -383,6 +419,13 @@ call                 ::= ID:i LPAREN:l args:a RPAREN
                         } 
                            RESULT = new CallExp(ileft, iright, i, a); 
                         :}
+                        | ERROR_TOKEN:e LPAREN:l args:a RPAREN
+                        {: if (a.head instanceof NilExp){
+                              a.head.row = lleft;
+                              a.head.column = lright;
+                        } 
+                           RESULT = new CallExp(eleft, eright, e, a); 
+                        :}
                         ;
 
 args                 ::= arg_list:a
@@ -391,7 +434,7 @@ args                 ::= arg_list:a
                         {: RESULT = new ExpList(new NilExp(-1, -1), null); :}
                         | error:e
                         {:
-                           parser.report_error("bar arg list", new Symbol(sym.NUM, eleft, eright));
+                           parser.report_error("Bad arg list", new Symbol(sym.NUM, eleft, eright));
                            RESULT = new ExpList(new NilExp(-1, -1), null); 
                         :}
                         ;
