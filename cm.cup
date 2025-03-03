@@ -99,9 +99,9 @@ non terminal Exp compound_stmt, expression_stmt, selection_stmt, iteration_stmt,
 non terminal VarExp var;
 non terminal NameTy type_specifier;                 // NameTy
 
-// precedence left BOOL;
-// precedence left INT;
-// precedence left VOID;
+precedence left BOOL;
+precedence left INT;
+precedence left VOID;
 
 precedence right ELSE;
 
@@ -170,7 +170,7 @@ var_declaration      ::= common_var_dec:c SEMI
                         | error:e SEMI
                         {: 
                            parser.report_error("expected valid var declaration", null);
-                           RESULT = null;
+                           RESULT = new SimpleDec(eleft, eright, new NameTy(eleft, eright, NameTy.VOID), "bad variable");
                         :}
                         ;
 
@@ -259,11 +259,6 @@ param                ::= type_specifier:t ID:i
 
 compound_stmt        ::= LBRACE:lb local_declarations:l statement_list:s RBRACE
                         {: RESULT = new CompoundExp(lbleft, lbright, l, s); :}
-                        | LBRACE:lb local_declarations:l statement_list:s error
-                        {: 
-                           parser.report_error("bnah", null);
-                           RESULT = new CompoundExp(lbleft, lbright, l, s);  
-                        :}
                         ;
 
 local_declarations   ::= local_declarations:l var_declaration:v
@@ -295,6 +290,12 @@ statement_list       ::= statement_list:l statement:s
                         :}
                         |
                         {: RESULT = new ExpList(null, null); :}
+                        | statement_list:l var_declaration:v
+                        {: 
+                           parser.syntax_error(new Symbol(sym.error, v.row, v.column));
+                           parser.report_error("cannot put variable declarations after expression statemetns", null);                         
+                           RESULT = l; 
+                        :}
                         ;
 
 statement            ::= expression_stmt:e
