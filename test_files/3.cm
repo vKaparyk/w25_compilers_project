@@ -1,0 +1,18 @@
+/* A bad version of gcd.cm with a 3 kinds of lexical errors 
+   compute the greatest common divisor called gcd */
+
+int gcd(int u, int v) {
+  if (v == @0) return u;
+  else return gcd(v, u - u/v*v);
+}
+
+/*
+
+void main(void) {
+  int 2x;  
+  int y;
+
+  x = input();
+  y = input();
+  output(gcd(x, y));
+}
