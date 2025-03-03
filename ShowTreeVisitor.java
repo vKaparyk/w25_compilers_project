@@ -8,6 +8,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
 	private void indent(int level) {
 		// System.err.println(indents);
+		if (indents.size() < level)
+			indents.add(true);
 		for (int i = 0; i < (level - 1); i++)
 			System.out.print(indents.get(i) ? "  │ " : "    ");
 
@@ -25,6 +27,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
 	}
 
 	private void end_block(int level) {
+		if (indents.size() < (level + 1))
+			this.indents.add(false);
 		if (level != 0)
 			this.indents.set(level - 1, false);
 	}
@@ -73,6 +77,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		indent(level);
 		System.out.println("CallExp: " + exp.func);
 		level++;
+		end_block(level);
 		exp.args.accept(this, level);
 	}
 
@@ -126,6 +131,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		indent(level);
 		System.out.println("IndexVar: " + exp.name);
 		level++;
+		end_block(level);
 		exp.index.accept(this, level);
 	}
 
@@ -232,6 +238,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		indent(level);
 		System.out.println("ReturnExp:");
 		level++;
+		end_block(level);
 		exp.exp.accept(this, level);
 	}
 
@@ -276,6 +283,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		indent(level);
 		System.out.println("VarExp:");
 		level++;
+		end_block(level);
 		exp.variable.accept(this, level);
 	}
 
