@@ -281,7 +281,7 @@ statement_list       ::= statement_list:l statement:s
                         {: RESULT = new ExpList(null, null); :}
                         | statement_list:l var_declaration:v
                         {: 
-                           parser.report_error("cannot put variable declarations after expression statemetns", new Symbol(sym.NUM, v.row, v.column));                         
+                           parser.report_error("cannot put variable declarations after expression statements", new Symbol(sym.NUM, v.row, v.column));                         
                            RESULT = l; 
                         :}
                         ;
@@ -347,7 +347,7 @@ var                  ::= ID:i
                         | ID:i LBRACKET RBRACKET:r
                         {: 
                            parser.syntax_error(new Symbol(sym.error, rleft, rright));
-                           parser.report_error("expected index", null);
+                           parser.report_error("expected index", new Symbol(sym.NUM, rleft, rright));
                            RESULT = new VarExp(ileft, iright, new IndexVar(ileft, iright, i, new NilExp(rleft, rright)));
                         :}
                         | ERROR_TOKEN:e

@@ -9,7 +9,7 @@ int gcd(int u, int v) {
 
 
 void main(void) {
-  int 2x;  
+  int q@@;  
   int y;
 
   x = input();
