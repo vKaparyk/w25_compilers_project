@@ -20,7 +20,7 @@ class Main {
   static public void main(String argv[]) {
     /* Start the parser */
     try {
-      parser p = new CustomParser(new Lexer(new FileReader(argv[0])), argv[0]);
+      parser p = new CustomParser(new Lexer(new FileReader(argv[0]), argv[0]), argv[0]);
       Absyn result = (Absyn) (p.parse().value);
       // Absyn result = (Absyn) (p.debug_parse().value);
       if (SHOW_TREE && result != null) {

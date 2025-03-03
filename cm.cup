@@ -150,7 +150,7 @@ simple_var_dec       ::= type_specifier:t ID:i
                         | type_specifier:t ERROR_TOKEN:e
                         {: 
                            parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
-                           RESULT = new SimpleDec(t.row, t.column, t, ""); 
+                           RESULT = new SimpleDec(t.row, t.column, t, e); 
                         :}
                         ;
 array_var_dec        ::= type_specifier:t ID:i LBRACKET NUM:n RBRACKET
@@ -163,7 +163,7 @@ array_var_dec        ::= type_specifier:t ID:i LBRACKET NUM:n RBRACKET
                         | type_specifier:t ERROR_TOKEN:e LBRACKET NUM:n RBRACKET
                         {: 
                            parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
-                           RESULT = new SimpleDec(t.row, t.column, t, ""); 
+                           RESULT = new SimpleDec(t.row, t.column, t, e); 
                         :}
                         ;
 
@@ -180,7 +180,7 @@ fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_s
                         | type_specifier:t ERROR_TOKEN:e LPAREN params:p RPAREN compound_stmt:c
                         {: 
                            parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
-                           RESULT = new FunctionDec(t.row, t.column, t, "", p, c); 
+                           RESULT = new FunctionDec(t.row, t.column, t, e, p, c); 
                         :}
                         // TODO: invalid datatype
                         ;
@@ -190,7 +190,7 @@ fun_prototype        ::= type_specifier:t ID:i LPAREN params:p RPAREN SEMI
                         | type_specifier:t ERROR_TOKEN:e LPAREN params:p RPAREN SEMI
                         {: 
                            parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
-                           RESULT = new FunctionDec(t.row, t.column, t, "", p, new NilExp(t.row, t.column));
+                           RESULT = new FunctionDec(t.row, t.column, t, e, p, new NilExp(t.row, t.column));
                         :}
                         ;
 
@@ -242,7 +242,7 @@ param                ::= simple_var_dec:s
                         | type_specifier:t ERROR_TOKEN:e LBRACKET RBRACKET
                         {: 
                            parser.report_error("Invalid identifier", new Symbol(sym.NUM, eleft, eright));
-                           RESULT = new ArrayDec(t.row, t.column, t, "", 0); 
+                           RESULT = new ArrayDec(t.row, t.column, t, e, 0); 
                         :}
                         ;
 

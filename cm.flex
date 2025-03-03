@@ -20,6 +20,15 @@ import java_cup.runtime.*;
    Will write the code to the file Lexer.java. 
 */
 %class Lexer
+%public
+%{
+   private String fileName;
+
+   public Lexer(java.io.Reader in, String fileName) {
+      this(in);
+      this.fileName = fileName;
+   }
+%}
 
 %eofval{
   return null;
@@ -138,4 +147,7 @@ bad_identifier = [0-9][_a-zA-Z0-9]*
 {WhiteSpace}+      { /* skip whitespace */ }   
 "//".*             { /* Skip single-line comments */ }
 "/\*"~"\*/"        { /* Skip multi-line comments */ }
-.                  { return symbol(sym.error, yytext()); }
+[^] { // Catch any other invalid character
+    System.err.println(this.fileName + ":" + (yyline + 1) + ":" + (yycolumn + 1) + ": Invalid character '" + yytext() + "'");
+}
+// .                  { return symbol(sym.error, yytext()); }
