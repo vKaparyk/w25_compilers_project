@@ -1,17 +1,18 @@
-/* A bad version of gcd.cm with a 3 kinds of lexical errors 
+/* A bad version of gcd.cm with a 3 kinds of lexical errors, invalid identifier, invalid character and unterminated comment
    compute the greatest common divisor called gcd */
 
 int gcd(int u, int v) {
   if (v == @0) return u;
   else return gcd(v, u - u/v*v);
+  /* note that u - u/v*v = u mod v */ 
 }
 
-/*
 
 void main(void) {
   int 2x;  
   int y;
 
+  /* this is an unterminated comment
   x = input();
   y = input();
   output(gcd(x, y));

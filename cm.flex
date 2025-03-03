@@ -146,8 +146,8 @@ bad_identifier = [0-9][_a-zA-Z0-9]*
 {bad_identifier}   { return symbol(sym.ERROR_TOKEN, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
 "//".*             { /* Skip single-line comments */ }
-"/\*"~"\*/"        { /* Skip multi-line comments */ }
-"/\*"              { // Catch any other invalid character
+"/*" !([^]* "*/" [^]*) "*/"      { /* Skip multi-line comments */ }
+"/*" !([^]* "*/" [^]*)          { // Catch any other invalid character
     System.err.println(this.fileName + ":" + (yyline + 1) + ":" + (yycolumn + 1) + ": Unterminated comment");
 }
 [^]                { // Catch any other invalid character
