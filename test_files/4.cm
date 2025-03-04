@@ -3,7 +3,7 @@
 
 void main(void) {
  
-    if (3 < 4) {var = 3 < 4 < 5 < 6;} // try to resolve into: var = 3 < 6;
+    if (3 < 4) {var = 3 < 4 < 5 < 6;}
     
     var = 3 + 4 - 5 + 6; // is valid;
     
