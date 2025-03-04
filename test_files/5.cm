@@ -4,7 +4,7 @@ int binarySearch(int arr[], int low, int high int x)            // bad params
 {
     if (high >= low) {
         int 5mid;                                               // invalid identifier
-        int arr[5;                                              // missing close bracket
+        int arr[5                                              // missing close bracket
         mid = low + (high - low) / 2;                           // expected semi colon   
 
         // elem found
