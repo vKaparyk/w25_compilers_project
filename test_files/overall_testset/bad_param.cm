@@ -1,0 +1,7 @@
+// param
+void main(int a[5]);
+// var_declaration
+int a
+int a[5]
+// type
+badint a;

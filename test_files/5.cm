@@ -1,0 +1,76 @@
+/* Recreation of 1.cm but to test for just about every possible kind of error */
+
+int binarySearch(int arr[], int low, int high int x)            // bad params
+{
+    if (high >= low) {
+        int 5mid;                                               // invalid identifier
+        int arr[5;                                              // missing close bracket
+        mid = low + (high - low) / 2;                           // expected semi colon   
+
+        // elem found
+        if (arr[mid] == x) 
+            return mid;
+
+        // search in left subarray
+        if (arr[] > x)                                          // expect index
+            return binarySearch(arr, low, mid - 1, x);
+
+        //search in right subarray
+        return binarySearch(arr, mid + 1, high, x);
+    }
+
+    // elem not found
+    return -1;
+}
+
+
+int gcd(int u, int v) { 
+   if (v =< 0) return u;                                        // bad condition expression
+   else return gcd(v, u - u/v*v); 
+   /* note that u - u/v*v = u mod v */ 
+}
+
+
+void main()                                                     // no params provided (must at least have void)
+{
+
+    int choice                                                  // missing semi colon
+    choice = input();
+
+
+    if (choice == 1) { // do binary search
+        int arr[10];
+        int len;
+        int result; 
+        len = $10;                                              // lexical error unexpected token
+
+        int i;                                                  // variable declaration after expression statement
+        i = 0; 
+        while (i < len) { 
+            arr[i] = input(); 
+            i = i + 1; 
+        }
+        result = binarySearch(arr, 0, len - 1 x);               // bad arg list
+        output(result);
+    }
+    else {
+        if (choice == 2) {
+            int x;  
+            int y;
+
+            x = input();
+            y = input();
+            output(gcd(x, y));
+        }
+        else {
+            output(-1);
+        }
+    }
+    return;
+}
+
+/*                                                              // unterminated comment
+
+void main2(void) {
+
+}

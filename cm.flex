@@ -20,6 +20,15 @@ import java_cup.runtime.*;
    Will write the code to the file Lexer.java. 
 */
 %class Lexer
+%public
+%{
+   private String fileName;
+
+   public Lexer(java.io.Reader in, String fileName) {
+      this(in);
+      this.fileName = fileName;
+   }
+%}
 
 %eofval{
   return null;
@@ -79,7 +88,7 @@ LineTerminator = \r|\n|\r\n
    
 /* White space is a line terminator, space, tab, or form feed. */
 WhiteSpace     = {LineTerminator} | [ \t\f]
-   
+mutliline_comment = "/\*""\*/"
 /* A literal integer is is a number beginning with a number between
    one and nine followed by zero or more numbers between zero and nine
    or just a zero.  */
@@ -91,6 +100,8 @@ truth = "true" | "false"
    Z, a and z, or an underscore followed by zero or more letters
    between A and Z, a and z, zero and nine, or an underscore. */
 identifier = [_a-zA-Z][_a-zA-Z0-9]*
+bad_identifier = [0-9][_a-zA-Z0-9]*
+
    
 %%
 /* ------------------------Lexical Rules Section---------------------- */
@@ -132,7 +143,14 @@ identifier = [_a-zA-Z][_a-zA-Z0-9]*
 ","                { return symbol(sym.COMMA); }
 {number}           { return symbol(sym.NUM, Integer.parseInt(yytext())); }
 {identifier}       { return symbol(sym.ID, yytext()); }
+{bad_identifier}   { return symbol(sym.ERROR_TOKEN, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
 "//".*             { /* Skip single-line comments */ }
-"/\*"[\s\S]*?"\*/" { /* Skip multi-line comments */ }
-.                  { return symbol(sym.error); }
+"/*" !([^]* "*/" [^]*) "*/"      { /* Skip multi-line comments */ }
+"/*" !([^]* "*/" [^]*)          { // Catch any other invalid character
+    System.err.println(this.fileName + ":" + (yyline + 1) + ":" + (yycolumn + 1) + ": Unterminated comment");
+}
+[^]                { // Catch any other invalid character
+    System.err.println(this.fileName + ":" + (yyline + 1) + ":" + (yycolumn + 1) + ": Invalid character '" + yytext() + "'");
+}
+// .                  { return symbol(sym.error, yytext()); }
