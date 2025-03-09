@@ -14,8 +14,7 @@ preferred format: date, followed by jot notes of stuffs
 TODO: 
  - Current Tasks
     - symbol table
-      - is a hashmap w/ linked lists as values
-        - set up hashmap, set up nodes
+      - is stack of hashmaps
       - post order traversal
         - new Class SemanticAnalyzer in _.java
         - set up recursive function to go into the scopes
@@ -30,13 +29,20 @@ TODO:
             - refer to variable
               - mostly for error checking
         - still using the same "collection of java objects returned from parser"
-      
-      - figure out why the variables are stored taht way
-        - override same name, i gathered
-        - but sometimes, size overrides j. why?
+      - hasmmap will store data
+        - SymbolTable class
+        - stores Varibale class
+          - type
+            - is enum, probalby
+              - defined as {type: int} {is array: bool}
+          - name
+          - value: Object
+          - scope: integer
+        - stack of hasmaps <String, Sym>
+
       - consider error checking 
-        - check if invalid scope
         - check if not defined at all
+        - redefinition within same scope
       - TODO: finalize looking at
 
     - type checking
