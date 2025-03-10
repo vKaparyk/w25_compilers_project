@@ -5,7 +5,7 @@ public class CompoundExp extends Exp {
 	public ExpList exps;
 	public ExpList elsepart;
 
-	// dtype not needed
+	// dtype irrelevant
 
 	public CompoundExp(int row, int column, VarDecList decs, ExpList exps) {
 		this.row = row;

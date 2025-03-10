@@ -5,7 +5,7 @@ public class IfExp extends Exp {
 	public Exp thenpart;
 	public Exp elsepart;
 
-	// no need for dtype
+	// dtype irrelevant
 
 	public IfExp(int row, int column, Exp test, Exp thenpart, Exp elsepart) {
 		this.row = row;
