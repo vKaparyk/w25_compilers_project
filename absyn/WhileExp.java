@@ -4,6 +4,8 @@ public class WhileExp extends Exp {
 	public Exp test;
 	public Exp body;
 
+	// dtype irrelevant
+
 	public WhileExp(int row, int column, Exp test, Exp body) {
 		this.row = row;
 		this.column = column;

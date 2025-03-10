@@ -3,6 +3,8 @@ package absyn;
 public class VarExp extends Exp {
 	public Var variable;
 
+	// TODO: dtype will have to be set dynamically (mid symbol table scan)
+
 	public VarExp(int row, int column, Var variable) {
 		this.row = row;
 		this.column = column;

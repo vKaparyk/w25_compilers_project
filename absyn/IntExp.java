@@ -7,6 +7,7 @@ public class IntExp extends Exp {
 		this.row = row;
 		this.column = column;
 		this.value = value;
+		this.dtype = new SimpleDec(row, column, new NameTy(row, column, NameTy.INT), this.value.toString());
 	}
 
 	public void accept(AbsynVisitor visitor, int level) {
