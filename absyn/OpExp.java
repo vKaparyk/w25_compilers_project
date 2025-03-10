@@ -26,6 +26,32 @@ public class OpExp extends Exp {
         this.left = left;
         this.op = op;
         this.right = right;
+
+        NameTy op_exp_dec = null;
+        switch (op) {
+            case OpExp.PLUS:
+            case OpExp.MINUS:
+            case OpExp.TIMES:
+            case OpExp.DIV:
+            case OpExp.UMINUS:
+                op_exp_dec = new NameTy(row, column, NameTy.INT);
+                break;
+            case OpExp.EQ:
+            case OpExp.NEQ:
+            case OpExp.LT:
+            case OpExp.LTE:
+            case OpExp.GT:
+            case OpExp.GTE:
+            case OpExp.NOT:
+            case OpExp.AND:
+            case OpExp.OR:
+                op_exp_dec = new NameTy(row, column, NameTy.BOOL);
+                break;
+            default:
+                break;
+        }
+        this.dtype = new SimpleDec(row, column, op_exp_dec, (op_exp_dec.typ == NameTy.INT) ? "int" : "bool");
+
     }
 
     public void accept(AbsynVisitor visitor, int level) {

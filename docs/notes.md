@@ -45,9 +45,6 @@ TODO:
         - redefinition within same scope
       - TODO: finalize looking at
 
-    - TODO: add Dec dtype in Exp.java class
-      - points to Dec of Exp, nested; not redeclared
-      - easier for type chekcing
     - TODO: add helpers analyzing Dec dtype
       - isInteger()
       - isBool()
