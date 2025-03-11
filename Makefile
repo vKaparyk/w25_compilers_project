@@ -23,4 +23,7 @@ parser.java: cm.cup
 	$(CUP) -expect 5 $^
 
 clean:
-	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~
+	rm -rf parser.java Lexer.java sym.java *~;\
+	find . -name "*.class" -type f -delete;\
+	find . -name "*.sym" -type f -delete;\
+	find . -name "*.abs" -type f -delete;\
