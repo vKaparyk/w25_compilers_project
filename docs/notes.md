@@ -45,15 +45,16 @@ TODO:
         - redefinition within same scope
       - TODO: finalize looking at
 
-    - TODO: add helpers analyzing Dec dtype
-      - isInteger()
-      - isBool()
-      - isVoid()
-      - ...
+      - TODO: add helpers analyzing Dec dtype
+        - isInteger()
+        - isBool()
+        - isVoid()
+        - ...`
     
     - type checking
-      - TODO: haven't even looked at
+      - classes/cases to consider
+        - TODO: consider; didn't have time to
+        - 
 
-    - command line args 
-      - "-a"
-      - "-s"
+    - TODO: update readme (not just update with new content, but also expand on. refer to C1 evaluation)
+    - TODO: add test cases for type checking AS YOU UPDATE THE VISITOR

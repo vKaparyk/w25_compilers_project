@@ -48,9 +48,10 @@ public class OpExp extends Exp {
                 op_exp_dec = new NameTy(row, column, NameTy.BOOL);
                 break;
             default:
+                op_exp_dec = new NameTy(row, column, NameTy.VOID);
                 break;
         }
-        this.dtype = new SimpleDec(row, column, op_exp_dec, (op_exp_dec.typ == NameTy.INT) ? "int" : "bool");
+        this.dtype = new SimpleDec(row, column, op_exp_dec, op_exp_dec.toString());
 
     }
 

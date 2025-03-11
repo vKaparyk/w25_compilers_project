@@ -3,10 +3,14 @@ int j;
 int f( int size ) {
 
     int temp;
+    int x;
     {  
         int i;
         i = 2;
         output(i);
+    }
+    if (true) {  
+        int x;
     }
     temp = i + j;
     {  
