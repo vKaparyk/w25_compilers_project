@@ -1,0 +1,29 @@
+void y(int x);
+void y(bool x);
+
+void y(int a, int b) {
+    int c;
+    c = a + b;
+    output(c);
+}
+
+void x(int x);
+void x(bool x) {
+    int x2;
+}
+
+int z(void) {
+    return 1;
+}
+
+int z(int a, int b) {
+    return 2;
+}
+
+void main(void) {
+    int x;
+    // int x[4];
+
+    x = 1;
+    x(x);
+}

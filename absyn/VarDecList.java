@@ -12,4 +12,25 @@ public class VarDecList extends Absyn {
 	public void accept(AbsynVisitor visitor, int level) {
 		visitor.visit(this, level);
 	}
+
+	@Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        VarDecList other = (VarDecList) obj;
+
+
+		VarDecList tmp = this;
+		
+		while (tmp != null || other != null) {
+			if (tmp == null || other == null) return false;
+			if (!tmp.head.equals(other.head)) return false;
+			
+			tmp = tmp.tail;
+			other = other.tail;
+		}
+
+        return true;
+    }
 }

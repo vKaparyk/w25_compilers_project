@@ -1,0 +1,13 @@
+int i;
+int j;
+int f( int size ) {
+
+    int temp;
+    {  
+        int k;
+    }
+    temp = i + j;
+    {  
+        bool k[10];
+    }
+}
