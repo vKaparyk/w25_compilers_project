@@ -4,10 +4,25 @@ int f( int size ) {
 
     int temp;
     {  
-        int k;
+        int i;
+        i = 2;
+        output(i);
     }
     temp = i + j;
     {  
         bool k[10];
+    }
+
+    if (1 < 2) {
+        bool y;
+        y = true;
+        while (y) {
+            int z;
+            y = false;
+        }
+    }
+    else {
+        int temp2;
+        temp2 = 2;
     }
 }

@@ -123,18 +123,30 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IfExp exp, int level) {
+        indent(level);
+        System.out.println("Entering a new if block");
         level++;
-        System.out.println("if block");
         symbolTable.enterScope();
         exp.test.accept(this, level);
         exp.thenpart.accept(this, level);
         
+        symbolTable.printTopScope(level);
         symbolTable.exitScope();
+        indent(--level);
+        System.out.println("Exiting the if block");
 
         if (!(exp.elsepart instanceof NilExp)) {
-            System.out.println("else block");
+            indent(level);
+            System.out.println("Entering a new else block");
+            level++;
             symbolTable.enterScope();
+            
             exp.elsepart.accept(this, level);
+
+            symbolTable.printTopScope(level);
+            symbolTable.exitScope();
+            indent(--level);
+            System.out.println("Exiting the else block");
         }
     }
 
@@ -186,12 +198,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(WhileExp exp, int level) {
+        indent(level);
         level++;
         System.out.println("Entering a new while block");
         symbolTable.enterScope();
+        
         exp.test.accept(this, level);
         exp.body.accept(this, level);
+
+        symbolTable.printTopScope(level);
         symbolTable.exitScope();
+        indent(--level);
         System.out.println("Exiting the while block");
     }
 }
