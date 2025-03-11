@@ -9,7 +9,7 @@ public class ExpList extends Absyn {
 		this.tail = tail;
 	}
 
-	public void accept(AbsynVisitor visitor, int level) {
-		visitor.visit(this, level);
-	}
+	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	// TODO: equal and valid param_list
 }

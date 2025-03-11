@@ -36,9 +36,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	public void visit(CallExp exp, int level) {
 		level++;
+		exp.args.accept(this, level);
 		// TODO: type checking
 		// make sure arg types match to function def
-		exp.args.accept(this, level);
+		// TODO: type checking
+		// set Dec dtype
 	}
 
 	public void visit(AssignExp exp, int level) {
