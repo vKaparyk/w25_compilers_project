@@ -18,6 +18,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(ArrayDec exp, int level) {
+		// TODO: type checking
+		// if type is void, le bad
 		Sym s = new Sym(exp.name, exp, level);
 		if (!symbolTable.addVariable(s)) {
 			report_error("redeclaration of variable \'" + exp.name + "\'", exp);
@@ -70,7 +72,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(FunctionDec exp, int level) {
-
+		// TODO: ask: if FunctionDec has return, do we need to verify it has return statement
 		Sym s = new Sym(exp.func, exp, level);
 
 		if (!symbolTable.addFunction(s)) {
@@ -94,7 +96,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			indent(--level);
 			System.out.println("Leaving the function scope");
 		}
-		// TODO: print function prototyte as well; not just "print only if it's a function"
 	}
 
 	public void visit(IndexVar exp, int level) {
@@ -136,7 +137,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		symbolTable.enterScope();
 		exp.test.accept(this, level);
 		// TODO: type checking
-		// check if exp evaluates to bool
+		// check if test exp evaluates to bool
 		exp.thenpart.accept(this, level);
 
 		symbolTable.printTopScope(level);
@@ -169,12 +170,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	public void visit(OpExp exp, int level) {
 		level++;
-		// TODO: type checking
-		// verify both lhs and rhs are of acceptable types
 		// TODO: cehck if some custom rule applies to bools (if int is 0, it can implicitly convvert to 'bool false')
 		if (!(exp.left instanceof NilExp))
 			exp.left.accept(this, level);
 		exp.right.accept(this, level);
+		// TODO: type checking
+		// verify both lhs and rhs are of the OpExp dtype
+		// TODO: consider UMINUS and NOT (they don't have lhs)
 	}
 
 	public void visit(ReturnExp exp, int level) {
@@ -194,6 +196,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(SimpleDec exp, int level) {
+		// TODO: type checking
+		// if type is void, le bad
 		Sym s = new Sym(exp.name, exp, level);
 
 		if (!symbolTable.addVariable(s)) {
@@ -230,6 +234,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		symbolTable.enterScope();
 
 		exp.test.accept(this, level);
+		// TODO: type checking
+		// chekc if test exp is of Bool type
 		exp.body.accept(this, level);
 
 		symbolTable.printTopScope(level);
