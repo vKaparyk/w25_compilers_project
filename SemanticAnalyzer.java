@@ -74,7 +74,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(FunctionDec exp, int level) {
-		// TODO: ask: if FunctionDec has return, do we need to verify it has return statement
+		// TODO: ask 
+		// if FunctionDec has return, do we need to verify it has return statement
 		Sym s = new Sym(exp.func, exp, level);
 
 		if (!symbolTable.addFunction(s)) {
@@ -105,8 +106,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		exp.index.accept(this, level);
 		// TODO: type checking
 		// validate exp evaluates to int
-		// TODO: type checking
-		// if dec == null, set it accordingly
 	}
 
 	public void visit(ExpList expList, int level) {
@@ -177,8 +176,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			exp.left.accept(this, level);
 		exp.right.accept(this, level);
 		// TODO: type checking
-		// verify both lhs and rhs are of the OpExp dtype
-		// TODO: consider UMINUS and NOT (they don't have lhs)
+		// verify both lhs and rhs are of equal type (eg. 3 < 5; needs to be of equal type and are ints; but returns bool)
+		// TODO: type checking
+		// consider UMINUS and NOT (they don't have lhs)
 	}
 
 	public void visit(ReturnExp exp, int level) {
@@ -187,9 +187,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		// check that return datatype matches function return type
 		// TODO: type checking
 		// return from global not allowed
-
-		// TODO: what the fuck
-		// must get function name, cross referecne function name with symbol table, get it's return type, and compare to exp return type
 
 		// implementation: when visiting FunctionDec's body, store functionname as class-wide variable called "current context"
 		// refer t othat via symbol table when type checking
@@ -209,8 +206,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	public void visit(SimpleVar exp, int level) {
 		// do nothing
-		// TODO: type checking
-		// set it's Dec by cross-referencing symbol table
 	}
 
 	public void visit(VarDecList exp, int level) {
@@ -226,7 +221,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public void visit(VarExp exp, int level) {
 		level++;
 		exp.variable.accept(this, level);
-		// TODO: ***AFTER*** visit, set Dec
+		// TODO: type checking
+		// set Dec dtype via lookup on hash stack
 	}
 
 	public void visit(WhileExp exp, int level) {
