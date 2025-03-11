@@ -181,8 +181,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		level++;
 		// TODO: type checking
 		// check that return datatype matches function return type
+		// TODO: type checking
+		// return from global not allowed
+
 		// TODO: what the fuck
 		// must get function name, cross referecne function name with symbol table, get it's return type, and compare to exp return type
+
+		// implementation: when visiting FunctionDec's body, store functionname as class-wide variable called "current context"
+		// refer t othat via symbol table when type checking
+
 		exp.exp.accept(this, level);
 	}
 
