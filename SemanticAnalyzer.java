@@ -74,7 +74,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		Sym s = new Sym(exp.func, exp, level);
 
 		if (!symbolTable.addFunction(s)) {
-			report_error("redeclaration of variable \'" + exp.func + "\'", exp);
+			report_error("redeclaration of function \'" + exp.func + "\'", exp);
 		}
 
 		if (!(exp.body instanceof NilExp)) { // only do this stuff if not function prototype

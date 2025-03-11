@@ -1,5 +1,7 @@
 int i;
 int j;
+int g(bool y);
+int f( int size );
 int f( int size ) {
 
     int temp;

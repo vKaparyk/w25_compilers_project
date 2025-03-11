@@ -1,14 +1,23 @@
-void y(int x);
-void y(bool x);
+void a(bool x);         
+void a(bool x);             // second prototype (even if identical) not allowed
 
-void y(int a, int b) {
+void a(bool x){
+    return 1;
+}
+void a(bool x){             // second proper declaration not allowed
+    return 2;
+}
+void y(int x);
+void y(bool x);             // prototypes w/ different args still not allowed (same function name)
+
+void y(int a, int b) {      // different len args not allowed
     int c;
     c = a + b;
     output(c);
 }
 
 void x(int x);
-void x(bool x) {
+void x(bool x) {            // args don't match
     int x2;
 }
 
@@ -16,7 +25,7 @@ int z(void) {
     return 1;
 }
 
-int z(int a, int b) {
+int z(int a, int b) {       // different args
     return 2;
 }
 

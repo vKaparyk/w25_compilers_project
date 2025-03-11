@@ -75,10 +75,11 @@ class SymbolTable {
 
 	boolean addFunction(Sym functionSymbol) {
 		// @formatter:off
-		if (functionScopes.containsKey(functionSymbol.name) && (((FunctionDec) functionSymbol.def).body instanceof NilExp	// passed in function prototype cant overwrite existing prototype
-				|| !(((FunctionDec) lookupFunction(functionSymbol.name).def).body instanceof NilExp) 						// making sure the found definition is a prototype
+		if (functionScopes.containsKey(functionSymbol.name) && (
+					((FunctionDec) functionSymbol.def).body instanceof NilExp							// passed in function prototype cant overwrite existing prototype
+				|| !(((FunctionDec) lookupFunction(functionSymbol.name).def).body instanceof NilExp) 	// making sure the found definition is a prototype
 				|| !(((FunctionDec) lookupFunction(functionSymbol.name).def).params
-					.equals(((FunctionDec) functionSymbol.def).params)) 													// making sure the parameters are the same as the prototype
+						.equals(((FunctionDec) functionSymbol.def).params)) 							// making sure the parameters are the same as the prototype
 			)) {
 			return false;
 		}
