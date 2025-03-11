@@ -1,6 +1,6 @@
 int i;
 int j;
-int g(bool y);
+int g(bool z);
 int f( int size );
 int f( int size ) {
 
@@ -31,4 +31,7 @@ int f( int size ) {
         int temp2;
         temp2 = 2;
     }
+}
+int y(int var[], int bar[]){
+    return 1;
 }

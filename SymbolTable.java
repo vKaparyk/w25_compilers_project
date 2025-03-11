@@ -19,19 +19,20 @@ class Sym {
 			FunctionDec funcDef = (FunctionDec) def;
 			s.append("Function");
 			if (funcDef.body instanceof NilExp) {
-				s.append("Prototype");
+				s.append(" Prototype");
 			}
 			s.append(": " + name + "(");
 			VarDecList params = funcDef.params;
 			while (params != null) {
 				if (params.head instanceof SimpleDec) {
 					SimpleDec simpleDec = (SimpleDec) params.head;
-					s.append(simpleDec.typ.toString() + " " + simpleDec.name);
+					s.append(simpleDec.typ.toString());
 				} else if (params.head instanceof ArrayDec) {
 					ArrayDec arrayDec = (ArrayDec) params.head;
-					s.append(arrayDec.typ.toString() + " " + arrayDec.name);
+					s.append(arrayDec.typ.toString() + "[]");
 				}
-
+				if (params.tail != null)
+					s.append(", ");
 				params = params.tail;
 			}
 			s.append(") -> " + funcDef.result.toString());
