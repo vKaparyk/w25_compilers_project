@@ -10,7 +10,5 @@ public class BoolExp extends Exp {
 		this.dtype = new SimpleDec(row, column, new NameTy(row, column, NameTy.BOOL), this.value.toString());
 	}
 
-	public void accept(AbsynVisitor visitor, int level) {
-		visitor.visit(this, level);
-	}
+	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
 }

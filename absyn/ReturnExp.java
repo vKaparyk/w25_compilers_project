@@ -10,7 +10,5 @@ public class ReturnExp extends Exp {
 		this.dtype = exp.dtype;
 	}
 
-	public void accept(AbsynVisitor visitor, int level) {
-		visitor.visit(this, level);
-	}
+	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
 }

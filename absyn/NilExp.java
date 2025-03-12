@@ -7,7 +7,5 @@ public class NilExp extends Exp {
 		this.dtype = new SimpleDec(row, column, new NameTy(row, column, NameTy.VOID), "null");
 	}
 
-	public void accept(AbsynVisitor visitor, int level) {
-		visitor.visit(this, level);
-	}
+	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
 }
