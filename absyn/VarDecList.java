@@ -34,4 +34,18 @@ public class VarDecList extends Absyn {
 
 		return true;
 	}
+
+	public String toString(String delim) {
+		VarDecList temp = this;
+		StringBuilder s = new StringBuilder();
+		while (temp != null) {
+			s.append(temp.head.toString());
+			if (temp.tail != null)
+				s.append(delim);
+			temp = temp.tail;
+		}
+		if (s.isEmpty())
+			return "";
+		return s.toString();
+	}
 }

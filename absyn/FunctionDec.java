@@ -16,4 +16,9 @@ public class FunctionDec extends Dec {
 	}
 
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	@Override
+	public String toString() {
+		return result.toString() + " " + func + " (" + params.toString(", ") + ") " + body.toString();
+	}
 }

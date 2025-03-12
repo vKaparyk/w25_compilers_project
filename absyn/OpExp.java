@@ -56,4 +56,58 @@ public class OpExp extends Exp {
 	}
 
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		s.append(left.toString());
+		switch (op) {
+		case PLUS:
+			s.append(" + ");
+			break;
+		case MINUS:
+			s.append(" - ");
+			break;
+		case TIMES:
+			s.append(" * ");
+			break;
+		case DIV:
+			s.append(" / ");
+			break;
+		case EQ:
+			s.append(" == ");
+			break;
+		case NEQ:
+			s.append(" != ");
+			break;
+		case LT:
+			s.append(" < ");
+			break;
+		case LTE:
+			s.append(" <= ");
+			break;
+		case GT:
+			s.append(" > ");
+			break;
+		case GTE:
+			s.append(" >= ");
+			break;
+		case NOT:
+			s.append(" ~");
+			break;
+		case AND:
+			s.append(" && ");
+			break;
+		case OR:
+			s.append(" || ");
+			break;
+		case UMINUS:
+			s.append(" -");
+			break;
+		default:
+			break;
+		}
+		s.append(right.toString());
+		return s.toString();
+	}
 }

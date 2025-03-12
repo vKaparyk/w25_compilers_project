@@ -16,4 +16,19 @@ public class IfExp extends Exp {
 	}
 
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		s.append("if (");
+		s.append(test.toString());
+		s.append(") ");
+		s.append(thenpart.toString());
+		if (!(elsepart instanceof NilExp)) {
+			s.append("else ");
+			s.append(thenpart.toString());
+		}
+		return s.toString();
+
+	}
 }

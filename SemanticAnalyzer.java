@@ -4,6 +4,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	final static int SPACES = 4;
 
+	private String current_function = "";
+
 	// TODO: cross reference C1 error handling and how it'd do here
 
 	private SymbolTable symbolTable = new SymbolTable();

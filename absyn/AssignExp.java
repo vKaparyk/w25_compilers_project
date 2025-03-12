@@ -14,4 +14,7 @@ public class AssignExp extends Exp {
 	}
 
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	@Override
+	public String toString() { return lhs.toString() + " = " + rhs.toString(); }
 }
