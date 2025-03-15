@@ -1,0 +1,19 @@
+The symbol table is:
+Entering the global scope:
+    Entering the scope for function gcd:
+            Entering a new if block
+            Exiting the if block
+            Entering a new else block
+            Exiting the else block
+        u: int
+        v: int
+    Leaving the function scope
+    Entering the scope for function main:
+        x: int
+        y: int
+    Leaving the function scope
+    Function Prototype: output(int) -> void
+    Function Prototype: input() -> int
+    Function: gcd(int, int) -> int
+    Function: main() -> void
+Leaving the global scope 

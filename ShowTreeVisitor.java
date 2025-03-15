@@ -37,15 +37,15 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		indent(level);
 		System.out.print("ArrayDec: ");
 		switch (exp.typ.typ) {
-			case NameTy.BOOL:
-				System.out.print("bool");
-				break;
-			case NameTy.INT:
-				System.out.print("int");
-				break;
-			case NameTy.VOID:
-				System.out.print("void");
-				break;
+		case NameTy.BOOL:
+			System.out.print("bool");
+			break;
+		case NameTy.INT:
+			System.out.print("int");
+			break;
+		case NameTy.VOID:
+			System.out.print("void");
+			break;
 		}
 		System.out.println(" " + exp.name + "[" + exp.size + "]");
 	}
@@ -54,17 +54,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		indent(level);
 		System.out.print("NameTy: ");
 		switch (exp.typ) {
-			case NameTy.BOOL:
-				System.out.println("BOOL");
-				break;
-			case NameTy.INT:
-				System.out.println("INT");
-				break;
-			case NameTy.VOID:
-				System.out.println("VOID");
-				break;
-			default:
-				System.out.println("Unrecognized operator at position (row: " + exp.row + ", col: " + exp.column + ")");
+		case NameTy.BOOL:
+			System.out.println("BOOL");
+			break;
+		case NameTy.INT:
+			System.out.println("INT");
+			break;
+		case NameTy.VOID:
+			System.out.println("VOID");
+			break;
+		default:
+			System.out.println("Unrecognized operator at position (row: " + exp.row + ", col: " + exp.column + ")");
 		}
 	}
 
@@ -118,10 +118,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
 	public void visit(FunctionDec exp, int level) {
 		indent(level);
-		System.out.println("FunctionDec: " + exp.func);
+		System.out.println("FunctionDec: " + exp.name);
 		level++;
 		start_block(level);
-		exp.result.accept(this, level);
+		exp.typ.accept(this, level);
 		exp.params.accept(this, level);
 		end_block(level);
 		exp.body.accept(this, level);
@@ -160,7 +160,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
 			end_block(level);
 		exp.thenpart.accept(this, level);
 
-		// TODO: never null, maybe NilExp
 		if (!(exp.elsepart instanceof NilExp)) {
 			end_block(level);
 			exp.elsepart.accept(this, level);
@@ -181,50 +180,50 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		indent(level);
 		System.out.print("OpExp:");
 		switch (exp.op) {
-			case OpExp.PLUS:
-				System.out.println(" + ");
-				break;
-			case OpExp.MINUS:
-				System.out.println(" - ");
-				break;
-			case OpExp.TIMES:
-				System.out.println(" * ");
-				break;
-			case OpExp.DIV:
-				System.out.println(" / ");
-				break;
-			case OpExp.EQ:
-				System.out.println(" == ");
-				break;
-			case OpExp.NEQ:
-				System.out.println(" != ");
-				break;
-			case OpExp.LT:
-				System.out.println(" < ");
-				break;
-			case OpExp.LTE:
-				System.out.println(" <= ");
-				break;
-			case OpExp.GT:
-				System.out.println(" > ");
-				break;
-			case OpExp.GTE:
-				System.out.println(" >= ");
-				break;
-			case OpExp.NOT:
-				System.out.println(" ~");
-				break;
-			case OpExp.AND:
-				System.out.println(" && ");
-				break;
-			case OpExp.OR:
-				System.out.println(" || ");
-				break;
-			case OpExp.UMINUS:
-				System.out.println(" -");
-				break;
-			default:
-				System.out.println("Unrecognized operator at position (row: " + exp.row + ", col: " + exp.column + ")");
+		case OpExp.PLUS:
+			System.out.println(" + ");
+			break;
+		case OpExp.MINUS:
+			System.out.println(" - ");
+			break;
+		case OpExp.TIMES:
+			System.out.println(" * ");
+			break;
+		case OpExp.DIV:
+			System.out.println(" / ");
+			break;
+		case OpExp.EQ:
+			System.out.println(" == ");
+			break;
+		case OpExp.NEQ:
+			System.out.println(" != ");
+			break;
+		case OpExp.LT:
+			System.out.println(" < ");
+			break;
+		case OpExp.LTE:
+			System.out.println(" <= ");
+			break;
+		case OpExp.GT:
+			System.out.println(" > ");
+			break;
+		case OpExp.GTE:
+			System.out.println(" >= ");
+			break;
+		case OpExp.NOT:
+			System.out.println(" ~");
+			break;
+		case OpExp.AND:
+			System.out.println(" && ");
+			break;
+		case OpExp.OR:
+			System.out.println(" || ");
+			break;
+		case OpExp.UMINUS:
+			System.out.println(" -");
+			break;
+		default:
+			System.out.println("Unrecognized operator at position (row: " + exp.row + ", col: " + exp.column + ")");
 		}
 		level++;
 		start_block(level);
@@ -246,15 +245,15 @@ public class ShowTreeVisitor implements AbsynVisitor {
 		indent(level);
 		System.out.print("SimpleDec: ");
 		switch (exp.typ.typ) {
-			case NameTy.BOOL:
-				System.out.print("bool");
-				break;
-			case NameTy.INT:
-				System.out.print("int");
-				break;
-			case NameTy.VOID:
-				System.out.print("void");
-				break;
+		case NameTy.BOOL:
+			System.out.print("bool");
+			break;
+		case NameTy.INT:
+			System.out.print("int");
+			break;
+		case NameTy.VOID:
+			System.out.print("void");
+			break;
 		}
 		System.out.println(" " + exp.name);
 	}

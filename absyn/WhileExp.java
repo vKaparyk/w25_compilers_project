@@ -4,17 +4,17 @@ public class WhileExp extends Exp {
 	public Exp test;
 	public Exp body;
 
-	// dtype irrelevant
-
+	// dtype used for error printing
 	public WhileExp(int row, int column, Exp test, Exp body) {
 		this.row = row;
 		this.column = column;
 		this.test = test;
 		this.body = body;
+		this.dtype = new SimpleDec(row, column, new NameTy(row, column, NameTy.BOOL), "");
 	}
 
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
 
 	@Override
-	public String toString() { return "while (" + test.toString() + ")" + body.toString(); }
+	public String toString() { return "while (" + test.toString() + ") {"; }
 }

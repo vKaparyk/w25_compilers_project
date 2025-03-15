@@ -25,6 +25,12 @@ public class VarDecList extends Absyn {
 		while (tmp != null || other != null) {
 			if (tmp == null || other == null)
 				return false;
+			if (tmp.head == null && other.head == null)
+				return true;
+			if (tmp.head == null && other.head != null)
+				return false;
+			if (tmp.head != null && other.head == null)
+				return false;
 			if (!tmp.head.equals(other.head))
 				return false;
 
@@ -35,7 +41,19 @@ public class VarDecList extends Absyn {
 		return true;
 	}
 
-	public String toString(String delim) {
+	@Override
+	public String toString() { return this.toString(",", false); }
+
+	public String toString(boolean isHeader) { return this.toString(",", isHeader); }
+
+	public String toString(String delim) { return this.toString(delim, false); }
+
+	public String toString(String delim, boolean isHeader) {
+		if (this.head == null) {
+			if (isHeader)
+				return "void";
+			return "";
+		}
 		VarDecList temp = this;
 		StringBuilder s = new StringBuilder();
 		while (temp != null) {
@@ -44,8 +62,6 @@ public class VarDecList extends Absyn {
 				s.append(delim);
 			temp = temp.tail;
 		}
-		if (s.isEmpty())
-			return "";
 		return s.toString();
 	}
 }

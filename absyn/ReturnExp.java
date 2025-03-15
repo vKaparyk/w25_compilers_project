@@ -7,7 +7,6 @@ public class ReturnExp extends Exp {
 		this.row = row;
 		this.column = column;
 		this.exp = exp;
-		this.dtype = exp.dtype;
 	}
 
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }

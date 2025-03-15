@@ -10,8 +10,12 @@ preferred format: date, followed by jot notes of stuffs
 
 
 
+- input/output should be added to hashmap, but throw errror if encoutered ("you weren't supposed to call that")
+- fix and replace as much as possible
+- if return void, but returns different; is ok, but report as error
 
-TODO: 
+
+
  - Current Tasks
     - symbol table
       - is stack of hashmaps
@@ -43,18 +47,30 @@ TODO:
       - consider error checking 
         - check if not defined at all
         - redefinition within same scope
-      - TODO: finalize looking at
 
-      - TODO: add helpers analyzing Dec dtype
-        - isInteger()
-        - isBool()
-        - isVoid()
-        - ...`
-    
-    - type checking
-      - classes/cases to consider
-        - TODO: consider; didn't have time to
-        - 
 
     - TODO: update readme (not just update with new content, but also expand on. refer to C1 evaluation)
+      - mention the follwoing
+        - "{save .abs to file} if the program runs to completion"
+          - we don't do that, we save whatever we scavenged; but don't prceed to next step. some livbertyy taken
     - TODO: add test cases for type checking AS YOU UPDATE THE VISITOR
+      - add testcase: if lexing/parsing failed, .sym isn't generated
+    - TODO: go throgu the files, and rid of all/most TODOs
+    - TODO: go through marking rubrik and checkoff that we did all that needed
+    - TODO: change expList for params and set proper row/column
+
+
+
+
+asked the following
+  - implementation of hashmap stask for variables; yay/nay, or should switch to list?
+    - yep
+  - can AssignExp implicitly convert from Int to Bool?
+    - yep
+  - error if:
+    - funDec returns void, but has non-void return statement
+      - treat all warnings as errors, including this
+  - verify that all branches of the function have a return?
+    - wont be tested for
+  - assignment of arrays
+    - absolutely not
