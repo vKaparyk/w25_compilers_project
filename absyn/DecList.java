@@ -10,4 +10,21 @@ public class DecList extends Absyn {
 	}
 
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	@Override
+	public String toString() { return this.toString("\n"); }
+
+	public String toString(String delim) {
+		if (this.head == null)
+			return "";
+		DecList temp = this;
+		StringBuilder s = new StringBuilder();
+		while (temp != null) {
+			s.append(temp.head.toString());
+			if (temp.tail != null)
+				s.append(delim);
+			temp = temp.tail;
+		}
+		return s.toString();
+	}
 }

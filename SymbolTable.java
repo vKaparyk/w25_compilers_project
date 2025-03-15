@@ -35,7 +35,7 @@ class Sym {
 					s.append(", ");
 				params = params.tail;
 			}
-			s.append(") -> " + funcDef.result.toString());
+			s.append(") -> " + funcDef.typ.toString());
 		} else if (def instanceof SimpleDec) {
 			SimpleDec simpleDef = (SimpleDec) def;
 			s.append(name + ": " + simpleDef.typ.toString());
@@ -48,6 +48,8 @@ class Sym {
 
 		return s.toString();
 	}
+
+	public Dec getDef() { return def; }
 }
 
 class SymbolTable {
@@ -56,11 +58,6 @@ class SymbolTable {
 	// Each scope has two separate maps: one for variables and one for functions
 	Stack<HashMap<String, Sym>> variableScopes = new Stack<>();
 	HashMap<String, Sym> functionScopes = new HashMap<>();
-
-	// TODO: add predefined input and output (as per 8-... slides, page 24)
-	// probably as a cstuom constructor?
-	// int input(void)
-	// void output(int)
 
 	void enterScope() { variableScopes.push(new HashMap<>()); }
 
@@ -89,7 +86,7 @@ class SymbolTable {
 		return true;
 	}
 
-	Sym lookupVariable(String name) {
+	public Sym lookupVariable(String name) {
 		for (int i = variableScopes.size() - 1; i >= 0; i--) {
 			if (variableScopes.get(i).containsKey(name)) {
 				return variableScopes.get(i).get(name);
@@ -98,16 +95,9 @@ class SymbolTable {
 		return null; // Not found
 	}
 
-	Sym lookupFunction(String name) {
-		if (functionScopes.containsKey(name)) {
-			return functionScopes.get(name);
-		}
-
-		return null; // Not found
-	}
+	public Sym lookupFunction(String name) { return functionScopes.get(name); }
 
 	void printTopScope(int level) {
-		// TODO: pretty printing?
 		String space = "";
 		for (int i = 0; i < level * SPACES; i++)
 			space += " ";

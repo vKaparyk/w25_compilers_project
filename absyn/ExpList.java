@@ -11,7 +11,12 @@ public class ExpList extends Absyn {
 
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
 
+	@Override
+	public String toString() { return this.toString(","); }
+
 	public String toString(String delim) {
+		if (this.head == null)
+			return "";
 		ExpList temp = this;
 		StringBuilder s = new StringBuilder();
 		while (temp != null) {
@@ -20,9 +25,36 @@ public class ExpList extends Absyn {
 				s.append(delim);
 			temp = temp.tail;
 		}
-		if (s.isEmpty())
-			return "";
 		return s.toString();
 	}
-	// TODO: equal and valid param_list
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null || getClass() != obj.getClass())
+			return false;
+
+		ExpList other = (ExpList) obj;
+
+		ExpList tmp = this;
+
+		while (tmp != null || other != null) {
+			if (tmp == null || other == null)
+				return false;
+			if (tmp.head == null && other.head == null)
+				return true;
+			if (tmp.head == null && other.head != null)
+				return false;
+			if (tmp.head != null && other.head == null)
+				return false;
+			if (!tmp.head.equals(other.head))
+				return false;
+
+			tmp = tmp.tail;
+			other = other.tail;
+		}
+
+		return true;
+	}
 }

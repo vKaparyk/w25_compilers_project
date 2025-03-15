@@ -93,7 +93,7 @@ public class OpExp extends Exp {
 			s.append(" >= ");
 			break;
 		case NOT:
-			s.append(" ~");
+			s.append("~");
 			break;
 		case AND:
 			s.append(" && ");
@@ -102,7 +102,7 @@ public class OpExp extends Exp {
 			s.append(" || ");
 			break;
 		case UMINUS:
-			s.append(" -");
+			s.append("-");
 			break;
 		default:
 			break;

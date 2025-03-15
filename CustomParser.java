@@ -2,6 +2,7 @@ import java_cup.runtime.Symbol;
 
 public class CustomParser extends parser {
     private String fileName;
+    public boolean invalid_parse = false;
 
     public CustomParser(Lexer lexer, String fileName) {
         super(lexer);
@@ -9,6 +10,7 @@ public class CustomParser extends parser {
     }
 
     public void syntax_error(Symbol info) {
+        invalid_parse = true;
         // System.err.print(this.fileName + ":"
         // + (info.left + 1) + ":"
         // + (info.right + 1) + ": ");
@@ -16,6 +18,7 @@ public class CustomParser extends parser {
     }
 
     public void report_error(String message, Object info) {
+        invalid_parse = true;
         // // System.err.println(message);
         // // }
 
@@ -23,9 +26,7 @@ public class CustomParser extends parser {
         // System.err.println(info);
         if (info instanceof Symbol) {
             Symbol info2 = (Symbol) info;
-            System.err.print(this.fileName + ":"
-                    + (info2.left + 1) + ":"
-                    + (info2.right + 1) + ": ");
+            System.err.print(this.fileName + ":" + (info2.left + 1) + ":" + (info2.right + 1) + ": ");
         }
         System.err.println(message);
     }
