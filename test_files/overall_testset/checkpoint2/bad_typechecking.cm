@@ -54,6 +54,9 @@ void maind(void) {
     arr_i[2] = i;
     arr_i = i;                      // assigining int to int[]
 
+    // VarExp
+    z = 5;                          // z not defined
+
 
     // IndexVar
     arr_i[true] = 5;                // Exp does not eval to int

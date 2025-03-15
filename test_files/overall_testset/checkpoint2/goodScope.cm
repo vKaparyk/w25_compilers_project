@@ -7,7 +7,10 @@ int f( int size ) {
     int temp;
     int x;
     {  
-        int i;
+        // TODO: fix
+        // this scope should be nested;, with comments "entering new block" and shit
+        int z;
+        int x;
         i = 2;
         output(i);
     }
@@ -31,7 +34,11 @@ int f( int size ) {
         int temp2;
         temp2 = 2;
     }
+    return 1;
 }
 int y(int var[], int bar[]){
     return 1;
+}
+void main(void) {
+    return f(4);
 }

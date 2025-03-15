@@ -58,7 +58,7 @@ preferred format: date, followed by jot notes of stuffs
     - TODO: go throgu the files, and rid of all/most TODOs
     - TODO: go through marking rubrik and checkoff that we did all that needed
     - TODO: change expList for params and set proper row/column
-
+    - TODO: fix compund statement nesting. add print statements and stuff
 
 
 
