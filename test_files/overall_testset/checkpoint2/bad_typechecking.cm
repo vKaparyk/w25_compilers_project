@@ -54,8 +54,14 @@ void maind(void) {
     arr_i[2] = i;
     arr_i = i;                      // assigining int to int[]
 
+    // CompoundExp
+    {
+        int z;
+    }
+
     // VarExp
     z = 5;                          // z not defined
+                                    // used for both "undefined" and "CompoundExp is a different scope"
 
 
     // IndexVar
