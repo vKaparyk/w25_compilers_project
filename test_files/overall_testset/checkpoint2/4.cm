@@ -1,1 +1,51 @@
-// function calls and returns
+// functionality presented:
+    // function
+        // function redeclarations
+        // input() and output() are predefined and are okay
+        // calls that are not defined
+        // invalid args
+        // absolutely no main
+    // returns
+        // no return statements
+        // invalid return statements
+
+void void_func(void);
+void void_func(void);           // function redeclaration; not allowed
+int sample_func(int arg1, bool arg2, int arg3[]);
+bool bool_func(void);
+
+int temp_func(void) {
+    int i;
+    bool t;
+    int arr[20];
+
+
+    call_to_invalid_func();     // function not declared
+    sample_func(i, t, arr);     // allowed, and array pasing
+    sample_func();              // no args when expected soem; error
+    sample_func(i, t);          // not enough args; error
+    sample_func(i, i, arr);     // wrogn args; error
+    sample_func(i, t, arr, i);  // too many args; error
+    return true;                // wrong return type
+}
+
+int sample_func(int i, bool t, int a[]) {       // different arg names, but taht's allowed (as per C)
+    int i;
+    i = 3;
+    // no return statemetn
+}
+
+void void_func(void) {
+    int arr[20];
+    return arr;         // not allowed to return arrays
+    return 5;           // is supposed to be a warning, and is okay; however, as per Song "we didn't implement warnings; treat them as errors"
+}
+
+bool bool_func(void) {
+    return 5;           // is allowed, implicit int-to-bool conversion
+}
+
+bool bool_func(void) {  // function redefinition; not allowed
+    return 5;           
+}
+// no main declared or implemented

@@ -1,10 +1,9 @@
-// 2 sides of assignment
-// 2 sides of OpExp
+// errors tested:
+	// main prototype defined, but not implemented
+	// void variable
+	// AssignExp
+	// OpExp
 
-// errors:
-// main prototype defined, but not implemented
-// void variable
-// assignexp
 
 
 void void_func(void);

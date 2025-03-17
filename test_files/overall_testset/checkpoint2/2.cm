@@ -1,13 +1,14 @@
 // Errors presented:
-// array access is not int
-// array manipulation not allowed, but array access is
-// if- and while- condition checks for ints and bool; not void or arrays
+	// array access is not int
+	// array manipulation not allowed, but array access is
+	// if- and while- condition checks for ints and bool; not void or arrays
+	// main is defined, but not the last function implemented
 
 void void_func(void);
 bool bool_func(void);
 int int_func(void);
 
-void main(void){		// main is last and defined
+void main(void){		// main is defined, but not last
 	int x;
 	bool t;
 	int arr[20];
@@ -34,4 +35,8 @@ void main(void){		// main is last and defined
 	while (int_func()) return;	// implicit int-to-bool conversion
 	while (void_func())	return;	// void not allowed
 	while (arr)	return;			// despite int dtype, is array; therefore not allowed
+}
+
+bool bool_func(void) {
+	return true;
 }

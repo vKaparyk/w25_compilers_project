@@ -16,10 +16,9 @@ public class FunctionDec extends Dec {
 	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
 
 	@Override
-	public String toString() { return toString(false); }
+	public String toString() { return toString(body instanceof NilExp); }
 
 	public String toString(boolean isPrototype) {
-		return typ.toString() + " " + name + "(" + params.toString(", ", true) + ")"
-				+ ((isPrototype) ? ";" : " {...}");
+		return typ.toString() + " " + name + "(" + params.toString(", ", true) + ")" + ((isPrototype) ? ";" : " ...");
 	}
 }
