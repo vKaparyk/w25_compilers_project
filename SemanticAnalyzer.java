@@ -14,7 +14,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public SemanticAnalyzer(String filename) {
 		this.filename = filename;
 
-		// when class is created, automatically add input and output 
+		// when class is created, automatically add input and output
 		symbolTable.addFunction(new Sym("input", new FunctionDec(-1, -1, new NameTy(-1, -1, NameTy.INT), "input",
 				new VarDecList(null, null), new NilExp(-1, -1)), 0));
 		symbolTable.addFunction(new Sym("output",
@@ -90,7 +90,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			report_type_error(exp, (FunctionDec) func_dec.def);
 
 		// if (func_dec.name.equals("input") || func_dec.name.equals("output"))
-		// 	report_error(func_dec.name + "() call not allowed", exp);
+		// report_error(func_dec.name + "() call not allowed", exp);
 
 	}
 
@@ -245,50 +245,50 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			return;
 
 		switch (exp.op) {
-		case OpExp.UMINUS:
-			if (!isInt(exp.right.dtype))
-				report_type_error(exp.right, exp);
-			break;
-		case OpExp.NOT:
-			if (isVoid(exp.right.dtype))
-				report_type_error(exp.right, exp);
-			break;
-		case OpExp.PLUS:
-		case OpExp.MINUS:
-		case OpExp.TIMES:
-		case OpExp.DIV:
-		case OpExp.LT:
-		case OpExp.LTE:
-		case OpExp.GT:
-		case OpExp.GTE:
-			if (!isInt(exp.left.dtype)) {
-				report_type_error(exp.left, exp);
-				exp.left.dtype = new SimpleDec(exp.left.row, exp.left.column,
-						new NameTy(exp.left.row, exp.left.column, NameTy.INT), "int");
-			}
-			if (!isInt(exp.right.dtype)) {
-				report_type_error(exp.right, exp);
-				exp.right.dtype = new SimpleDec(exp.right.row, exp.right.column,
-						new NameTy(exp.right.row, exp.right.column, NameTy.INT), "int");
-			}
-			break;
-		case OpExp.EQ:
-		case OpExp.NEQ:
-		case OpExp.AND:
-		case OpExp.OR:
-			if (isVoid(exp.left.dtype)) {
-				report_type_error(exp.left, exp);
-				exp.left.dtype = new SimpleDec(exp.left.row, exp.left.column,
-						new NameTy(exp.left.row, exp.left.column, NameTy.BOOL), "bool");
-			}
-			if (isVoid(exp.right.dtype)) {
-				report_type_error(exp.right, exp);
-				exp.right.dtype = new SimpleDec(exp.right.row, exp.right.column,
-						new NameTy(exp.right.row, exp.right.column, NameTy.BOOL), "bool");
-			}
-			break;
-		default:
-			break;
+			case OpExp.UMINUS:
+				if (!isInt(exp.right.dtype))
+					report_type_error(exp.right, exp);
+				break;
+			case OpExp.NOT:
+				if (isVoid(exp.right.dtype))
+					report_type_error(exp.right, exp);
+				break;
+			case OpExp.PLUS:
+			case OpExp.MINUS:
+			case OpExp.TIMES:
+			case OpExp.DIV:
+			case OpExp.LT:
+			case OpExp.LTE:
+			case OpExp.GT:
+			case OpExp.GTE:
+			case OpExp.EQ:
+			case OpExp.NEQ:
+				if (!isInt(exp.left.dtype)) {
+					report_type_error(exp.left, exp);
+					exp.left.dtype = new SimpleDec(exp.left.row, exp.left.column,
+							new NameTy(exp.left.row, exp.left.column, NameTy.INT), "int");
+				}
+				if (!isInt(exp.right.dtype)) {
+					report_type_error(exp.right, exp);
+					exp.right.dtype = new SimpleDec(exp.right.row, exp.right.column,
+							new NameTy(exp.right.row, exp.right.column, NameTy.INT), "int");
+				}
+				break;
+			case OpExp.AND:
+			case OpExp.OR:
+				if (isVoid(exp.left.dtype)) {
+					report_type_error(exp.left, exp);
+					exp.left.dtype = new SimpleDec(exp.left.row, exp.left.column,
+							new NameTy(exp.left.row, exp.left.column, NameTy.BOOL), "bool");
+				}
+				if (isVoid(exp.right.dtype)) {
+					report_type_error(exp.right, exp);
+					exp.right.dtype = new SimpleDec(exp.right.row, exp.right.column,
+							new NameTy(exp.right.row, exp.right.column, NameTy.BOOL), "bool");
+				}
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -381,9 +381,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	// Helpers
 	// defaults to error
-	public void report_error(String erorr, Absyn obj) { report_error(erorr, obj, 1); }
+	public void report_error(String erorr, Absyn obj) {
+		report_error(erorr, obj, 1);
+	}
 
-	public void report_warning(String erorr, Absyn obj) { report_error(erorr, obj, 2); }
+	public void report_warning(String erorr, Absyn obj) {
+		report_error(erorr, obj, 2);
+	}
 
 	// report error w/ level
 	public void report_error(String erorr, Absyn obj, int level) {
@@ -449,11 +453,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		return lhs.dtype.typ.typ == rhs.dtype.typ.typ && lhs.dtype.isArray() == rhs.dtype.isArray();
 	}
 
-	public boolean isVoid(Dec dtype) { return dtype.isVoid(); }
+	public boolean isVoid(Dec dtype) {
+		return dtype.isVoid();
+	}
 
-	public boolean isBool(Dec dtype) { return dtype.isBool(); }
+	public boolean isBool(Dec dtype) {
+		return dtype.isBool();
+	}
 
-	public boolean isInt(Dec dtype) { return dtype.isInt(); }
+	public boolean isInt(Dec dtype) {
+		return dtype.isInt();
+	}
 
 	public void checkForMain() {
 		if (symbolTable.lookupFunction("main") == null) {

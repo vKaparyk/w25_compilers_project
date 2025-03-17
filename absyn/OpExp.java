@@ -34,14 +34,14 @@ public class OpExp extends Exp {
 		case OpExp.TIMES:
 		case OpExp.DIV:
 		case OpExp.UMINUS:
-			op_exp_dec = new NameTy(row, column, NameTy.INT);
-			break;
-		case OpExp.EQ:
-		case OpExp.NEQ:
 		case OpExp.LT:
 		case OpExp.LTE:
 		case OpExp.GT:
 		case OpExp.GTE:
+		case OpExp.EQ: // recent addition: EQ are relational for simplictic purposes of C-; as per Son on 3/17/2025
+		case OpExp.NEQ: // recent addition: NEQ are relational for simplictic purposes of C-; as per Son on 3/17/2025
+			op_exp_dec = new NameTy(row, column, NameTy.INT);
+			break;
 		case OpExp.NOT:
 		case OpExp.AND:
 		case OpExp.OR:

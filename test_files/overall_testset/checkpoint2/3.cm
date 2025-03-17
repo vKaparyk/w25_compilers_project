@@ -37,12 +37,21 @@ void non_main(void){
 	t = 3 < void_func();// int op is comparing void
 	t = 3 < arr;		// comparing array; not allowed
 	// <, <=, >, >=, +, -, *, / are all "strict int operations"
-
+	
+	
 	t = 5 == 4;			// good
-	t = 5 == true;		// implicit int-to-bool conversion; allowed
+	t = 5 == true;		// as per Song, not allowed; for simplicity of C- 
 	t = 5 == void_func();	// not allowed
 	t = 5 == arr;		// operation on arary; not allowed
-	// ==, !=, &&, || are all bool or "int-to-bool conversion" operations	
+	// recent addition: ==, != are "int exclusives"
+	// yes, i know you can do "5 == true" in C
+	// but as per Song on 3/17/2025; "== and != are relational", and implicit int-to-bool conversion not allowed
+
+	t = 5 && 4;			// good
+	t = 5 && true;		// as per Song, not allowed; for simplicity of C- 
+	t = 5 && void_func();	// not allowed
+	t = 5 && arr;		// operation on arary; not allowed
+	// &&, || are bool or "int-to-bool conversion" operations	
 
 
 	t = -5;				// allowed, implicit int-to-bool conversion
