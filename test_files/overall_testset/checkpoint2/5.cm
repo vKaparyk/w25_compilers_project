@@ -7,6 +7,7 @@
 
 void test_function(int x, int y[], bool z);
 int int_func(void);
+int int_func(void);			// function redeclaration
 void test_func(void);
 bool bool_func(void);
 bool bool2_func(void);
