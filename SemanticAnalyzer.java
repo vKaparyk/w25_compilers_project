@@ -397,7 +397,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	public void report_type_error(Exp violator, IndexVar src) {
 		report_error("\'" + violator.toString() + "\' evaluates to " + violator.decString() + "; int expected",
-				violator);
+				src);
 
 	}
 
