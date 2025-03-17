@@ -48,12 +48,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		exp.rhs.accept(this, level);
 		exp.dtype = exp.lhs.dtype;
 
+		boolean isArrayFound = false;
 		if (exp.lhs.dtype.isArray()) {
+			isArrayFound = true;
 			report_type_error(exp.lhs, exp);
 		}
 		if (exp.rhs.dtype.isArray()) {
+			isArrayFound = true;
 			report_type_error(exp.rhs, exp);
 		}
+
+		if (isArrayFound)
+			return;
 
 		if (isBool(exp.lhs.dtype) && isInt(exp.rhs.dtype))
 			return;
@@ -224,13 +230,19 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 		exp.left.accept(this, level);
 		exp.right.accept(this, level);
+		boolean isArrayFound = false;
 		if (exp.left.dtype.isArray()) {
+			isArrayFound = true;
 			report_type_error(exp.left, exp);
 		}
 
 		if (exp.right.dtype.isArray()) {
+			isArrayFound = true;
 			report_type_error(exp.right, exp);
 		}
+
+		if (isArrayFound)
+			return;
 
 		switch (exp.op) {
 		case OpExp.UMINUS:
@@ -396,8 +408,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void report_type_error(Exp violator, IndexVar src) {
-		report_error("\'" + violator.toString() + "\' evaluates to " + violator.decString() + "; int expected",
-				src);
+		report_error("\'" + violator.toString() + "\' evaluates to " + violator.decString() + "; int expected", src);
 
 	}
 
