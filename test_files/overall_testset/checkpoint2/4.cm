@@ -1,5 +1,6 @@
 // functionality presented:
     // function
+        // prototype redeclarations
         // function redeclarations
         // input() and output() are predefined and are okay
         // calls that are not defined
@@ -11,14 +12,29 @@
 
 void void_func(void);
 void void_func(void);           // function redeclaration; not allowed
+void x(int x);
+void y(int x);
+void y(bool x);             // prototypes w/ different args still not allowed (same function name)
 int sample_func(int arg1, bool arg2, int arg3[]);
 bool bool_func(void);
+
+void y(int a, int b) {      // different len args not allowed
+    int c;
+    c = a + b;
+    output(c);
+}
+
+void x(bool x) {            // args don't match
+    int x2;
+}
 
 int temp_func(void) {
     int i;
     bool t;
     int arr[20];
-
+    
+    input();                //input() is predefined and is allowed 
+    output(5);              //output() is predefined and is allowed 
 
     call_to_invalid_func();     // function not declared
     sample_func(i, t, arr);     // allowed, and array pasing
