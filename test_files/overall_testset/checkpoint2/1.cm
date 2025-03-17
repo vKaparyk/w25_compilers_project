@@ -1,0 +1,50 @@
+// set of goot test cases
+// Shows declaration of variables and function
+// as well as basic "what is allowed" for typing
+
+int i;
+int j;
+int g(bool z);
+int f(int size);
+void z(bool arr[]);			// functions andvariables can have overlapping names, but only once
+
+int f(int size){
+
+	int temp;
+	int x;
+	{					// compound statemenet w/ variable "overwrite"
+		int z;
+		int x;
+		bool k[10];
+		i = 2;
+		output(i);		// output is allowed; is pre-defined
+		z(k);			// only use for arrays is to pass into function; furthermore, sees that it's a function, not variable
+	}
+
+	if (temp){		// int-to-bool conversion is allowed
+		int x;
+	}
+	temp = i + j;
+
+	if (1 < 2){
+		bool y;
+		y = true;
+		while (y){
+			int z;
+			y = false;
+		}
+	}
+	else{
+		int temp2;
+		temp2 = 2;
+	}
+
+
+	return 1;
+}
+int y(int var[], int bar[]){
+	return 1;
+}
+void main(void){				// main is last and defined
+	f(4);
+}

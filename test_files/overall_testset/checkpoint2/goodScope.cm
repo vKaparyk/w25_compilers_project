@@ -2,19 +2,18 @@ int i;
 int j;
 int g(bool z);
 int f( int size );
+
 int f( int size ) {
 
     int temp;
     int x;
     {  
-        // TODO: fix
-        // this scope should be nested;, with comments "entering new block" and shit
         int z;
         int x;
         i = 2;
         output(i);
     }
-    if (true) {  
+    if (temp) {  
         int x;
     }
     temp = i + j;
