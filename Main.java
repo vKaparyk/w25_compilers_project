@@ -69,11 +69,10 @@ class Main {
 
 				System.out.println("The abstract syntax tree is:");
 				result.accept(visitor, 0);
-			}
-
-			if (l.invalid_lex || p.invalid_parse) {
-				System.err.println("Errors encountered during Lexical/Syntatic analysis. exiting.");
-				return;
+				if (l.invalid_lex || p.invalid_parse) {
+					System.err.println("Errors encountered during Lexical/Syntatic analysis. exiting.");
+					return;
+				}
 			}
 
 			if (SHOW_TABLE && result != null) {
@@ -86,12 +85,12 @@ class Main {
 				visitor = new SemanticAnalyzer(fileName);
 				result.accept(visitor, 0);
 				((SemanticAnalyzer) visitor).checkForMain();
-			}
 
-			if (((SemanticAnalyzer) visitor).invalid_symbol_tabling) {
-				System.err
-						.println("Errors encountered during Symbol Table Generation/Type Checking analysis. exiting.");
-				return;
+				if (((SemanticAnalyzer) visitor).invalid_symbol_tabling) {
+					System.err.println(
+							"Errors encountered during Symbol Table Generation/Type Checking analysis. exiting.");
+					return;
+				}
 			}
 
 			// TODO: SHOW_ASS

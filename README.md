@@ -14,7 +14,9 @@ Flags:
     the flags we have implemented are 
      -a     which outputs the outputs the AST to <testfile.abs>
      -s     which outputs the outputs the AST to <testfile.abs> and the symbol table to <testfile.sym>
+     -c     which outputs the outputs the AST to <testfile.abs> and the symbol table to <testfile.sym>; and will later (Checkpoint 3) compile into Assembly Code
 
+    If no flags are specified, AST will be created and visited; but not printed nor semantically analyzed.
 
 example:
     java -cp $CLASSPATH:.:/usr/share/java/cup.jar Main test_files/1.cm
