@@ -1,0 +1,68 @@
+// errors tested:
+	// main prototype defined, but not implemented
+	// void variable
+	// AssignExp
+	// OpExp
+
+
+
+void void_func(void);
+void main(void);		// main prototype given, but not defined. is error
+
+void non_main(void){
+	int i;
+	bool t;
+	void v;				// cannot have void variable
+	int arr[2];
+
+	// assignExp
+	t = 1 < 2;
+	t = 3;				// implicit int-to-bool conversion; allowed
+	t = void_func();	// cannot assign void to a bool
+	i = 5;
+	i = true;			// cannot assign bool to int
+	i = void_func();	// cannot assign void to int
+	i = arr;			// cannot assign int[] to int; operations on arrays not allowed
+	v = void_func();	// void var was fixed to be int; not allowed
+
+	arr[2] = 5;			// allowed
+	arr[2] = true;		// not allowed
+	arr = 5;			// operations on arrays not allowed
+	arr = true;			// operations on arrays not allowed
+
+	//opExp
+	t = 3 < 5;			// good
+	t = 3 < true;		// int op is comparing bool
+	t = 3 < void_func();// int op is comparing void
+	t = 3 < arr;		// comparing array; not allowed
+	// <, <=, >, >=, +, -, *, / are all "strict int operations"
+	
+	
+	t = 5 == 4;			// good
+	t = 5 == true;		// as per Song, not allowed; for simplicity of C- 
+	t = 5 == void_func();	// not allowed
+	t = 5 == arr;		// operation on arary; not allowed
+	// recent addition: ==, != are "int exclusives"
+	// yes, i know you can do "5 == true" in C
+	// but as per Song on 3/17/2025; "== and != are relational", and implicit int-to-bool conversion not allowed
+
+	t = 5 && 4;			// good
+	t = 5 && true;		// as per Song, not allowed; for simplicity of C- 
+	t = 5 && void_func();	// not allowed
+	t = 5 && arr;		// operation on arary; not allowed
+	// &&, || are bool or "int-to-bool conversion" operations	
+
+
+	t = -5;				// allowed, implicit int-to-bool conversion
+	t = -true;			// not allowed bool-to-int conversion
+	t = -void_func();	// not allowed
+	t = -arr;			// not allowed operations on arrays
+	// UMINUS is string "int only" operation
+
+	t = ~true;			// allowed
+	t = ~5;				// allowed, implicit int-to-bool conversion
+	t = ~void_func();	// not allowed
+	t = ~arr;			// not allowed operations on arrays
+	// NOT is a bool or "int-to-bool conversion" operation
+}
+// main prototype defined, but not implemented

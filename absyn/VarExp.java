@@ -9,7 +9,8 @@ public class VarExp extends Exp {
 		this.variable = variable;
 	}
 
-	public void accept(AbsynVisitor visitor, int level) {
-		visitor.visit(this, level);
-	}
+	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	@Override
+	public String toString() { return variable.toString(); }
 }

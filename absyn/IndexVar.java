@@ -1,7 +1,6 @@
 package absyn;
 
 public class IndexVar extends Var {
-	public String name;
 	public Exp index;
 
 	public IndexVar(int row, int column, String name, Exp index) {
@@ -11,7 +10,8 @@ public class IndexVar extends Var {
 		this.index = index;
 	}
 
-	public void accept(AbsynVisitor visitor, int level) {
-		visitor.visit(this, level);
-	}
+	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	@Override
+	public String toString() { return name + "[" + index.toString() + "]"; }
 }

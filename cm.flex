@@ -23,6 +23,7 @@ import java_cup.runtime.*;
 %public
 %{
    private String fileName;
+   public boolean invalid_lex = false;
 
    public Lexer(java.io.Reader in, String fileName) {
       this(in);
@@ -111,46 +112,45 @@ bad_identifier = [0-9][_a-zA-Z0-9]*
    code, that will be executed when the scanner matches the associated
    regular expression. */
 
-"bool"             { return symbol(sym.BOOL); }
-"if"               { return symbol(sym.IF); }
-"else"             { return symbol(sym.ELSE); }
-"int"              { return symbol(sym.INT); }
-"return"           { return symbol(sym.RETURN); }
-"void"             { return symbol(sym.VOID); }
-"while"            { return symbol(sym.WHILE); }
-{truth}            { return symbol(sym.TRUTH, yytext().equals("true")); }
-"+"                { return symbol(sym.ADD); }
-"-"                { return symbol(sym.SUB); }
-"*"                { return symbol(sym.MULT); }
-"/"                { return symbol(sym.DIV); }
-"<"                { return symbol(sym.LT); }
-">"                { return symbol(sym.GT); }
-"<="               { return symbol(sym.LTE); }
-">="               { return symbol(sym.GTE); }
-"=="               { return symbol(sym.EQ); }
-"!="               { return symbol(sym.NEQ); }
-"~"                { return symbol(sym.NOT); }
-"&&"               { return symbol(sym.AND); }
-"||"               { return symbol(sym.OR); }
-"="                { return symbol(sym.ASSIGN); }
-";"                { return symbol(sym.SEMI); }
-"("                { return symbol(sym.LPAREN); }
-")"                { return symbol(sym.RPAREN); }
-"["                { return symbol(sym.LBRACKET); }
-"]"                { return symbol(sym.RBRACKET); }
-"{"                { return symbol(sym.LBRACE); }
-"}"                { return symbol(sym.RBRACE); }
-","                { return symbol(sym.COMMA); }
-{number}           { return symbol(sym.NUM, Integer.parseInt(yytext())); }
-{identifier}       { return symbol(sym.ID, yytext()); }
-{bad_identifier}   { return symbol(sym.ERROR_TOKEN, yytext()); }
-{WhiteSpace}+      { /* skip whitespace */ }   
-"//".*             { /* Skip single-line comments */ }
-"/*" !([^]* "*/" [^]*) "*/"      { /* Skip multi-line comments */ }
-"/*" !([^]* "*/" [^]*)          { // Catch any other invalid character
-    System.err.println(this.fileName + ":" + (yyline + 1) + ":" + (yycolumn + 1) + ": Unterminated comment");
-}
-[^]                { // Catch any other invalid character
-    System.err.println(this.fileName + ":" + (yyline + 1) + ":" + (yycolumn + 1) + ": Invalid character '" + yytext() + "'");
-}
-// .                  { return symbol(sym.error, yytext()); }
+"bool"                        { return symbol(sym.BOOL); }
+"if"                          { return symbol(sym.IF); }
+"else"                        { return symbol(sym.ELSE); }
+"int"                         { return symbol(sym.INT); }
+"return"                      { return symbol(sym.RETURN); }
+"void"                        { return symbol(sym.VOID); }
+"while"                       { return symbol(sym.WHILE); }
+{truth}                       { return symbol(sym.TRUTH, yytext().equals("true")); }
+"+"                           { return symbol(sym.ADD); }
+"-"                           { return symbol(sym.SUB); }
+"*"                           { return symbol(sym.MULT); }
+"/"                           { return symbol(sym.DIV); }
+"<"                           { return symbol(sym.LT); }
+">"                           { return symbol(sym.GT); }
+"<="                          { return symbol(sym.LTE); }
+">="                          { return symbol(sym.GTE); }
+"=="                          { return symbol(sym.EQ); }
+"!="                          { return symbol(sym.NEQ); }
+"~"                           { return symbol(sym.NOT); }
+"&&"                          { return symbol(sym.AND); }
+"||"                          { return symbol(sym.OR); }
+"="                           { return symbol(sym.ASSIGN); }
+";"                           { return symbol(sym.SEMI); }
+"("                           { return symbol(sym.LPAREN); }
+")"                           { return symbol(sym.RPAREN); }
+"["                           { return symbol(sym.LBRACKET); }
+"]"                           { return symbol(sym.RBRACKET); }
+"{"                           { return symbol(sym.LBRACE); }
+"}"                           { return symbol(sym.RBRACE); }
+","                           { return symbol(sym.COMMA); }
+{number}                      { return symbol(sym.NUM, Integer.parseInt(yytext())); }
+{identifier}                  { return symbol(sym.ID, yytext()); }
+{bad_identifier}              { return symbol(sym.ERROR_TOKEN, yytext()); }
+{WhiteSpace}+                 { /* skip whitespace */ }   
+"//".*                        { /* Skip single-line comments */ }
+"/*" !([^]* "*/" [^]*) "*/"   { /* Skip multi-line comments */ }
+"/*" !([^]* "*/" [^]*)        { // Catch any other invalid character
+                                 invalid_lex = true;
+                                 System.err.println(this.fileName + ":" + (yyline + 1) + ":" + (yycolumn + 1) + ": Unterminated comment");}
+[^]                           { // Catch any other invalid character
+                                 invalid_lex = true;
+                                 System.err.println(this.fileName + ":" + (yyline + 1) + ":" + (yycolumn + 1) + ": Invalid character '" + yytext() + "'");}

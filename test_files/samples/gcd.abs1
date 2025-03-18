@@ -1,0 +1,52 @@
+The abstract syntax tree is:
+FunctionDec: gcd
+  └─NameTy: INT
+  └─SimpleDec: int u
+  └─SimpleDec: int v
+  └─CompoundExp:
+      └─
+      └─IfExp:
+          └─OpExp: == 
+          │   └─VarExp:
+          │   │   └─SimpleVar: v
+          │   └─IntExp: 0
+          └─ReturnExp:
+          │   └─VarExp:
+          │       └─SimpleVar: u
+          └─ReturnExp:
+              └─CallExp: gcd
+                  └─VarExp:
+                  │   └─SimpleVar: v
+                  └─OpExp: - 
+                      └─VarExp:
+                      │   └─SimpleVar: u
+                      └─OpExp: * 
+                          └─OpExp: / 
+                          │   └─VarExp:
+                          │   │   └─SimpleVar: u
+                          │   └─VarExp:
+                          │       └─SimpleVar: v
+                          └─VarExp:
+                              └─SimpleVar: v
+FunctionDec: main
+  └─NameTy: VOID
+  └─
+  └─CompoundExp:
+      └─SimpleDec: int x
+      └─SimpleDec: int y
+      └─AssignExp:
+      │   └─VarExp:
+      │   │   └─SimpleVar: x
+      │   └─CallExp: input
+      │       └─
+      └─AssignExp:
+      │   └─VarExp:
+      │   │   └─SimpleVar: y
+      │   └─CallExp: input
+      │       └─
+      └─CallExp: output
+          └─CallExp: gcd
+              └─VarExp:
+              │   └─SimpleVar: x
+              └─VarExp:
+                  └─SimpleVar: y

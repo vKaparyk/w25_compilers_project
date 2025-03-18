@@ -13,7 +13,18 @@ public class NameTy extends Absyn {
 		this.typ = typ;
 	}
 
-	public void accept(AbsynVisitor visitor, int level) {
-		visitor.visit(this, level);
+	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	public String toString() {
+		switch (typ) {
+		case 0:
+			return "bool";
+		case 1:
+			return "int";
+		case 2:
+			return "void";
+		default:
+			return "err";
+		}
 	}
 }

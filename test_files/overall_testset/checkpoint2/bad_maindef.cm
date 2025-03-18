@@ -1,0 +1,6 @@
+// custom error: main prototype defined, but not implemented
+void main(void);
+
+void bad_main(void){
+    return;
+}

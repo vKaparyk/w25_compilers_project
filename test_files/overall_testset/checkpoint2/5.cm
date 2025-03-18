@@ -1,0 +1,142 @@
+/*
+ * all possible type errors that can be checked for
+ * and some function errors
+*/
+
+// error: main not defined at all
+
+void test_function(int x, int y[], bool z);
+int int_func(void);
+int int_func(void);			// function redeclaration
+void test_func(void);
+bool bool_func(void);
+bool bool2_func(void);
+
+void maind(void){
+	int i;
+	bool t;
+	int y;
+	int y;					// double declaration
+	int arr_i[20];
+	int arr_2i[20];
+
+	// VarDec
+	void bad_var;           // cannot declare void var
+	void bad_array[2];      // cannot declare void array
+
+	// WhileExp
+	while (test_func()){   // cannot have non-bool and non-int for test condition
+		i = 5;
+	}
+	while (arr_i){         // cannot have arrays
+		i = 5;
+	}
+
+	// IfExp
+	if (test_func()){      // cannot have non-bool and non-int for test condition; verivies VarExp has dtype set at some point
+		i = 5;
+	}
+	if (arr_i){      // cannot have non-bool and non-int for test condition; verivies VarExp has dtype set at some point
+		i = 5;
+	}
+
+	// CallExp
+	undefined_func();               // undefined fucntion is bad
+	test_func(i);                   // wrong count of args
+	test_function();                // not enough args
+	test_function(i, arr_i);        // not enough args
+	test_function(i, arr_i, t, 3);  // too many args
+	test_function(arr_i, i, t);     // wrong datatypes args
+	test_function(i, i, i);         // wrong datatypes args
+	test_function(int_func(), arr_i, t);                        // is valid, is a function call
+	i = input();
+	output(3);
+
+	// AssignExp
+	i = true;                       // bool into int not allowed
+	i = test_func();                // mismatchin datatypes
+	t = 5;
+	i = arr_i;                      // assign array to int not allowed
+	i = arr_i[5];                   // allowed 
+	arr_i = arr_2i;					// cannot use arrays for anything; other than passing in
+	arr_i[2] = i;
+	arr_i = i;                      // assigining int to int[]
+
+	// CompoundExp
+	{
+		int z;
+	}
+
+	// VarExp
+	z = 5;                          // z not defined
+	// used for both "undefined" and "CompoundExp is a different scope"
+
+
+// IndexVar
+	arr_i[true] = 5;                // Exp does not eval to int
+	arr_i[arr_i] = 5;               // Exp does not eval to int (is array)
+	arr_i[test_func()] = 5;         // Exp does not eval to int
+	arr_i[5] = 5;                   // allowed
+
+	// OpExp
+	if (arr_i < 4){                 // arrays not allowed
+		return;
+	}
+	if (4 < arr_i){                 // arrays not allowed
+		return;
+	}
+	if (-t){                        // uminus only for int
+		return;
+	}
+	if (~test_func()){              // not only for bool and int
+		return;
+	}
+	// plus, minus, times, div, lt, lte, gt, gte only for int
+
+	if (t + 5){                     // non-int lhs                     
+		return;
+	}
+	if (test_func() + 5){           // non-int lhs
+		return;
+	}
+	if (5 + t){                     // non-int rhs                     
+		return;
+	}
+	if (5 + test_func()){           // non-int lht
+		return;
+	}
+	if (true < 5){                  // non-int lhs
+		return;
+	}
+	if (5 < true){                  // non-int rhs
+		return;
+	}
+
+	if (5 != test_func()){          // void rhs
+		return;
+	}
+
+	if (test_func() != 5){          // void rhs
+		return;
+	}
+
+	// ReturnExp
+	return 5;                       // warning: func returns void, but returning int
+
+}
+
+int int_func(void){
+	int arr[12];
+	return arr;         // returning array not allowed
+	return true;        // wrong return type
+}
+
+bool bool_func(void){
+	int i;              // no return statemetn
+}
+
+bool bool2_func(void){
+	return 5;           // is allowed
+	return true;        // is allowed
+	return test_func(); // not allowed
+}

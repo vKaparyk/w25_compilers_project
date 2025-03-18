@@ -4,13 +4,12 @@ JAVAC=javac -cp $(CLASSPATH)
 CLASSPATH=/usr/share/java/cup.jar:.
 CUP=cup
 # JFLEX=~/Projects/jflex/bin/jflex
-# TODO: modify CP properly s.t. it can run on school lunix server
 JFLEX=jflex
 CUP=$(JAVA) java_cup.Main
 
 all: Main.class
 
-Main.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java Scanner.java Main.java CustomParser.java
+Main.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java Main.java CustomParser.java SemanticAnalyzer.java SymbolTable.java
 
 %.class: %.java
 	$(JAVAC) $^
@@ -23,4 +22,7 @@ parser.java: cm.cup
 	$(CUP) -expect 5 $^
 
 clean:
-	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~
+	rm -rf parser.java Lexer.java sym.java *~;\
+	find . -name "*.class" -type f -delete;\
+	find . -name "*.sym" -type f -delete;\
+	find . -name "*.abs" -type f -delete;\

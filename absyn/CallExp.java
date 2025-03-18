@@ -11,7 +11,8 @@ public class CallExp extends Exp {
 		this.args = args;
 	}
 
-	public void accept(AbsynVisitor visitor, int level) {
-		visitor.visit(this, level);
-	}
+	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+
+	@Override
+	public String toString() { return func + "(" + args.toString() + ")"; }
 }

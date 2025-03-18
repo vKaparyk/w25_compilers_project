@@ -1,0 +1,43 @@
+int i;
+int j;
+int g(bool z);
+int f( int size );
+
+int f( int size ) {
+
+    int temp;
+    int x;
+    {  
+        int z;
+        int x;
+        i = 2;
+        output(i);
+    }
+    if (temp) {  
+        int x;
+    }
+    temp = i + j;
+    {  
+        bool k[10];
+    }
+
+    if (1 < 2) {
+        bool y;
+        y = true;
+        while (y) {
+            int z;
+            y = false;
+        }
+    }
+    else {
+        int temp2;
+        temp2 = 2;
+    }
+    return 1;
+}
+int y(int var[], int bar[]){
+    return 1;
+}
+void main(void) {
+    return f(4);
+}

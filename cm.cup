@@ -447,11 +447,11 @@ call                 ::= ID:i LPAREN:l args:a RPAREN
 args                 ::= arg_list:a
                         {: RESULT = a; :}
                         | 
-                        {: RESULT = new ExpList(new NilExp(-1, -1), null); :}
+                        {: RESULT = new ExpList(null, null); :}
                         | error:e
                         {:
                            parser.report_error("Bad arg list", new Symbol(sym.NUM, eleft, eright));
-                           RESULT = new ExpList(new NilExp(-1, -1), null); 
+                           RESULT = new ExpList(null, null); 
                         :}
                         ;
 
