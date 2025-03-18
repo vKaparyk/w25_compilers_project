@@ -15,13 +15,17 @@ class Main {
 
 		// Remove the extension from the file name
 		int lastDotIndex = fileName.lastIndexOf('.');
-		String fileNameWithoutExtension = (lastDotIndex == -1) ? fileName // No extension found, return the original file name
+		String fileNameWithoutExtension = (lastDotIndex == -1) ? fileName // No extension found, return the original
+				// file name
 				: fileName.substring(0, lastDotIndex);
 
 		// Reconstruct the full path without the extension
-		Path pathWithoutExtension = path.getParent().resolve(fileNameWithoutExtension);
-
-		return pathWithoutExtension.toString();
+		Path pathWithoutExtension = path.getParent();
+		if (pathWithoutExtension != null) {
+			pathWithoutExtension.resolve(fileNameWithoutExtension);
+			return pathWithoutExtension.toString();
+		} else
+			return fileNameWithoutExtension;
 	}
 
 	static public void main(String argv[]) {
@@ -33,7 +37,8 @@ class Main {
 		String fileName = "";
 
 		// Parse optional flags
-		// TODO: verify only 1 flag can appear total (project Overview.pdf; cmd-line options)
+		// TODO: verify only 1 flag can appear total (project Overview.pdf; cmd-line
+		// options)
 		// TODO: what if no flags
 		for (int i = 0; i < argv.length; i++) {
 			switch (argv[i]) {
