@@ -12,6 +12,7 @@ void main(void);		// main prototype given, but not defined. is error
 void non_main(void){
 	int i;
 	bool t;
+	bool t;				// double defined
 	void v;				// cannot have void variable
 	int arr[2];
 

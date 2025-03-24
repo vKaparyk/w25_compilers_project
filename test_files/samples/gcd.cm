@@ -9,6 +9,7 @@ int gcd(int u, int v) {
 void main(void) {
   int x;  
   int y;
+  int arr[2];
 
   x = input();
   y = input();
