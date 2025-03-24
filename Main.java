@@ -21,6 +21,7 @@ class Main {
 
 		// Reconstruct the full path without the extension
 		Path pathWithoutExtension = path.getParent();
+		// TODO: fix
 		if (pathWithoutExtension != null) {
 			pathWithoutExtension.resolve(fileNameWithoutExtension);
 			return pathWithoutExtension.toString();
