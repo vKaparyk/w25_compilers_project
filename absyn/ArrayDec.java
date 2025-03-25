@@ -11,7 +11,7 @@ public class ArrayDec extends VarDec {
 		this.size = size;
 	}
 
-	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
 
 	@Override
 	public String toString() { return typ.toString() + " " + name + "[" + size + "]"; }

@@ -4,7 +4,7 @@ import absyn.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class Main {
+class CM {
 	public static boolean SHOW_TREE = false;
 	public static boolean SHOW_TABLE = false;
 	public static boolean SHOW_ASS = false;
@@ -12,21 +12,19 @@ class Main {
 	public static String getPathWithoutExtension(String filename) {
 		Path path = Paths.get(filename);
 		String fileName = path.getFileName().toString();
-
+	
 		// Remove the extension from the file name
 		int lastDotIndex = fileName.lastIndexOf('.');
-		String fileNameWithoutExtension = (lastDotIndex == -1) ? fileName // No extension found, return the original
-				// file name
+		String fileNameWithoutExtension = (lastDotIndex == -1) ? fileName // No extension found
 				: fileName.substring(0, lastDotIndex);
-
+	
 		// Reconstruct the full path without the extension
-		Path pathWithoutExtension = path.getParent();
-		// TODO: fix
-		if (pathWithoutExtension != null) {
-			pathWithoutExtension.resolve(fileNameWithoutExtension);
-			return pathWithoutExtension.toString();
-		} else
+		Path parentPath = path.getParent();
+		if (parentPath != null) {
+			return parentPath.resolve(fileNameWithoutExtension).toString();
+		} else {
 			return fileNameWithoutExtension;
+		}
 	}
 
 	static public void main(String argv[]) {
@@ -74,7 +72,7 @@ class Main {
 				System.setOut(filePrintStream);
 
 				System.out.println("The abstract syntax tree is:");
-				result.accept(visitor, 0);
+				result.accept(visitor, 0, false);
 				if (l.invalid_lex || p.invalid_parse) {
 					System.err.println("Errors encountered during Lexical/Syntatic analysis. exiting.");
 					return;
@@ -89,7 +87,7 @@ class Main {
 
 				System.out.println("The symbol table is:");
 				visitor = new SemanticAnalyzer(fileName);
-				result.accept(visitor, 0);
+				result.accept(visitor, 0, false);
 				((SemanticAnalyzer) visitor).checkForMain();
 
 				if (((SemanticAnalyzer) visitor).invalid_symbol_tabling) {
@@ -99,7 +97,19 @@ class Main {
 				}
 			}
 
-			// TODO: SHOW_ASS
+			if (SHOW_ASS && result != null) {
+				String tmFile = getPathWithoutExtension(fileName) + ".tm";
+
+				visitor = new CodeGenerator(tmFile);
+				((CodeGenerator)visitor).visit(result);
+				((CodeGenerator)visitor).closeWriter();
+
+				if (((CodeGenerator) visitor).failedGeneration) {
+					System.err.println(
+							"Errors encountered during assembly generation. exiting.");
+					return;
+				}
+			}
 		} catch (Exception e) {
 			/* do cleanup here -- possibly rethrow e */
 			e.printStackTrace();

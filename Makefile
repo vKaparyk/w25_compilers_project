@@ -7,9 +7,9 @@ CUP=cup
 JFLEX=jflex
 CUP=$(JAVA) java_cup.Main
 
-all: Main.class
+all: CM.class
 
-Main.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java Main.java CustomParser.java SemanticAnalyzer.java SymbolTable.java
+CM.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java CM.java CustomParser.java SemanticAnalyzer.java SymbolTable.java CodeGenerator.java
 
 %.class: %.java
 	$(JAVAC) $^

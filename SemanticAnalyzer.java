@@ -31,7 +31,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	// absyn
 
-	public void visit(ArrayDec exp, int level) {
+	public void visit(ArrayDec exp, int level, boolean flag) {
 		if (exp.typ.typ == NameTy.VOID) {
 			report_error("cannot declare void variable", exp);
 			exp.typ.typ = NameTy.INT;
@@ -42,10 +42,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(AssignExp exp, int level) {
+	public void visit(AssignExp exp, int level, boolean flag) {
 		level++;
-		exp.lhs.accept(this, level);
-		exp.rhs.accept(this, level);
+		exp.lhs.accept(this, level, false);
+		exp.rhs.accept(this, level, false);
 		exp.dtype = exp.lhs.dtype;
 
 		boolean isArrayFound = false;
@@ -68,13 +68,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			report_type_error(exp.rhs, exp);
 	}
 
-	public void visit(BoolExp exp, int level) {
+	public void visit(BoolExp exp, int level, boolean flag) {
 		// do nothing
 	}
 
-	public void visit(CallExp exp, int level) {
+	public void visit(CallExp exp, int level, boolean flag) {
 		level++;
-		exp.args.accept(this, level);
+		exp.args.accept(this, level, false);
 		Sym func_dec = symbolTable.lookupFunction(exp.func);
 		if (func_dec == null) {
 			report_error("function undefined", exp);
@@ -94,13 +94,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	}
 
-	public void visit(CompoundExp exp, int level) {
+	public void visit(CompoundExp exp, int level, boolean flag) {
 		level++;
-		exp.decs.accept(this, level);
-		exp.exps.accept(this, level);
+		exp.decs.accept(this, level, false);
+		exp.exps.accept(this, level, false);
 	}
 
-	public void visit(DecList exp, int level) {
+	public void visit(DecList exp, int level, boolean flag) {
 		System.out.println("Entering the global scope:");
 		symbolTable.enterScope();
 		level++;
@@ -108,7 +108,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			return;
 		}
 		while (exp != null) {
-			exp.head.accept(this, level);
+			exp.head.accept(this, level, false);
 			exp = exp.tail;
 		}
 		symbolTable.printTopScope(level);
@@ -116,7 +116,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		System.out.println("Leaving the global scope ");
 	}
 
-	public void visit(ExpList expList, int level) {
+	public void visit(ExpList expList, int level, boolean flag) {
 		if (expList.head == null) {
 			return;
 		}
@@ -127,7 +127,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 				symbolTable.enterScope();
 				level++;
 			}
-			expList.head.accept(this, level);
+			expList.head.accept(this, level, false);
 
 			if (expList.head instanceof CompoundExp) {
 				symbolTable.printTopScope(level);
@@ -139,7 +139,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(FunctionDec exp, int level) {
+	public void visit(FunctionDec exp, int level, boolean flag) {
 		Sym s = new Sym(exp.name, exp, level);
 
 		if (!symbolTable.addFunction(s)) {
@@ -156,9 +156,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			current_function = exp.name;
 
 			level++;
-			exp.typ.accept(this, level);
-			exp.params.accept(this, level);
-			exp.body.accept(this, level);
+			exp.typ.accept(this, level, false);
+			exp.params.accept(this, level, false);
+			exp.body.accept(this, level, false);
 
 			if (!isVoid(exp) && !return_exists)
 				report_error(
@@ -173,17 +173,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(IfExp exp, int level) {
+	public void visit(IfExp exp, int level, boolean flag) {
 		indent(level);
 		System.out.println("Entering a new if block");
 		level++;
 		symbolTable.enterScope();
-		exp.test.accept(this, level);
+		exp.test.accept(this, level, false);
 		if (isVoid(exp.test.dtype) || exp.test.dtype.isArray()) {
 			report_type_error(exp.test, exp);
 			exp.test = new BoolExp(exp.test.row, exp.test.column, true);
 		}
-		exp.thenpart.accept(this, level);
+		exp.thenpart.accept(this, level, false);
 
 		symbolTable.printTopScope(level);
 		symbolTable.exitScope();
@@ -196,7 +196,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			level++;
 			symbolTable.enterScope();
 
-			exp.elsepart.accept(this, level);
+			exp.elsepart.accept(this, level, false);
 
 			symbolTable.printTopScope(level);
 			symbolTable.exitScope();
@@ -205,31 +205,31 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(IndexVar exp, int level) {
+	public void visit(IndexVar exp, int level, boolean flag) {
 		level++;
-		exp.index.accept(this, level);
+		exp.index.accept(this, level, false);
 		if (!isInt(exp.index.dtype) || exp.index.dtype.isArray())
 			report_type_error(exp.index, exp);
 	}
 
-	public void visit(IntExp exp, int level) {
+	public void visit(IntExp exp, int level, boolean flag) {
 		// do nothing
 	}
 
-	public void visit(NameTy exp, int level) {
+	public void visit(NameTy exp, int level, boolean flag) {
 		// do nothing
 	}
 
-	public void visit(NilExp exp, int level) {
+	public void visit(NilExp exp, int level, boolean flag) {
 		// do nothing
 	}
 
-	public void visit(OpExp exp, int level) {
+	public void visit(OpExp exp, int level, boolean flag) {
 		level++;
 		// trat ints as bool; same as C
 
-		exp.left.accept(this, level);
-		exp.right.accept(this, level);
+		exp.left.accept(this, level, false);
+		exp.right.accept(this, level, false);
 		boolean isArrayFound = false;
 		if (exp.left.dtype.isArray()) {
 			isArrayFound = true;
@@ -292,9 +292,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(ReturnExp exp, int level) {
+	public void visit(ReturnExp exp, int level, boolean flag) {
 		level++;
-		exp.exp.accept(this, level);
+		exp.exp.accept(this, level, false);
 		exp.dtype = exp.exp.dtype;
 		return_exists = true;
 
@@ -318,7 +318,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(SimpleDec exp, int level) {
+	public void visit(SimpleDec exp, int level, boolean flag) {
 		if (exp.typ.typ == NameTy.VOID) {
 			report_error("cannot declare void variable", exp);
 			exp.typ.typ = NameTy.INT;
@@ -330,23 +330,23 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(SimpleVar exp, int level) {
+	public void visit(SimpleVar exp, int level, boolean flag) {
 		// do nothing
 	}
 
-	public void visit(VarDecList exp, int level) {
+	public void visit(VarDecList exp, int level, boolean flag) {
 		if (exp.head == null) {
 			return;
 		}
 		while (exp != null) {
-			exp.head.accept(this, level);
+			exp.head.accept(this, level, false);
 			exp = exp.tail;
 		}
 	}
 
-	public void visit(VarExp exp, int level) {
+	public void visit(VarExp exp, int level, boolean flag) {
 		level++;
-		exp.variable.accept(this, level);
+		exp.variable.accept(this, level, false);
 		Sym s = symbolTable.lookupVariable(exp.variable.name);
 		if (s == null) {
 			report_error(exp.variable.name + " not defined", exp);
@@ -360,18 +360,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			exp.dtype = dtype;
 	}
 
-	public void visit(WhileExp exp, int level) {
+	public void visit(WhileExp exp, int level, boolean flag) {
 		indent(level);
 		level++;
 		System.out.println("Entering a new while block");
 		symbolTable.enterScope();
 
-		exp.test.accept(this, level);
+		exp.test.accept(this, level, false);
 		if (isVoid(exp.test.dtype) || exp.test.dtype.isArray()) {
 			report_type_error(exp.test, exp);
 			exp.test = new BoolExp(exp.test.row, exp.test.column, true);
 		}
-		exp.body.accept(this, level);
+		exp.body.accept(this, level, false);
 
 		symbolTable.printTopScope(level);
 		symbolTable.exitScope();

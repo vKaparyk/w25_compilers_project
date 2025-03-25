@@ -1,6 +1,8 @@
 package absyn;
 
 abstract public class VarDec extends Dec {
+	public int nestLevel;
+	public int offset;
 
 	@Override
 	public boolean equals(Object obj) {

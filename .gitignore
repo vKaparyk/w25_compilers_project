@@ -7,3 +7,5 @@ sym.java
 .vscode/**/*
 *.sym
 *.abs
+*.tm
+TMSimulator/tm

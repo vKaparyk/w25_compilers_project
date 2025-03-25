@@ -9,7 +9,7 @@ public class VarDecList extends Absyn {
 		this.tail = tail;
 	}
 
-	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
 
 	@Override
 	public boolean equals(Object obj) {

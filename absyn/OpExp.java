@@ -55,7 +55,7 @@ public class OpExp extends Exp {
 
 	}
 
-	public void accept(AbsynVisitor visitor, int level) { visitor.visit(this, level); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
 
 	@Override
 	public String toString() {

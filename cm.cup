@@ -33,7 +33,7 @@ parser code {:
       // System.err.println(info);
       if (info instanceof Absyn) {
          AbsynVisitor visitor = new ShowTreeVisitor();
-         ((Absyn)info).accept(visitor, 0); 
+         ((Absyn)info).accept(visitor, 0, false); 
       }
       // if (info instanceof java_cup.runtime.Symbol) {
     }
