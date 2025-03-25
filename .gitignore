@@ -5,3 +5,5 @@ sym.java
 .vscode/
 *.java~
 .vscode/**/*
+*.sym
+*.abs
