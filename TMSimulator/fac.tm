@@ -16,13 +16,18 @@
  10:     LD  7,-1(5) 	return to caller
   3:    LDA  7,7(7) 	jump around i/o code
 * End of standard prelude.
+
 * processing function: main
 * jump around function body here
  12:     ST  0,-1(5) 	store return
 * -> compound statement
+
+* fac.cm:2
 * processing local var: x
 * processing local var: fac
-* -> op
+
+* fac.cm:4
+* -> op: assignExp
 * -> id
 * looking up id: x
  13:    LDA  0,-2(5) 	load id address
@@ -38,7 +43,9 @@
  20:     LD  1,-4(5) 	op: load left
  21:     ST  0,0(1) 	assign: store value
 * <- op
-* -> op
+
+* fac.cm:5
+* -> op: assignExp
 * -> id
 * looking up id: fac
  22:    LDA  0,-3(5) 	load id address
@@ -50,9 +57,11 @@
  25:     LD  1,-4(5) 	op: load left
  26:     ST  0,0(1) 	assign: store value
 * <- op
+
+* fac.cm:7
 * -> while
 * while: jump after body comes back here
-* -> op
+* -> op: conditionCheck
 * -> id
 * looking up id: x
  27:     LD  0,-2(5) 	load id value
@@ -62,7 +71,7 @@
  29:    LDC  0,1(0) 	load const
 * <- constant
  30:     LD  1,-4(5) 	op: load left
- 31:    SUB  0,1,0 	op >
+ 31:    SUB  0,1,0 	  op >
  32:    JGT  0,2(7) 	br if true
  33:    LDC  0,0(0) 	false case
  34:    LDA  7,1(7) 	unconditional jmp
@@ -117,6 +126,9 @@
  55:    LDA  7,-29(7) 	while: absolute jmp to test
  36:    JEQ  0,19(7) 	while: jmp to end
 * <- while
+
+
+* gcd.cm:12
 * -> call of function: output
 * -> id
 * looking up id: fac
