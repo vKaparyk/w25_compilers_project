@@ -19,8 +19,6 @@ public class CodeGenerator implements AbsynVisitor {
 
 	private boolean inGlobalScope;
 	private String filename;
-	private SymbolTable symbolTable = new SymbolTable();
-	private String current_function = "global";
 
 	int mainEntry; 			// absolute address for main
 	int globalOffset;		// next available loc after global frame
@@ -147,9 +145,6 @@ public class CodeGenerator implements AbsynVisitor {
 
 	// absyn functions
 	public void visit(ArrayDec exp, int offset, boolean isAddress) {
-		Sym s = new Sym(exp.name, exp, -1);
-		symbolTable.addVariable(s);
-		
 		exp.nestLevel = inGlobalScope ? 0 : 1;
 		exp.offset = offset;
 	}
@@ -163,35 +158,20 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(CallExp exp, int offset, boolean isAddress) {
-		offset++;
-		exp.args.accept(this, offset, false);
-		Sym func_dec = symbolTable.lookupFunction(exp.func);
-		exp.def = (FunctionDec)func_dec.def;
-
-		if (exp.dtype == null) {
-			exp.dtype = new SimpleDec(func_dec.def.row, func_dec.def.column, func_dec.def.typ, func_dec.def.typ.toString());
-		}
-		
 		exp.args.accept(this, offset, false);
 	}
 
 	public void visit(AssignExp exp, int offset, boolean isAddress) {
-		offset++;
 		exp.lhs.accept(this, offset, false);
 		exp.rhs.accept(this, offset, false);
-		exp.dtype = exp.lhs.dtype;
 	}
 
 	public void visit(CompoundExp exp, int offset, boolean isAddress) {
-		
-		offset++;
-		
 		exp.decs.accept(this, offset, false);
 		exp.exps.accept(this, offset, false);
 	}
 
 	public void visit(DecList exp, int offset, boolean isAddress) {
-		symbolTable.enterScope();
 		if (exp.head == null) {
 			return;
 		}
@@ -204,34 +184,15 @@ public class CodeGenerator implements AbsynVisitor {
 			exp = exp.tail;
 			inGlobalScope = true;
 		}
-		symbolTable.exitScope();
 	}
 
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
-		Sym s = new Sym(exp.name, exp, -1);
-
-
-		if (!(exp.body instanceof NilExp)) { // only do this stuff if not function prototype
-			System.out.println("Entering the scope for function " + exp.name + ":");
-
-			symbolTable.addFunction(s);
-			symbolTable.enterScope();
-
-			current_function = exp.name;
-
-			exp.typ.accept(this, offset, false);
-			exp.params.accept(this, offset, false);
-			exp.body.accept(this, offset, false);
-
-			symbolTable.exitScope();
-		}
+		exp.typ.accept(this, offset, false);
+		exp.params.accept(this, offset, false);
+		exp.body.accept(this, offset, false);
 	}
 
-	public void visit(IndexVar exp, int offset, boolean isAddress) {
-		
-		offset++;
-		exp.def = symbolTable.lookupVariable(exp.name).def;
-		
+	public void visit(IndexVar exp, int offset, boolean isAddress) {		
 		exp.index.accept(this, offset, false);
 	}
 
@@ -240,26 +201,18 @@ public class CodeGenerator implements AbsynVisitor {
 			return;
 		}
 		while (expList != null) {
-			if (expList.head instanceof CompoundExp)  symbolTable.enterScope(); 
 			expList.head.accept(this, offset, false);
-			if (expList.head instanceof CompoundExp)  symbolTable.exitScope();
 			expList = expList.tail;
 		}
 	}
 
 	public void visit(IfExp exp, int offset, boolean isAddress) {
-	
-		symbolTable.enterScope();
+
 		exp.test.accept(this, offset, false);
 		exp.thenpart.accept(this, offset, false);
 
-		symbolTable.exitScope();
-
-
 		if (!(exp.elsepart instanceof NilExp)) {
-			symbolTable.enterScope();
 			exp.elsepart.accept(this, offset, false);
-			symbolTable.exitScope();
 		}
 	}
 
@@ -284,19 +237,15 @@ public class CodeGenerator implements AbsynVisitor {
 		offset++;
 		
 		exp.exp.accept(this, offset, false);
-		exp.dtype = exp.exp.dtype;
 	}
 
 	public void visit(SimpleDec exp, int offset, boolean isAddress) {
 		exp.nestLevel = inGlobalScope ? 0 : 1;
 		exp.offset = offset;
-
-		Sym s = new Sym(exp.name, exp, -1);
-		symbolTable.addVariable(s);
 	}
 
 	public void visit(SimpleVar exp, int offset, boolean isAddress) {
-		exp.def = symbolTable.lookupVariable(exp.name).def;
+		
 	}
 
 	public void visit(VarDecList exp, int offset, boolean isAddress) {
@@ -313,30 +262,10 @@ public class CodeGenerator implements AbsynVisitor {
 
 	public void visit(VarExp exp, int offset, boolean isAddress) {
 		exp.variable.accept(this, offset, false);
-		
-		Sym s = symbolTable.lookupVariable(exp.variable.name);
-		Dec dtype = s.getDef();
-		if (exp.variable instanceof IndexVar)
-			exp.dtype = new SimpleDec(dtype.row, dtype.column, dtype.typ, dtype.name);
-		else
-			exp.dtype = dtype;
 	}
 
 	public void visit(WhileExp exp, int offset, boolean isAddress) {
-		
-		System.out.println("Entering a new while block");
-		symbolTable.enterScope();
-
 		exp.test.accept(this, offset, false);
 		exp.body.accept(this, offset, false);
-
-		symbolTable.exitScope();
 	}
-
-
-	public boolean isVoid(Dec dtype) { return dtype.isVoid(); }
-
-	public boolean isBool(Dec dtype) { return dtype.isBool(); }
-
-	public boolean isInt(Dec dtype) { return dtype.isInt(); }
 }

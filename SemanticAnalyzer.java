@@ -76,10 +76,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		level++;
 		exp.args.accept(this, level, false);
 		Sym func_dec = symbolTable.lookupFunction(exp.func);
+		
+		
 		if (func_dec == null) {
 			report_error("function undefined", exp);
 			return;
 		}
+		
+		exp.def = (FunctionDec)func_dec.def;
 
 		if (exp.dtype == null) {
 			exp.dtype = new SimpleDec(func_dec.def.row, func_dec.def.column, func_dec.def.typ,
@@ -208,6 +212,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public void visit(IndexVar exp, int level, boolean flag) {
 		level++;
 		exp.index.accept(this, level, false);
+		exp.def = (ArrayDec)symbolTable.lookupVariable(exp.name).def;
 		if (!isInt(exp.index.dtype) || exp.index.dtype.isArray())
 			report_type_error(exp.index, exp);
 	}
@@ -331,7 +336,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(SimpleVar exp, int level, boolean flag) {
-		// do nothing
+		exp.def = (SimpleDec)symbolTable.lookupVariable(exp.name).def;
 	}
 
 	public void visit(VarDecList exp, int level, boolean flag) {

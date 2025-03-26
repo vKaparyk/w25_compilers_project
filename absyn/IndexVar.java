@@ -2,6 +2,7 @@ package absyn;
 
 public class IndexVar extends Var {
 	public Exp index;
+	public ArrayDec def;
 
 	public IndexVar(int row, int column, String name, Exp index) {
 		this.row = row;
