@@ -32,7 +32,7 @@ Assumptions/Limitations
     only give errors and no warning.  Our program checks if there is a main function available as it is 
     required by the C- language.  Finally, when running the compiler, one of the following flags (-a, -s) 
     must be provided to choose what the compiler is to do, -a outputs the AST and -s outputs the AST and Symbol 
-    table.  
+    table. As per requirements, it is not supposed to save to `.abs` and `.sym` files if errors are encountered. We took liberty, and decided it'd be beneficial to save recovered Tree s.t. it can be analyzed at least somehow. It does not proceed to next stage if previous stage failed, but if the stage fails, it still saves recovered tree to file.
 
 Possible Improvements
     Possible improvements would be to resolve the previously mentioned function call limitation, adding a 

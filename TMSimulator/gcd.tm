@@ -2,7 +2,7 @@
 * File: gcd.tm
 * Standard prelude:
   0:     LD  6,0(0) 	load gp with maxaddress
-  1:    LDA  5,0(6) 	copy to gp to fp
+  1:    LDA  5,0(6) 	copy gp to fp
   2:     ST  0,0(0) 	clear location 0
 * Jump around i/o routines here
 * code for input routine
