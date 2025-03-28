@@ -146,7 +146,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM("ST", fp, globalOffset + ofpFO, fp, "push ofp");
 		emitRM("LDA", fp, globalOffset, fp, "push frame");
 		emitRM("LDA", ac, 1, pc, "load ac with ret ptr");
-		emitRM_Abs("LDA", pc, mainEntry, "jump to main loc");
+		emitRM("LDA", pc, mainEntry, "jump to main loc");
 		emitRM("LD", fp, ofpFO, fp, "pop frame");
 		emitRO("HALT", 0, 0, 0, "");
 	}
