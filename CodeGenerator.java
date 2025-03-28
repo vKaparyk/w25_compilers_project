@@ -44,14 +44,13 @@ public class CodeGenerator implements AbsynVisitor {
 	/**
 	 * Emit Register-Only (Register-To-Register) instruction
 	 * 
-	 * @param op str: HALT; {IN, OUT} r; {ADD, SUB, MUL, DIV} r,s,t;
+	 * @param op str: {ADD, SUB, MUL, DIV} r,s,t;
 	 * @param r  int: src register number
 	 * @param s  int: LHS operand register number
 	 * @param t  int: RHS operand register number
 	 * @param c  str: comment
 	 */
 	public void emitRO(String op, int r, int s, int t, String c) {
-		// TODO: what if HALT or IN r; s and t would still be printed >:(
 		code.printf("%3d: %5s %d, %d, %d", emitLoc, op, r, s, t);
 		code.printf("\t%s\n", c);
 		++emitLoc;
@@ -59,6 +58,23 @@ public class CodeGenerator implements AbsynVisitor {
 			highEmitLoc = emitLoc;
 		}
 	}
+
+	/**
+	 * Emit Register-Only (Register-To-Register) instruction
+	 * 
+	 * @param op str: {IN, OUT}
+	 * @param r  int: src register number
+	 * @param c  str: comment
+	 */
+	public void emitRO(String op, int r, String c) { emitRO(op, r, 0, 0, c); }
+
+	/**
+	 * Emit Register-Only (Register-To-Register) instruction
+	 * 
+	 * @param op str: HALT
+	 * @param c  str: comment
+	 */
+	public void emitRO(String op, String c) { emitRO(op, 0, 0, 0, c); }
 
 	/**
 	 * Emit Register-Memorty (RM) instruction (a = d + reg[s])
@@ -70,7 +86,6 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param c  str: comment
 	 */
 	public void emitRM(String op, int r, int d, int s, String c) {
-		// TODO: what if comment is empty
 		code.printf("%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s);
 		code.printf("\t%s\n", c);
 		++emitLoc;
@@ -88,12 +103,8 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param c  str: comment
 	 */
 	public void emitRM(String op, int r, int a, String c) {
-		code.printf("%3d: %5s %d, %d(%d) ", emitLoc, op, r, a - (emitLoc + 1), pc);
-		code.printf("\t%s\n", c);
-		++emitLoc;
-		if (highEmitLoc < emitLoc) {
-			highEmitLoc = emitLoc;
-		}
+		// TODO: is it actually that offset, and not just a?
+		emitRM(op, r, a - (emitLoc + 1), pc, c);
 	}
 
 	// Skip specified distance in emit location
@@ -148,6 +159,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM("LDA", ac, 1, pc, "load ac with ret ptr");
 		emitRM("LDA", pc, mainEntry, "jump to main loc");
 		emitRM("LD", fp, ofpFO, fp, "pop frame");
+		// TODO: yeah, that's what i'm talking about
 		emitRO("HALT", 0, 0, 0, "");
 	}
 
