@@ -148,8 +148,17 @@ public class CodeGenerator implements AbsynVisitor {
 
 		// generate the i/o routines
 		emitComment("Jump around i/o routines here");
-		// TODO: i/o routines
-
+		emitComment("code for input routine");
+		emitRM("ST", ac, -1, fp, "store return");
+		emitRO("IN", ac, "input");
+		emitRM("LD", pc, -1, fp, "return to caller");
+		emitComment("code for output routine");
+		emitRM("ST", ac, -1, fp, "store return");
+		emitRM("LD", ac, -2, fp, "load output value");
+		emitRO("OUT", ac, "output");
+		emitRM("LD", pc, -1, fp, "return to caller");
+		emitRM("LDA", pc, 7, pc, "jump around i/o code");
+		emitComment("End of standard prelude.");
 		// make a request to the visit method for DecList
 		trees.accept(this, 0, false);
 
@@ -160,7 +169,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM("LDA", pc, mainEntry, "jump to main loc");
 		emitRM("LD", fp, ofpFO, fp, "pop frame");
 		// TODO: yeah, that's what i'm talking about
-		emitRO("HALT", 0, 0, 0, "");
+		emitRO("HALT", "");
 	}
 
 	// absyn functions
