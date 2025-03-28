@@ -5,7 +5,7 @@ import absyn.*;
 
 public class CodeGenerator implements AbsynVisitor {
 	public boolean failedGeneration = false;
-	
+
 	private final int pc = 7;
 	private final int gp = 6;
 	private final int fp = 5;
@@ -20,127 +20,135 @@ public class CodeGenerator implements AbsynVisitor {
 	private boolean inGlobalScope;
 	private String filename;
 
-	int mainEntry; 			// absolute address for main
-	int globalOffset;		// next available loc after global frame
-	
+	int mainEntry; // absolute address for main
+	int globalOffset; // next available loc after global frame
+
 	int ofpFO;
 
-	int emitLoc = 0;		
-    int highEmitLoc = 0;	
-    PrintWriter code;
+	int emitLoc = 0;
+	int highEmitLoc = 0;
+	PrintWriter code;
 
-    // Constructor to set up the output writer
-    public CodeGenerator(String filename) {
-        this.filename = filename;
+	// Constructor to set up the output writer
+	public CodeGenerator(String filename) {
+		this.filename = filename;
 		try {
 			code = new PrintWriter(new FileWriter(filename));
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-    }
-
-	public void closeWriter() {
-		code.close();
 	}
 
-    // Emit Register-Only (RO) instruction
-    public void emitRO(String op, int r, int s, int t, String c) {
-        code.printf("%3d: %5s %d, %d, %d", emitLoc, op, r, s, t);
-        code.printf("\t%s\n", c);
-        ++emitLoc;
-        if (highEmitLoc < emitLoc) {
-            highEmitLoc = emitLoc;
-        }
-    }
+	public void closeWriter() { code.close(); }
 
-	// Format: opcode r, d(s)
-	// r: register
-	// s: 
-	// a: address
-	// d: 
+	/**
+	 * Emit Register-Only (Register-To-Register) instruction
+	 * 
+	 * @param op str: HALT; {IN, OUT} r; {ADD, SUB, MUL, DIV} r,s,t;
+	 * @param r  int: src register number
+	 * @param s  int: LHS operand register number
+	 * @param t  int: RHS operand register number
+	 * @param c  str: comment
+	 */
+	public void emitRO(String op, int r, int s, int t, String c) {
+		// TODO: what if HALT or IN r; s and t would still be printed >:(
+		code.printf("%3d: %5s %d, %d, %d", emitLoc, op, r, s, t);
+		code.printf("\t%s\n", c);
+		++emitLoc;
+		if (highEmitLoc < emitLoc) {
+			highEmitLoc = emitLoc;
+		}
+	}
 
-    // Emit Register-Memory (RM) instruction
-    public void emitRM(String op, int r, int d, int s, String c) {
-        code.printf("%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s);
-        code.printf("\t%s\n", c);
-        ++emitLoc;
-        if (highEmitLoc < emitLoc) {
-            highEmitLoc = emitLoc;
-        }
-    }
+	/**
+	 * Emit Register-Memorty (RM) instruction (a = d + reg[s])
+	 * 
+	 * @param op str: {LD, LDA, LDC, ST, JLT, JLE, JGT, JGE, JEQ, JNE}
+	 * @param r  int: src register number
+	 * @param d  int: memory offset
+	 * @param s  int: register (holding value) for offset
+	 * @param c  str: comment
+	 */
+	public void emitRM(String op, int r, int d, int s, String c) {
+		// TODO: what if comment is empty
+		code.printf("%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s);
+		code.printf("\t%s\n", c);
+		++emitLoc;
+		if (highEmitLoc < emitLoc) {
+			highEmitLoc = emitLoc;
+		}
+	}
 
-    // Emit Register-Memory Absolute (RM_Abs) instruction
-    public void emitRM_Abs(String op, int r, int a, String c) {
-        code.printf("%3d: %5s %d, %d(%d) ", emitLoc, op, r, a - (emitLoc + 1), pc);
-        code.printf("\t%s\n", c);
-        ++emitLoc;
-        if (highEmitLoc < emitLoc) {
-            highEmitLoc = emitLoc;
-        }
-    }
+	/**
+	 * Emit Register-Memory (RM) instruction, given memory address
+	 * 
+	 * @param op str: {LD, LDA, LDC, ST, JLT, JLE, JGT, JGE, JEQ, JNE}
+	 * @param r  int: src register number
+	 * @param a  int: address oh RHS operand
+	 * @param c  str: comment
+	 */
+	public void emitRM(String op, int r, int a, String c) {
+		code.printf("%3d: %5s %d, %d(%d) ", emitLoc, op, r, a - (emitLoc + 1), pc);
+		code.printf("\t%s\n", c);
+		++emitLoc;
+		if (highEmitLoc < emitLoc) {
+			highEmitLoc = emitLoc;
+		}
+	}
 
-    // Skip specified distance in emit location
-    public int emitSkip(int distance) {
-        int i = emitLoc;
-        emitLoc += distance;
-        if (highEmitLoc < emitLoc) {
-            highEmitLoc = emitLoc;
-        }
-        return i;
-    }
+	// Skip specified distance in emit location
+	public int emitSkip(int distance) {
+		int i = emitLoc;
+		emitLoc += distance;
+		if (highEmitLoc < emitLoc) {
+			highEmitLoc = emitLoc;
+		}
+		return i;
+	}
 
-    // Backup to a specific location
-    public void emitBackup(int loc) {
-        if (loc > highEmitLoc) {
-            emitComment("BUG in emitBackup");
-        }
-        emitLoc = loc;
-    }
+	// Backup to a specific location
+	public void emitBackup(int loc) {
+		if (loc > highEmitLoc) {
+			emitComment("BUG in emitBackup");
+		}
+		emitLoc = loc;
+	}
 
-    // Restore emit location to highest emitted location
-    public void emitRestore() {
-        emitLoc = highEmitLoc;
-    }
+	// Restore emit location to highest emitted location
+	public void emitRestore() { emitLoc = highEmitLoc; }
 
-    // Generate a comment line
-    public void emitComment(String c) {
-        code.printf("* %s\n", c);
-    }
+	// Generate a comment line
+	public void emitComment(String c) { code.printf("* %s\n", c); }
 
-    // Optional: getter methods for emitLoc and highEmitLoc
-    public int getEmitLoc() {
-        return emitLoc;
-    }
+	// Optional: getter methods for emitLoc and highEmitLoc
+	public int getEmitLoc() { return emitLoc; }
 
-    public int getHighEmitLoc() {
-        return highEmitLoc;
-    }
+	public int getHighEmitLoc() { return highEmitLoc; }
 
 	public void visit(Absyn trees) {
 		// generate the prelude
 		emitComment("C-Minus Compilation to TM Code");
 		emitComment("File: " + filename);
 		emitComment("Standard prelude:");
-		
+
 		emitRM("LD", gp, 0, ac, "load gp with maxaddress");
 		emitRM("LDA", fp, 0, gp, "copy gp to fp");
 		emitRM("ST", ac, 0, ac, "clear location 0");
-		
+
 		// generate the i/o routines
 		emitComment("Jump around i/o routines here");
 		// TODO: i/o routines
-		
+
 		// make a request to the visit method for DecList
 		trees.accept(this, 0, false);
-		
+
 		// generate finale
-		emitRM( "ST", fp, globalOffset+ofpFO, fp, "push ofp" );
-		emitRM( "LDA", fp, globalOffset, fp, "push frame" );
-		emitRM( "LDA", ac, 1, pc, "load ac with ret ptr" );
-		emitRM_Abs( "LDA", pc, mainEntry, "jump to main loc" );
-		emitRM( "LD", fp, ofpFO, fp, "pop frame" );
-		emitRO( "HALT", 0, 0, 0, "" );
+		emitRM("ST", fp, globalOffset + ofpFO, fp, "push ofp");
+		emitRM("LDA", fp, globalOffset, fp, "push frame");
+		emitRM("LDA", ac, 1, pc, "load ac with ret ptr");
+		emitRM_Abs("LDA", pc, mainEntry, "jump to main loc");
+		emitRM("LD", fp, ofpFO, fp, "pop frame");
+		emitRO("HALT", 0, 0, 0, "");
 	}
 
 	// absyn functions
@@ -150,16 +158,14 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(NameTy exp, int offset, boolean isAddress) {
-		
+
 	}
 
 	public void visit(BoolExp exp, int offset, boolean isAddress) {
-		
+
 	}
 
-	public void visit(CallExp exp, int offset, boolean isAddress) {
-		exp.args.accept(this, offset, false);
-	}
+	public void visit(CallExp exp, int offset, boolean isAddress) { exp.args.accept(this, offset, false); }
 
 	public void visit(AssignExp exp, int offset, boolean isAddress) {
 		exp.lhs.accept(this, offset, false);
@@ -175,11 +181,12 @@ public class CodeGenerator implements AbsynVisitor {
 		if (exp.head == null) {
 			return;
 		}
-		
+
 		inGlobalScope = true;
 		while (exp != null) {
-			if (!(exp.head instanceof VarDec)) inGlobalScope = false;
-			
+			if (!(exp.head instanceof VarDec))
+				inGlobalScope = false;
+
 			exp.head.accept(this, offset, false);
 			exp = exp.tail;
 			inGlobalScope = true;
@@ -192,9 +199,7 @@ public class CodeGenerator implements AbsynVisitor {
 		exp.body.accept(this, offset, false);
 	}
 
-	public void visit(IndexVar exp, int offset, boolean isAddress) {		
-		exp.index.accept(this, offset, false);
-	}
+	public void visit(IndexVar exp, int offset, boolean isAddress) { exp.index.accept(this, offset, false); }
 
 	public void visit(ExpList expList, int offset, boolean isAddress) {
 		if (expList.head == null) {
@@ -217,7 +222,7 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(IntExp exp, int offset, boolean isAddress) {
-		
+
 	}
 
 	public void visit(NilExp exp, int offset, boolean isAddress) {
@@ -226,16 +231,16 @@ public class CodeGenerator implements AbsynVisitor {
 
 	public void visit(OpExp exp, int offset, boolean isAddress) {
 		offset++;
-		
+
 		if (!(exp.left instanceof NilExp))
 			exp.left.accept(this, offset, false);
-		
+
 		exp.right.accept(this, offset, false);
 	}
 
 	public void visit(ReturnExp exp, int offset, boolean isAddress) {
 		offset++;
-		
+
 		exp.exp.accept(this, offset, false);
 	}
 
@@ -245,24 +250,22 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(SimpleVar exp, int offset, boolean isAddress) {
-		
+
 	}
 
 	public void visit(VarDecList exp, int offset, boolean isAddress) {
 		if (exp.head == null) {
 			return;
 		}
-		
+
 		while (exp != null) {
-				
+
 			exp.head.accept(this, offset, false);
 			exp = exp.tail;
 		}
 	}
 
-	public void visit(VarExp exp, int offset, boolean isAddress) {
-		exp.variable.accept(this, offset, false);
-	}
+	public void visit(VarExp exp, int offset, boolean isAddress) { exp.variable.accept(this, offset, false); }
 
 	public void visit(WhileExp exp, int offset, boolean isAddress) {
 		exp.test.accept(this, offset, false);
