@@ -465,6 +465,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public boolean isInt(Dec dtype) { return dtype.isInt(); }
 
 	public void checkForMain() {
+		// TODO: check all functions have implementation
+
 		if (symbolTable.lookupFunction("main") == null) {
 			invalid_symbol_tabling = true;
 			System.err.println(filename + ":1:1:error: main() not defined");
