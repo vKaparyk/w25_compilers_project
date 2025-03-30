@@ -12,6 +12,8 @@ public class CodeGenerator implements AbsynVisitor {
 	private final int ac = 0;
 	private final int ac1 = 1;
 
+	private final int retFO = -1;
+
 	enum RO {
 		HALT, IN, OUT, ADD, SUB, MUL, DIV
 	}
@@ -34,13 +36,15 @@ public class CodeGenerator implements AbsynVisitor {
 	int emitLoc = 0; // "number of instructions"; PC but counting as outputting
 	int highEmitLoc = 0; //	for backpatching, TODO: fugure out
 
-	int frameOffset; // bottom of allocated variables in frame; "next empty stop (probably)" after allocated variables; non-temporary
-						// points to where temporraies willl start
-						// frameOffset: size that the current frame is taking up; ends up pointing to where remporaries will start
-						// OR where new frame will be created
+	int frameOffset = -2; // bottom of allocated variables in frame; "next empty stop (probably)" after allocated variables; non-temporary
+							// points to where temporraies willl start
+							// frameOffset: size that the current frame is taking up; ends up pointing to where remporaries will start
+							// OR where new frame will be created
 
 	// TODO: possible problem that ocmes up later; we'll see
 	PrintWriter code;
+
+	/********************* Workers *********************/
 
 	// Constructor to set up the output writer
 	public CodeGenerator(String filename) {
@@ -247,25 +251,28 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRO(RO.HALT, "end program");
 	}
 
+	/**************** Absyn Visitor **********************/
+
 	// absyn functions
 	public void visit(ArrayDec exp, int offset, boolean isAddress) {
+		// TODO: implementation detail 11w:16
+		// TODO: implementation detail 11w:17
 		exp.nestLevel = inGlobalScope ? 0 : 1;
 		exp.offset = offset;
 	}
 
-	public void visit(NameTy exp, int offset, boolean isAddress) {
-
+	public void visit(AssignExp exp, int offset, boolean isAddress) {
+		exp.lhs.accept(this, offset, true);
+		exp.rhs.accept(this, offset, false);
 	}
 
 	public void visit(BoolExp exp, int offset, boolean isAddress) {
 
 	}
 
-	public void visit(CallExp exp, int offset, boolean isAddress) { exp.args.accept(this, offset, false); }
-
-	public void visit(AssignExp exp, int offset, boolean isAddress) {
-		exp.lhs.accept(this, offset, false);
-		exp.rhs.accept(this, offset, false);
+	public void visit(CallExp exp, int offset, boolean isAddress) {
+		// TODO: holy fucking shit
+		exp.args.accept(this, offset, false);
 	}
 
 	public void visit(CompoundExp exp, int offset, boolean isAddress) {
@@ -290,12 +297,18 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
+		// TODO: funaddr
 		exp.typ.accept(this, offset, false);
 		exp.params.accept(this, offset, false);
 		exp.body.accept(this, offset, false);
 	}
 
-	public void visit(IndexVar exp, int offset, boolean isAddress) { exp.index.accept(this, offset, false); }
+	public void visit(IndexVar exp, int offset, boolean isAddress) {
+		// TODO: offset
+		// TODO: nestLevel
+		// TODO: implementation details: 11w:16
+		exp.index.accept(this, offset, false);
+	}
 
 	public void visit(ExpList expList, int offset, boolean isAddress) {
 		if (expList.head == null) {
@@ -318,6 +331,10 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(IntExp exp, int offset, boolean isAddress) {
+
+	}
+
+	public void visit(NameTy exp, int offset, boolean isAddress) {
 
 	}
 
@@ -346,7 +363,9 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(SimpleVar exp, int offset, boolean isAddress) {
-
+		// TODO: implemetntion 11w:42
+		// TODO: offset
+		// TODO: nestLevel(?)
 	}
 
 	public void visit(VarDecList exp, int offset, boolean isAddress) {
@@ -361,7 +380,10 @@ public class CodeGenerator implements AbsynVisitor {
 		}
 	}
 
-	public void visit(VarExp exp, int offset, boolean isAddress) { exp.variable.accept(this, offset, false); }
+	public void visit(VarExp exp, int offset, boolean isAddress) {
+		// brug
+		exp.variable.accept(this, offset, false);
+	}
 
 	public void visit(WhileExp exp, int offset, boolean isAddress) {
 		exp.test.accept(this, offset, false);
