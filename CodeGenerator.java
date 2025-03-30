@@ -94,7 +94,7 @@ public class CodeGenerator implements AbsynVisitor {
 		default:
 			break;
 		}
-		code.printf("%d, %d, %d", r, s, t);
+		code.printf("%d,%d,%d", r, s, t);
 		code.printf("\t%s\n", c);
 		++emitLoc;
 		if (highEmitLoc < emitLoc) {
@@ -132,39 +132,39 @@ public class CodeGenerator implements AbsynVisitor {
 		code.printf("%3d: ", emitLoc);
 		switch (op) {
 		case LD:
-			code.printf("%5s: ", "LD");
+			code.printf("%5s ", "LD");
 			break;
 		case LDA:
-			code.printf("%5s: ", "LDA");
+			code.printf("%5s ", "LDA");
 			break;
 		case LDC:
-			code.printf("%5s: ", "LDC");
+			code.printf("%5s ", "LDC");
 			break;
 		case ST:
-			code.printf("%5s: ", "ST");
+			code.printf("%5s ", "ST");
 			break;
 		case JLT:
-			code.printf("%5s: ", "JLT");
+			code.printf("%5s ", "JLT");
 			break;
 		case JLE:
-			code.printf("%5s: ", "JLE");
+			code.printf("%5s ", "JLE");
 			break;
 		case JGT:
-			code.printf("%5s: ", "JGT");
+			code.printf("%5s ", "JGT");
 			break;
 		case JGE:
-			code.printf("%5s: ", "JGE");
+			code.printf("%5s ", "JGE");
 			break;
 		case JEQ:
-			code.printf("%5s: ", "JEQ");
+			code.printf("%5s ", "JEQ");
 			break;
 		case JNE:
-			code.printf("%5s: ", "JNE");
+			code.printf("%5s ", "JNE");
 			break;
 		default:
 			break;
 		}
-		code.printf("%d, %d(%d)", r, d, s);
+		code.printf("%d,%d(%d)", r, d, s);
 		code.printf("\t%s\n", c);
 		++emitLoc;
 		if (highEmitLoc < emitLoc) {
@@ -172,14 +172,6 @@ public class CodeGenerator implements AbsynVisitor {
 		}
 	}
 
-	/**
-	 * Emit Register-Memory (RM) instruction, given memory address
-	 * 
-	 * @param op str: {LD, LDA, LDC, ST, JLT, JLE, JGT, JGE, JEQ, JNE}
-	 * @param r  int: src register number
-	 * @param a  int: address oh RHS operand
-	 * @param c  str: comment
-	 */
 	public void emitRM(RM op, int r, int a, String c) {
 		// TODO: is it actually that offset, and not just a?
 		emitRM(op, r, a - (emitLoc + 1), pc, c);
@@ -223,6 +215,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM(RM.LD, gp, 0, ac, "load gp with maxaddress");
 		emitRM(RM.LDA, fp, 0, gp, "copy gp to fp");
 		emitRM(RM.ST, ac, 0, ac, "clear location 0");
+		int skip = emitSkip(1);
 
 		// generate the i/o routines
 		emitComment("Jump around i/o routines here");
@@ -237,8 +230,11 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM(RM.LD, ac, -2, fp, "load output value");
 		emitRO(RO.OUT, ac, "output");
 		emitRM(RM.LD, pc, -1, fp, "return to caller");
-		emitRM(RM.LDA, pc, 7, pc, "jump around i/o code");
+		emitBackup(skip);
+		emitRM(RM.LDA, pc, getHighEmitLoc(), "jump around i/o code");
+		emitRestore();
 		emitComment("End of standard prelude.");
+
 		// make a request to the visit method for DecList
 		trees.accept(this, 0, false);
 
@@ -255,10 +251,14 @@ public class CodeGenerator implements AbsynVisitor {
 
 	// absyn functions
 	public void visit(ArrayDec exp, int offset, boolean isAddress) {
-		// TODO: implementation detail 11w:16
-		// TODO: implementation detail 11w:17
 		exp.nestLevel = inGlobalScope ? 0 : 1;
 		exp.offset = offset;
+
+		// 
+		emitRM(RM.ST, ac1, -1 + offset + (exp.size * -1), fp, "store ac1 contents into temp");
+		emitRM(RM.LDC, ac1, exp.size, 0, "get array size into ac1");
+		emitRM(RM.ST, ac1, offset - exp.size, fp, "store aray size into stack");
+		emitRM(RM.LD, ac1, -1 + offset + (exp.size * -1), fp, "load contents of ac1 from temp back");
 	}
 
 	public void visit(AssignExp exp, int offset, boolean isAddress) {
@@ -291,6 +291,13 @@ public class CodeGenerator implements AbsynVisitor {
 				inGlobalScope = false;
 
 			exp.head.accept(this, offset, false);
+			if (exp.head instanceof VarDec) {
+				if (exp.head instanceof SimpleDec)
+					offset -= 1;
+				else
+					offset -= (((ArrayDec) (exp.head)).size + 1);
+			}
+
 			exp = exp.tail;
 			inGlobalScope = true;
 		}
@@ -298,9 +305,16 @@ public class CodeGenerator implements AbsynVisitor {
 
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
 		// TODO: funaddr
+
 		exp.typ.accept(this, offset, false);
+		// implementation
+		// push frame pointer
+		// set ofp
+		// set new fp
 		exp.params.accept(this, offset, false);
+
 		exp.body.accept(this, offset, false);
+
 	}
 
 	public void visit(IndexVar exp, int offset, boolean isAddress) {
@@ -360,6 +374,8 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(SimpleDec exp, int offset, boolean isAddress) {
 		exp.nestLevel = inGlobalScope ? 0 : 1;
 		exp.offset = offset;
+		// emitRM(RM.LDC, ac1, offset + 17, "");
+		// emitRM(RM.ST, ac1, offset, fp, "store const for testing");
 	}
 
 	public void visit(SimpleVar exp, int offset, boolean isAddress) {
