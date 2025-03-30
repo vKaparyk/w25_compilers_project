@@ -105,7 +105,8 @@
 * processing function: main
 * jump around function body here
  50:     ST  0,-1(5) 	store return
-* -> compound statement
+
+* -> compound statement -> x = input()
 * processing local var: x
 * -> op
 * -> id

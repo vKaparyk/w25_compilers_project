@@ -12,8 +12,14 @@ public class CodeGenerator implements AbsynVisitor {
 	private final int ac = 0;
 	private final int ac1 = 1;
 
-	private final int IADDR_SIZE = 1024;
-	private final int DADDR_SIZE = 1024;
+	enum RO {
+		HALT, IN, OUT, ADD, SUB, MUL, DIV
+	}
+
+	enum RM {
+		LD, LDA, LDC, ST, JLT, JLE, JGT, JGE, JEQ, JNE
+	}
+
 	private final int NO_REGS = 8;
 	private final int C_REG = 7;
 
@@ -23,10 +29,17 @@ public class CodeGenerator implements AbsynVisitor {
 	int mainEntry; // absolute address for main
 	int globalOffset; // next available loc after global frame
 
-	int ofpFO;
+	int ofpFO = 0; // old frame pointer Frame Offset
 
-	int emitLoc = 0;
-	int highEmitLoc = 0;
+	int emitLoc = 0; // "number of instructions"; PC but counting as outputting
+	int highEmitLoc = 0; //	for backpatching, TODO: fugure out
+
+	int frameOffset; // bottom of allocated variables in frame; "next empty stop (probably)" after allocated variables; non-temporary
+						// points to where temporraies willl start
+						// frameOffset: size that the current frame is taking up; ends up pointing to where remporaries will start
+						// OR where new frame will be created
+
+	// TODO: possible problem that ocmes up later; we'll see
 	PrintWriter code;
 
 	// Constructor to set up the output writer
@@ -50,8 +63,34 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param t  int: RHS operand register number
 	 * @param c  str: comment
 	 */
-	public void emitRO(String op, int r, int s, int t, String c) {
-		code.printf("%3d: %5s %d, %d, %d", emitLoc, op, r, s, t);
+	public void emitRO(RO op, int r, int s, int t, String c) {
+		code.printf("%3d: ", emitLoc);
+		switch (op) {
+		case HALT:
+			code.printf("%5s ", "HALT");
+			break;
+		case IN:
+			code.printf("%5s ", "IN");
+			break;
+		case OUT:
+			code.printf("%5s ", "OUT");
+			break;
+		case ADD:
+			code.printf("%5s ", "ADD");
+			break;
+		case SUB:
+			code.printf("%5s ", "SUB");
+			break;
+		case MUL:
+			code.printf("%5s ", "MUL");
+			break;
+		case DIV:
+			code.printf("%5s ", "DIV");
+			break;
+		default:
+			break;
+		}
+		code.printf("%d, %d, %d", r, s, t);
 		code.printf("\t%s\n", c);
 		++emitLoc;
 		if (highEmitLoc < emitLoc) {
@@ -66,7 +105,7 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param r  int: src register number
 	 * @param c  str: comment
 	 */
-	public void emitRO(String op, int r, String c) { emitRO(op, r, 0, 0, c); }
+	public void emitRO(RO op, int r, String c) { emitRO(op, r, 0, 0, c); }
 
 	/**
 	 * Emit Register-Only (Register-To-Register) instruction
@@ -74,7 +113,7 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param op str: HALT
 	 * @param c  str: comment
 	 */
-	public void emitRO(String op, String c) { emitRO(op, 0, 0, 0, c); }
+	public void emitRO(RO op, String c) { emitRO(op, 0, 0, 0, c); }
 
 	/**
 	 * Emit Register-Memorty (RM) instruction (a = d + reg[s])
@@ -85,8 +124,43 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param s  int: register (holding value) for offset
 	 * @param c  str: comment
 	 */
-	public void emitRM(String op, int r, int d, int s, String c) {
-		code.printf("%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s);
+	public void emitRM(RM op, int r, int d, int s, String c) {
+		code.printf("%3d: ", emitLoc);
+		switch (op) {
+		case LD:
+			code.printf("%5s: ", "LD");
+			break;
+		case LDA:
+			code.printf("%5s: ", "LDA");
+			break;
+		case LDC:
+			code.printf("%5s: ", "LDC");
+			break;
+		case ST:
+			code.printf("%5s: ", "ST");
+			break;
+		case JLT:
+			code.printf("%5s: ", "JLT");
+			break;
+		case JLE:
+			code.printf("%5s: ", "JLE");
+			break;
+		case JGT:
+			code.printf("%5s: ", "JGT");
+			break;
+		case JGE:
+			code.printf("%5s: ", "JGE");
+			break;
+		case JEQ:
+			code.printf("%5s: ", "JEQ");
+			break;
+		case JNE:
+			code.printf("%5s: ", "JNE");
+			break;
+		default:
+			break;
+		}
+		code.printf("%d, %d(%d)", r, d, s);
 		code.printf("\t%s\n", c);
 		++emitLoc;
 		if (highEmitLoc < emitLoc) {
@@ -102,7 +176,7 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param a  int: address oh RHS operand
 	 * @param c  str: comment
 	 */
-	public void emitRM(String op, int r, int a, String c) {
+	public void emitRM(RM op, int r, int a, String c) {
 		// TODO: is it actually that offset, and not just a?
 		emitRM(op, r, a - (emitLoc + 1), pc, c);
 	}
@@ -142,34 +216,35 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("File: " + filename);
 		emitComment("Standard prelude:");
 
-		emitRM("LD", gp, 0, ac, "load gp with maxaddress");
-		emitRM("LDA", fp, 0, gp, "copy gp to fp");
-		emitRM("ST", ac, 0, ac, "clear location 0");
+		emitRM(RM.LD, gp, 0, ac, "load gp with maxaddress");
+		emitRM(RM.LDA, fp, 0, gp, "copy gp to fp");
+		emitRM(RM.ST, ac, 0, ac, "clear location 0");
 
 		// generate the i/o routines
 		emitComment("Jump around i/o routines here");
+		// input
 		emitComment("code for input routine");
-		emitRM("ST", ac, -1, fp, "store return");
-		emitRO("IN", ac, "input");
-		emitRM("LD", pc, -1, fp, "return to caller");
+		emitRM(RM.ST, ac, -1, fp, "store return");
+		emitRO(RO.IN, ac, "input");
+		emitRM(RM.LD, pc, -1, fp, "return to caller");
+		// input
 		emitComment("code for output routine");
-		emitRM("ST", ac, -1, fp, "store return");
-		emitRM("LD", ac, -2, fp, "load output value");
-		emitRO("OUT", ac, "output");
-		emitRM("LD", pc, -1, fp, "return to caller");
-		emitRM("LDA", pc, 7, pc, "jump around i/o code");
+		emitRM(RM.ST, ac, -1, fp, "store return");
+		emitRM(RM.LD, ac, -2, fp, "load output value");
+		emitRO(RO.OUT, ac, "output");
+		emitRM(RM.LD, pc, -1, fp, "return to caller");
+		emitRM(RM.LDA, pc, 7, pc, "jump around i/o code");
 		emitComment("End of standard prelude.");
 		// make a request to the visit method for DecList
 		trees.accept(this, 0, false);
 
 		// generate finale
-		emitRM("ST", fp, globalOffset + ofpFO, fp, "push ofp");
-		emitRM("LDA", fp, globalOffset, fp, "push frame");
-		emitRM("LDA", ac, 1, pc, "load ac with ret ptr");
-		emitRM("LDA", pc, mainEntry, "jump to main loc");
-		emitRM("LD", fp, ofpFO, fp, "pop frame");
-		// TODO: yeah, that's what i'm talking about
-		emitRO("HALT", "");
+		emitRM(RM.ST, fp, globalOffset + ofpFO, fp, "push ofp");
+		emitRM(RM.LDA, fp, globalOffset, fp, "push frame");
+		emitRM(RM.LDA, ac, 1, pc, "load ac with ret ptr");
+		emitRM(RM.LDA, pc, mainEntry, "jump to main loc");
+		emitRM(RM.LD, fp, ofpFO, fp, "pop frame");
+		emitRO(RO.HALT, "end program");
 	}
 
 	// absyn functions

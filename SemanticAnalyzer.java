@@ -36,6 +36,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			report_error("cannot declare void variable", exp);
 			exp.typ.typ = NameTy.INT;
 		}
+
+		if (exp.size < 1) {
+			report_error("invalid size of the array", exp);
+		}
+
 		Sym s = new Sym(exp.name, exp, level);
 		if (!symbolTable.addVariable(s)) {
 			report_error("redeclaration of variable \'" + exp.name + "\'", exp);
@@ -76,14 +81,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		level++;
 		exp.args.accept(this, level, false);
 		Sym func_dec = symbolTable.lookupFunction(exp.func);
-		
-		
+
 		if (func_dec == null) {
 			report_error("function undefined", exp);
 			return;
 		}
-		
-		exp.def = (FunctionDec)func_dec.def;
+
+		exp.def = (FunctionDec) func_dec.def;
 
 		if (exp.dtype == null) {
 			exp.dtype = new SimpleDec(func_dec.def.row, func_dec.def.column, func_dec.def.typ,
@@ -212,7 +216,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public void visit(IndexVar exp, int level, boolean flag) {
 		level++;
 		exp.index.accept(this, level, false);
-		exp.def = (ArrayDec)symbolTable.lookupVariable(exp.name).def;
+		exp.def = (ArrayDec) symbolTable.lookupVariable(exp.name).def;
 		if (!isInt(exp.index.dtype) || exp.index.dtype.isArray())
 			report_type_error(exp.index, exp);
 	}
@@ -336,7 +340,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(SimpleVar exp, int level, boolean flag) {
-		exp.def = (SimpleDec)symbolTable.lookupVariable(exp.name).def;
+		exp.def = (SimpleDec) symbolTable.lookupVariable(exp.name).def;
 	}
 
 	public void visit(VarDecList exp, int level, boolean flag) {
