@@ -64,7 +64,9 @@ public class CodeGenerator implements AbsynVisitor {
 		}
 	}
 
-	public void closeWriter() { code.close(); }
+	public void closeWriter() {
+		code.close();
+	}
 
 	/**
 	 * Emit Register-Only (Register-To-Register) instruction
@@ -117,7 +119,9 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param r  int: src register number
 	 * @param c  str: comment
 	 */
-	public void emitRO(RO op, int r, String c) { emitRO(op, r, 0, 0, c); }
+	public void emitRO(RO op, int r, String c) {
+		emitRO(op, r, 0, 0, c);
+	}
 
 	/**
 	 * Emit Register-Only (Register-To-Register) instruction
@@ -125,7 +129,9 @@ public class CodeGenerator implements AbsynVisitor {
 	 * @param op str: HALT
 	 * @param c  str: comment
 	 */
-	public void emitRO(RO op, String c) { emitRO(op, 0, 0, 0, c); }
+	public void emitRO(RO op, String c) {
+		emitRO(op, 0, 0, 0, c);
+	}
 
 	/**
 	 * Emit Register-Memorty (RM) instruction (a = d + reg[s])
@@ -204,15 +210,23 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	// Restore emit location to highest emitted location
-	public void emitRestore() { emitLoc = highEmitLoc; }
+	public void emitRestore() {
+		emitLoc = highEmitLoc;
+	}
 
 	// Generate a comment line
-	public void emitComment(String c) { code.printf("* %s\n", c); }
+	public void emitComment(String c) {
+		code.printf("* %s\n", c);
+	}
 
 	// Optional: getter methods for emitLoc and highEmitLoc
-	public int getEmitLoc() { return emitLoc; }
+	public int getEmitLoc() {
+		return emitLoc;
+	}
 
-	public int getHighEmitLoc() { return highEmitLoc; }
+	public int getHighEmitLoc() {
+		return highEmitLoc;
+	}
 
 	public void visit(Absyn trees) {
 		// generate the prelude
@@ -272,15 +286,14 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(AssignExp exp, int offset, boolean isAddress) {
 		int lhsAddressOffset = offset - 1;
 		exp.lhs.accept(this, lhsAddressOffset, true);
-		
+
 		int rhsValueOffset = offset - 2;
 		exp.rhs.accept(this, rhsValueOffset, false);
-		
 
 		emitRM(RM.LD, ac, lhsAddressOffset, fp, "load lhs address");
 		emitRM(RM.LD, ac1, rhsValueOffset, fp, "load rhs value");
 		emitRM(RM.ST, ac1, 0, ac, "assign: store value");
-		
+
 		// Store result at original offset (for expression value)
 		emitRM(RM.ST, ac1, offset, fp, "store result into stack");
 	}
@@ -396,32 +409,31 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("-> if");
 		exp.test.accept(this, offset, false);
 
-		int falseJumpLoc = emitSkip(1);  // Reserve space for jump
+		int falseJumpLoc = emitSkip(1); // Reserve space for jump
 
 		emitComment("-> then block");
 		exp.thenpart.accept(this, offset, false);
 		emitComment("<- then block");
 
 		if (!(exp.elsepart instanceof NilExp)) {
-			int exitJumpLoc = emitSkip(1);  // Reserve space for unconditional jump
+			int exitJumpLoc = emitSkip(1); // Reserve space for unconditional jump
 			emitComment("if: jump to exit");
-			
+
 			// Backpatch the original conditional jump
 			emitBackup(falseJumpLoc);
 			emitRM_Abs(RM.JEQ, ac, getHighEmitLoc(), "if: jump to else");
 			emitRestore();
-			
+
 			// Else part
 			emitComment("-> else block");
 			exp.elsepart.accept(this, offset, false);
 			emitComment("<- else block");
-			
+
 			// Backpatch the exit jump
 			emitBackup(exitJumpLoc);
 			emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "if: exit");
 			emitRestore();
-		}
-		else {
+		} else {
 			// No else part - just backpatch the conditional jump
 			emitBackup(falseJumpLoc);
 			emitRM_Abs(RM.JEQ, ac, getHighEmitLoc(), "if: jump to exit");
@@ -563,8 +575,7 @@ public class CodeGenerator implements AbsynVisitor {
 
 		if (isAddress) {
 			emitRM(RM.LDA, ac, exp.def.offset, exp.def.nestLevel == 0 ? gp : fp, "load id address");
-		}
-		else {
+		} else {
 			emitRM(RM.LD, ac, exp.def.offset, exp.def.nestLevel == 0 ? gp : fp, "load id value");
 		}
 		emitRM(RM.ST, ac, offset, fp, "store id into stack");
@@ -602,20 +613,20 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(WhileExp exp, int offset, boolean isAddress) {
 		emitComment("-> while");
 		int loopStart = getHighEmitLoc();
-		
+
 		exp.test.accept(this, offset, false);
 
-		int exitJumpLoc = emitSkip(1);  // Reserve space for jump
-    	emitComment("while: jump to exit");
+		int exitJumpLoc = emitSkip(1); // Reserve space for jump
+		emitComment("while: jump to exit");
 
 		exp.body.accept(this, offset, false);
-		
+
 		// Unconditional jump back to test
 		emitRM_Abs(RM.LDA, pc, loopStart, "while: jump back to test");
-    
+
 		// Backpatch the exit jump
 		emitBackup(exitJumpLoc);
-		emitRM_Abs(RM.JEQ, ac, getHighEmitLoc(),"while: exit");
+		emitRM_Abs(RM.JEQ, ac, getHighEmitLoc(), "while: exit");
 		emitRestore();
 		emitComment("<- while");
 	}
