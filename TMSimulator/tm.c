@@ -25,6 +25,7 @@
 
 #define   LINESIZE  121
 #define   WORDSIZE  20
+#define   COMMENTSIZE 100  /* size for storing comments */
 
 /******* type  *******/
 
@@ -80,6 +81,7 @@ typedef struct {
 	int iarg1;
 	int iarg2;
 	int iarg3;
+	char comment[COMMENTSIZE]; /* Added to store comments for each instruction */
 } INSTRUCTION;
 
 /******** vars ********/
@@ -124,6 +126,7 @@ int opClass(int c){
 } /* opClass */
 
 /********************************************/
+/* Modified to also display comments */
 void writeInstruction(int loc){
 	printf("%5d: ", loc);
 	if ((loc >= 0) && (loc < IADDR_SIZE)){
@@ -134,6 +137,11 @@ void writeInstruction(int loc){
 		case opclRM:
 		case opclRA: printf("%3d(%1d)", iMem[loc].iarg2, iMem[loc].iarg3);
 			break;
+		}
+		
+		/* Print comment if available */
+		if (iMem[loc].comment[0] != '\0') {
+			printf("\t* %s", iMem[loc].comment);
 		}
 		printf("\n");
 	}
@@ -212,6 +220,31 @@ int skipCh(char c){
 } /* skipCh */
 
 /********************************************/
+/* Get comment text from the line */
+void getComment(char* comment) {
+	/* Initialize comment to empty string */
+	comment[0] = '\0';
+	
+	/* Skip spaces */
+	while (inCol < lineLen && in_Line[inCol] == ' ')
+		inCol++;
+		
+	/* Check if we're at a comment marker */
+	if (inCol < lineLen) {
+		int commentIdx = 0;
+		
+		/* Skip the asterisk */
+		inCol++;
+		
+		/* Copy the rest of the line as comment */
+		while (inCol < lineLen && commentIdx < COMMENTSIZE-1) {
+			comment[commentIdx++] = in_Line[inCol++];
+		}
+		comment[commentIdx] = '\0';
+	}
+}
+
+/********************************************/
 int atEOL(void){
 	return (!nonBlank());
 } /* atEOL */
@@ -229,6 +262,12 @@ int readInstructions(void){
 	OPCODE op;
 	int arg1, arg2, arg3;
 	int loc, regNo, lineNo;
+	
+	/* Initialize all instruction comments to empty */
+	for (loc = 0; loc < IADDR_SIZE; loc++) {
+		iMem[loc].comment[0] = '\0';
+	}
+	
 	for (regNo = 0; regNo < NO_REGS; regNo++)
 		reg[regNo] = 0;
 	dMem[0] = DADDR_SIZE - 1;
@@ -248,7 +287,14 @@ int readInstructions(void){
 		lineLen = strlen(in_Line) - 1;
 		if (in_Line[lineLen] == '\n') in_Line[lineLen] = '\0';
 		else in_Line[++lineLen] = '\0';
-		if ((nonBlank()) && (in_Line[inCol] != '*')){
+		
+		/* Check if line is a comment only */
+		if (nonBlank() && (in_Line[inCol] == '*')) {
+			/* Line is a comment, do nothing */
+			continue;
+		}
+		
+		if (nonBlank()){
 			if (!getNum())
 				return error("Bad location", lineNo, -1);
 			loc = num;
@@ -300,6 +346,10 @@ int readInstructions(void){
 				arg3 = num;
 				break;
 			}
+			
+			/* Extract comment from the rest of the line */
+			getComment(iMem[loc].comment);
+			
 			iMem[loc].iop = op;
 			iMem[loc].iarg1 = arg1;
 			iMem[loc].iarg2 = arg2;
