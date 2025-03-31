@@ -2,17 +2,20 @@ int x;
 int y[10];
 int z;
 
+// void main(void) {}
+
+
 void main(void) {
     int x;
-    x = 5;
+    int y;
+    int z;
+    
+    x = 10;
+    y = 2;
+    z = x - x/y*y;
+
+    output(z);
 }
-
-
-// void main(void) {
-//     int x;
-//     x = 10;
-//     output(x);
-// }
 
 // simpledec
 // functiondec

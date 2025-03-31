@@ -283,8 +283,9 @@ public class CodeGenerator implements AbsynVisitor {
 		ArrayList<Exp> all_args = exp.args.createIterable();
 		for (Exp arg : all_args) {
 			arg.accept(this, curr_offset, isAddress);
-			emitRM(RM.ST, ac, curr_offset, fp, "store arg" + arg.toString() + "to stack");
-			// TODO: pass in array address, instead of acxtqaul array contents
+			emitRM(RM.ST, ac, curr_offset, fp, "store arg " + arg.toString() + " to stack");
+			// TODO: if varexp w/ Array
+			//		pass in array address, instead of acxtqaul array contents
 			curr_offset -= 1;
 		}
 		emitRM(RM.ST, fp, offset, fp, "store old FP");
@@ -337,6 +338,8 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
 		// TODO: deal with prototypes
 
+		emitComment("processing function: " + exp.name);
+
 		// if main, set main entry accordingly
 		int tempFO = frameOffset;
 		frameOffset = -2;
@@ -346,7 +349,7 @@ public class CodeGenerator implements AbsynVisitor {
 			mainEntry = getHighEmitLoc();
 		exp.funaddr = getHighEmitLoc();
 
-		emitRM(RM.ST, ac, retFO, fp, "store rturn address into ret");
+		emitRM(RM.ST, ac, retFO, fp, "store return address into ret");
 		exp.typ.accept(this, frameOffset, false);
 		exp.params.accept(this, frameOffset, false);
 
@@ -388,7 +391,9 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(IntExp exp, int offset, boolean isAddress) {
-
+		emitComment("-> constant");
+		emitRM(RM.LDC, ac, exp.value, 0, "load const");
+		emitComment("<- constant");
 	}
 
 	public void visit(NameTy exp, int offset, boolean isAddress) {
@@ -400,12 +405,109 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(OpExp exp, int offset, boolean isAddress) {
-		offset++;
+		emitComment("-> op");
+		
+		// Handle unary operators (UMINUS, NOT) specially
+		if (exp.op == OpExp.UMINUS || exp.op == OpExp.NOT) {
+			exp.right.accept(this, offset, false);
+			emitRM(RM.LDC, ac1, 0, 0, "load zero");
+			if (exp.op == OpExp.UMINUS) 
+				emitRO(RO.SUB, ac, ac1, ac, "unary -");
+			else {  // OpExp.NOT
+				emitRM(RM.LDC, ac1, 1, 0, "load 1 for comparison");
+				emitRO(RO.SUB, ac, ac, ac1, "NOT: x - 1");  // x - 1 (sets flags)
+				emitRM(RM.JEQ, ac, 3, pc, "NOT: jump if x was 1 (result 0)");
+				emitRM(RM.LDC, ac, 1, 0, "NOT: set 1 (x was 0)");
+				emitRM(RM.LDA, pc, 1, pc, "NOT: skip next instruction");
+				emitRM(RM.LDC, ac, 0, 0, "NOT: set 0 (x was 1)");
+			}
+			return;
+		}
+	
+		// Evaluate left operand
+		exp.left.accept(this, offset, false);
+		int tempOffset = offset - 1;  // Start pushing at next available slot
+		emitRM(RM.ST, ac, tempOffset, fp, "op: push left");
+		
+		// Evaluate right operand
+		exp.right.accept(this, --offset, false);
+		
+		// Perform operation
+		emitRM(RM.LD, ac1, tempOffset, fp, "op: load left");
+	
+		
+		switch (exp.op) {
+			case OpExp.PLUS:  emitRO(RO.ADD, ac, ac1, ac, "op +"); break;
+			case OpExp.MINUS: emitRO(RO.SUB, ac, ac1, ac, "op -"); break;
+			case OpExp.TIMES: emitRO(RO.MUL, ac, ac1, ac, "op *"); break;
+			case OpExp.DIV:   emitRO(RO.DIV, ac, ac1, ac, "op /"); break;
 
-		if (!(exp.left instanceof NilExp))
-			exp.left.accept(this, offset, false);
+			case OpExp.EQ:
+				emitRO(RO.SUB, ac, ac1, ac, "op ==");
+				emitRM(RM.JEQ, ac, 2, pc, "br if true");
+				emitRM(RM.LDC, ac, 0, 0, "false case");
+				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+				emitRM(RM.LDC, ac, 1, 0, "true case");
+				break;
 
-		exp.right.accept(this, offset, false);
+			case OpExp.NEQ:
+				emitRO(RO.SUB, ac, ac1, ac, "op !=");
+				emitRM(RM.JNE, ac, 2, pc, "br if true");
+				emitRM(RM.LDC, ac, 0, 0, "false case");
+				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+				emitRM(RM.LDC, ac, 1, 0, "true case");
+				break;
+				
+			case OpExp.LT:
+				emitRO(RO.SUB, ac1, ac, ac, "op <");
+				emitRM(RM.JLT, ac, 2, pc, "br if true");
+				emitRM(RM.LDC, ac, 0, 0, "false case");
+				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+				emitRM(RM.LDC, ac, 1, 0, "true case");
+				break;
+
+			case OpExp.LTE:
+				emitRO(RO.SUB, ac1, ac, ac, "op <=");
+				emitRM(RM.JLE, ac, 2, pc, "br if true");
+				emitRM(RM.LDC, ac, 0, 0, "false case");
+				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+				emitRM(RM.LDC, ac, 1, 0, "true case");
+				break;
+
+			case OpExp.GT:
+				emitRO(RO.SUB, ac1, ac, ac, "op >");
+				emitRM(RM.JGT, ac, 2, pc, "br if true");
+				emitRM(RM.LDC, ac, 0, 0, "false case");
+				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+				emitRM(RM.LDC, ac, 1, 0, "true case");
+				break;
+
+			case OpExp.GTE:
+				emitRO(RO.SUB, ac1, ac, ac, "op >=");
+				emitRM(RM.JGE, ac, 2, pc, "br if true");
+				emitRM(RM.LDC, ac, 0, 0, "false case");
+				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+				emitRM(RM.LDC, ac, 1, 0, "true case");
+				break;
+
+			case OpExp.AND:
+				emitRM(RM.JEQ, ac, 3, pc, "and: br if false");
+				emitRM(RM.JEQ, ac1, 2, pc, "br if false");
+				emitRM(RM.LDC, ac, 1, 0, "true case");
+				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+				emitRM(RM.LDC, ac, 0, 0, "false case");
+				break;
+
+			case OpExp.OR:
+				emitRM(RM.JNE, ac, 3, pc, "or: br if true");
+				emitRM(RM.JNE, ac1, 2, pc, "br if true");
+				emitRM(RM.LDC, ac, 0, 0, "false case");
+				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+				emitRM(RM.LDC, ac, 1, 0, "true case");
+				break;
+		}
+
+		emitComment("<- op");
 	}
 
 	public void visit(ReturnExp exp, int offset, boolean isAddress) {
@@ -417,11 +519,16 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(SimpleDec exp, int offset, boolean isAddress) {
 		exp.nestLevel = inGlobalScope ? 0 : 1;
 		exp.offset = offset;
-		// emitRM(RM.LDC, ac1, offset + 17, "");
-		// emitRM(RM.ST, ac1, offset, fp, "store const for testing");
 	}
 
 	public void visit(SimpleVar exp, int offset, boolean isAddress) {
+		emitComment("-> id");
+		emitComment("looking up id: " + exp.name);
+
+		emitRM(RM.LD, ac, offset, fp, "load id value");
+
+		emitComment("<- id");
+		
 		// TODO: implemetntion 11w:42
 		// TODO: offset
 		// TODO: nestLevel(?)
