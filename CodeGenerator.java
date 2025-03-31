@@ -600,7 +600,23 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(WhileExp exp, int offset, boolean isAddress) {
+		emitComment("-> while");
+		int loopStart = getHighEmitLoc();
+		
 		exp.test.accept(this, offset, false);
+
+		int exitJumpLoc = emitSkip(1);  // Reserve space for jump
+    	emitComment("while: jump to exit");
+
 		exp.body.accept(this, offset, false);
+		
+		// Unconditional jump back to test
+		emitRM_Abs(RM.LDA, pc, loopStart, "while: jump back to test");
+    
+		// Backpatch the exit jump
+		emitBackup(exitJumpLoc);
+		emitRM_Abs(RM.JEQ, ac, getHighEmitLoc(),"while: exit");
+		emitRestore();
+		emitComment("<- while");
 	}
 }
