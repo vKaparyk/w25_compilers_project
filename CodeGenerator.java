@@ -242,12 +242,13 @@ public class CodeGenerator implements AbsynVisitor {
 		int skip = emitSkip(1);
 		// input
 		emitComment("code for input routine");
-		inputEntry = getEmitLoc();
+		inputEntry = getHighEmitLoc();
 		emitRM(RM.ST, ac, retFO, fp, "store return");
 		emitRO(RO.IN, ac, "input");
 		emitRM(RM.LD, pc, retFO, fp, "return to caller");
 		// output
 		emitComment("code for output routine");
+		outputEntry = getHighEmitLoc();
 		emitRM(RM.ST, ac, retFO, fp, "store return");
 		emitRM(RM.LD, ac, -2, fp, "load output value");
 		emitRO(RO.OUT, ac, "output");
@@ -408,11 +409,10 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(IfExp exp, int offset, boolean isAddress) {
 		emitComment("-> if");
 		exp.test.accept(this, offset, false);
-
+		emitRM(RM.LD, ac, offset, fp, "restore test condition into ac");
 		int falseJumpLoc = emitSkip(1); // Reserve space for jump
-
 		emitComment("-> then block");
-		exp.thenpart.accept(this, offset, false);
+		exp.thenpart.accept(this, offset - 1, false);
 		emitComment("<- then block");
 
 		if (!(exp.elsepart instanceof NilExp)) {
@@ -426,7 +426,7 @@ public class CodeGenerator implements AbsynVisitor {
 
 			// Else part
 			emitComment("-> else block");
-			exp.elsepart.accept(this, offset, false);
+			exp.elsepart.accept(this, offset - 1, false);
 			emitComment("<- else block");
 
 			// Backpatch the exit jump
