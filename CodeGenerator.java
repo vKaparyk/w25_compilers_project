@@ -37,14 +37,16 @@ public class CodeGenerator implements AbsynVisitor {
 	int globalOffset = 0; // next available loc after global frame
 
 	int emitLoc = 0; // "number of instructions"; PC but counting as outputting
-	int highEmitLoc = 0; //	for backpatching, TODO: fugure out
+	int highEmitLoc = 0; // for backpatching, TODO: fugure out
 
 	int inputEntry = 0;
 	int outputEntry = 0;
 
-	int frameOffset = -2; // bottom of allocated variables in frame; "next empty stop (probably)" after allocated variables; non-temporary
+	int frameOffset = -2; // bottom of allocated variables in frame; "next empty stop (probably)" after
+							// allocated variables; non-temporary
 							// points to where temporraies willl start
-							// frameOffset: size that the current frame is taking up; ends up pointing to where remporaries will start
+							// frameOffset: size that the current frame is taking up; ends up pointing to
+							// where remporaries will start
 							// OR where new frame will be created
 
 	// TODO: possible problem that ocmes up later; we'll see
@@ -261,7 +263,6 @@ public class CodeGenerator implements AbsynVisitor {
 		exp.nestLevel = inGlobalScope ? 0 : 1;
 		exp.offset = offset;
 
-		// 
 		emitRM(RM.ST, ac1, -1 + offset + (exp.size * -1), fp, "store ac1 contents into temp");
 		emitRM(RM.LDC, ac1, exp.size, 0, "get array size into ac1");
 		emitRM(RM.ST, ac1, offset - exp.size, fp, "store aray size into stack");
@@ -285,7 +286,7 @@ public class CodeGenerator implements AbsynVisitor {
 			arg.accept(this, curr_offset, isAddress);
 			emitRM(RM.ST, ac, curr_offset, fp, "store arg " + arg.toString() + " to stack");
 			// TODO: if varexp w/ Array
-			//		pass in array address, instead of acxtqaul array contents
+			// pass in array address, instead of acxtqaul array contents
 			curr_offset -= 1;
 		}
 		emitRM(RM.ST, fp, offset, fp, "store old FP");
@@ -393,6 +394,7 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(IntExp exp, int offset, boolean isAddress) {
 		emitComment("-> constant");
 		emitRM(RM.LDC, ac, exp.value, 0, "load const");
+		emitRM(RM.ST, ac, offset, fp, "store const into stack");
 		emitComment("<- constant");
 	}
 
@@ -406,107 +408,102 @@ public class CodeGenerator implements AbsynVisitor {
 
 	public void visit(OpExp exp, int offset, boolean isAddress) {
 		emitComment("-> op");
-		
+
 		// Handle unary operators (UMINUS, NOT) specially
 		if (exp.op == OpExp.UMINUS || exp.op == OpExp.NOT) {
-			exp.right.accept(this, offset, false);
-			emitRM(RM.LDC, ac1, 0, 0, "load zero");
-			if (exp.op == OpExp.UMINUS) 
-				emitRO(RO.SUB, ac, ac1, ac, "unary -");
-			else {  // OpExp.NOT
-				emitRM(RM.LDC, ac1, 1, 0, "load 1 for comparison");
-				emitRO(RO.SUB, ac, ac, ac1, "NOT: x - 1");  // x - 1 (sets flags)
-				emitRM(RM.JEQ, ac, 3, pc, "NOT: jump if x was 1 (result 0)");
-				emitRM(RM.LDC, ac, 1, 0, "NOT: set 1 (x was 0)");
-				emitRM(RM.LDA, pc, 1, pc, "NOT: skip next instruction");
-				emitRM(RM.LDC, ac, 0, 0, "NOT: set 0 (x was 1)");
+			exp.right.accept(this, offset - 1, false);
+
+			emitRM(RM.LDC, ac, 0, 0, "load zero");
+			emitRM(RM.LD, ac1, offset - 1, fp, "op: load rhs");
+			if (exp.op == OpExp.UMINUS)
+				emitRO(RO.SUB, ac, ac, ac1, "unary -");
+			else { // OpExp.NOT
+				emitRM(RM.JEQ, ac1, 1, pc, "jump on false"); // 0 is already stored in AC, just need to store in stack, and good to go
+				emitRM(RM.LDC, ac, 1, 0, "load const 'true'");
 			}
+			emitRM(RM.ST, ac, offset, fp, "store result in offset");
+			emitComment("<- op");
 			return;
 		}
-	
+
 		// Evaluate left operand
-		exp.left.accept(this, offset, false);
-		int tempOffset = offset - 1;  // Start pushing at next available slot
-		emitRM(RM.ST, ac, tempOffset, fp, "op: push left");
-		
+		exp.left.accept(this, offset - 1, false); // will store result in offset-1; not just AC
+
 		// Evaluate right operand
-		exp.right.accept(this, --offset, false);
-		
-		// Perform operation
-		emitRM(RM.LD, ac1, tempOffset, fp, "op: load left");
-	
-		
+		exp.right.accept(this, offset - 2, false);
+
+		// load operands into registers
+		emitRM(RM.LD, ac, offset - 1, fp, "op: load left");
+		emitRM(RM.LD, ac1, offset - 2, fp, "op: load right");
+
+		// Arithmetic OpExp
 		switch (exp.op) {
-			case OpExp.PLUS:  emitRO(RO.ADD, ac, ac1, ac, "op +"); break;
-			case OpExp.MINUS: emitRO(RO.SUB, ac, ac1, ac, "op -"); break;
-			case OpExp.TIMES: emitRO(RO.MUL, ac, ac1, ac, "op *"); break;
-			case OpExp.DIV:   emitRO(RO.DIV, ac, ac1, ac, "op /"); break;
-
-			case OpExp.EQ:
-				emitRO(RO.SUB, ac, ac1, ac, "op ==");
-				emitRM(RM.JEQ, ac, 2, pc, "br if true");
-				emitRM(RM.LDC, ac, 0, 0, "false case");
-				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
-				emitRM(RM.LDC, ac, 1, 0, "true case");
-				break;
-
-			case OpExp.NEQ:
-				emitRO(RO.SUB, ac, ac1, ac, "op !=");
-				emitRM(RM.JNE, ac, 2, pc, "br if true");
-				emitRM(RM.LDC, ac, 0, 0, "false case");
-				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
-				emitRM(RM.LDC, ac, 1, 0, "true case");
-				break;
-				
-			case OpExp.LT:
-				emitRO(RO.SUB, ac1, ac, ac, "op <");
-				emitRM(RM.JLT, ac, 2, pc, "br if true");
-				emitRM(RM.LDC, ac, 0, 0, "false case");
-				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
-				emitRM(RM.LDC, ac, 1, 0, "true case");
-				break;
-
-			case OpExp.LTE:
-				emitRO(RO.SUB, ac1, ac, ac, "op <=");
-				emitRM(RM.JLE, ac, 2, pc, "br if true");
-				emitRM(RM.LDC, ac, 0, 0, "false case");
-				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
-				emitRM(RM.LDC, ac, 1, 0, "true case");
-				break;
-
-			case OpExp.GT:
-				emitRO(RO.SUB, ac1, ac, ac, "op >");
-				emitRM(RM.JGT, ac, 2, pc, "br if true");
-				emitRM(RM.LDC, ac, 0, 0, "false case");
-				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
-				emitRM(RM.LDC, ac, 1, 0, "true case");
-				break;
-
-			case OpExp.GTE:
-				emitRO(RO.SUB, ac1, ac, ac, "op >=");
-				emitRM(RM.JGE, ac, 2, pc, "br if true");
-				emitRM(RM.LDC, ac, 0, 0, "false case");
-				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
-				emitRM(RM.LDC, ac, 1, 0, "true case");
-				break;
-
-			case OpExp.AND:
-				emitRM(RM.JEQ, ac, 3, pc, "and: br if false");
-				emitRM(RM.JEQ, ac1, 2, pc, "br if false");
-				emitRM(RM.LDC, ac, 1, 0, "true case");
-				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
-				emitRM(RM.LDC, ac, 0, 0, "false case");
-				break;
-
-			case OpExp.OR:
-				emitRM(RM.JNE, ac, 3, pc, "or: br if true");
-				emitRM(RM.JNE, ac1, 2, pc, "br if true");
-				emitRM(RM.LDC, ac, 0, 0, "false case");
-				emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
-				emitRM(RM.LDC, ac, 1, 0, "true case");
-				break;
+		case OpExp.PLUS:
+			emitRO(RO.ADD, ac, ac, ac1, "op +");
+			emitRM(RM.ST, ac, offset, fp, "store result in offset");
+			emitComment("<- op");
+			return;
+		case OpExp.MINUS:
+			emitRO(RO.SUB, ac, ac, ac1, "op -");
+			emitRM(RM.ST, ac, offset, fp, "store result in offset");
+			emitComment("<- op");
+			return;
+		case OpExp.TIMES:
+			emitRO(RO.MUL, ac, ac, ac1, "op *");
+			emitRM(RM.ST, ac, offset, fp, "store result in offset");
+			emitComment("<- op");
+			return;
+		case OpExp.DIV:
+			// TODO: what if div by 0
+			emitRO(RO.DIV, ac, ac, ac1, "op /");
+			emitRM(RM.ST, ac, offset, fp, "store result in offset");
+			emitComment("<- op");
+			return;
 		}
 
+		// J__ OpExp
+		switch (exp.op) {
+		case OpExp.EQ:
+			emitRO(RO.SUB, ac, ac, ac1, "sub for JEQ");
+			emitRM(RM.JEQ, ac, 2, pc, "jump to true on EQ");
+			break;
+		case OpExp.NEQ:
+			emitRO(RO.SUB, ac, ac, ac1, "sub for JNEQ");
+			emitRM(RM.JNE, ac, 2, pc, "jump to true on NEQ");
+			break;
+		case OpExp.LT:
+			emitRO(RO.SUB, ac, ac, ac1, "sub for JLT");
+			emitRM(RM.JLT, ac, 2, pc, "jump to true on LT");
+			break;
+		case OpExp.LTE:
+			emitRO(RO.SUB, ac, ac, ac1, "sub for JLE");
+			emitRM(RM.JLE, ac, 2, pc, "jump to true on LTE");
+			break;
+		case OpExp.GT:
+			emitRO(RO.SUB, ac, ac, ac1, "sub for JGT");
+			emitRM(RM.JGT, ac, 2, pc, "jump to true on GT");
+			break;
+		case OpExp.GTE:
+			emitRO(RO.SUB, ac, ac, ac1, "sub for JGE");
+			emitRM(RM.JGE, ac, 2, pc, "jump to true on GTE");
+			break;
+		case OpExp.AND:
+			// TODO: short-circuit?
+			emitRO(RO.MUL, ac, ac, ac1, "multiply ac and ac1; on false, ac will be 0");
+			emitRM(RM.JNE, ac, 2, pc, "and: jump if true");
+			break;
+		case OpExp.OR:
+			emitRO(RO.MUL, ac, ac, ac, "square ac to guarantee positive val");
+			emitRO(RO.MUL, ac1, ac1, ac1, "square ac1 to guarantee positive val");
+			emitRO(RO.ADD, ac, ac, ac1, "add the ACs, if >0 is true");
+			emitRM(RM.JGT, ac, 2, pc, "or: jump if true");
+			break;
+		}
+
+		emitRM(RM.LDC, ac, 0, 0, "false case");
+		emitRM(RM.LDA, pc, 1, pc, "unconditional jump");
+		emitRM(RM.LDC, ac, 1, 0, "true case");
+		emitRM(RM.ST, ac, offset, fp, "store result in offset");
 		emitComment("<- op");
 	}
 
@@ -526,9 +523,10 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("looking up id: " + exp.name);
 
 		emitRM(RM.LD, ac, offset, fp, "load id value");
-
+		// TODO: store into stack
+		// TODO: check if isAddress, store value or actual address
 		emitComment("<- id");
-		
+
 		// TODO: implemetntion 11w:42
 		// TODO: offset
 		// TODO: nestLevel(?)
