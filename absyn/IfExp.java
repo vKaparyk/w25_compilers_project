@@ -15,8 +15,12 @@ public class IfExp extends Exp {
 		this.dtype = new SimpleDec(row, column, new NameTy(row, column, NameTy.BOOL), "");
 	}
 
-	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) {
+		visitor.visit(this, level, flag);
+	}
 
 	@Override
-	public String toString() { return "if (" + test.toString() + ") ..."; }
+	public String toString() {
+		return "if (" + test.toString() + ") ...";
+	}
 }

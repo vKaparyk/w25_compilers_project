@@ -9,8 +9,12 @@ public class ReturnExp extends Exp {
 		this.exp = exp;
 	}
 
-	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) {
+		visitor.visit(this, level, flag);
+	}
 
 	@Override
-	public String toString() { return "return " + exp.toString() + ";"; }
+	public String toString() {
+		return "return " + exp.toString() + ";";
+	}
 }

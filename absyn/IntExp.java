@@ -10,8 +10,12 @@ public class IntExp extends Exp {
 		this.dtype = new SimpleDec(row, column, new NameTy(row, column, NameTy.INT), this.value.toString());
 	}
 
-	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) {
+		visitor.visit(this, level, flag);
+	}
 
 	@Override
-	public String toString() { return value.toString(); }
+	public String toString() {
+		return value.toString();
+	}
 }

@@ -270,8 +270,19 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(AssignExp exp, int offset, boolean isAddress) {
-		exp.lhs.accept(this, offset, true);
-		exp.rhs.accept(this, offset, false);
+		int lhsAddressOffset = offset - 1;
+		exp.lhs.accept(this, lhsAddressOffset, true);
+		
+		int rhsValueOffset = offset - 2;
+		exp.rhs.accept(this, rhsValueOffset, false);
+		
+
+		emitRM(RM.LD, ac, lhsAddressOffset, fp, "load lhs address");
+		emitRM(RM.LD, ac1, rhsValueOffset, fp, "load rhs value");
+		emitRM(RM.ST, ac1, 0, ac, "assign: store value");
+		
+		// Store result at original offset (for expression value)
+		emitRM(RM.ST, ac1, offset, fp, "store result into stack");
 	}
 
 	public void visit(BoolExp exp, int offset, boolean isAddress) {
@@ -522,7 +533,14 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("-> id");
 		emitComment("looking up id: " + exp.name);
 
-		emitRM(RM.LD, ac, offset, fp, "load id value");
+		if (isAddress) {
+			emitRM(RM.LDA, ac, exp.def.offset, exp.def.nestLevel == 0 ? gp : fp, "load id address");
+		}
+		else {
+			emitRM(RM.LD, ac, exp.def.offset, exp.def.nestLevel == 0 ? gp : fp, "load id value");
+		}
+		emitRM(RM.ST, ac, offset, fp, "store id into stack");
+
 		// TODO: store into stack
 		// TODO: check if isAddress, store value or actual address
 		emitComment("<- id");
@@ -550,7 +568,7 @@ public class CodeGenerator implements AbsynVisitor {
 
 	public void visit(VarExp exp, int offset, boolean isAddress) {
 		// brug
-		exp.variable.accept(this, offset, false);
+		exp.variable.accept(this, offset, isAddress);
 	}
 
 	public void visit(WhileExp exp, int offset, boolean isAddress) {

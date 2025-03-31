@@ -11,8 +11,12 @@ public class AssignExp extends Exp {
 		this.rhs = rhs;
 	}
 
-	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) {
+		visitor.visit(this, level, flag);
+	}
 
 	@Override
-	public String toString() { return lhs.toString() + " = " + rhs.toString(); }
+	public String toString() {
+		return lhs.toString() + " = " + rhs.toString();
+	}
 }

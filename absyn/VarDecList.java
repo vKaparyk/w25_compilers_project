@@ -9,7 +9,9 @@ public class VarDecList extends Absyn {
 		this.tail = tail;
 	}
 
-	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) {
+		visitor.visit(this, level, flag);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -42,11 +44,17 @@ public class VarDecList extends Absyn {
 	}
 
 	@Override
-	public String toString() { return this.toString(",", false); }
+	public String toString() {
+		return this.toString(",", false);
+	}
 
-	public String toString(boolean isHeader) { return this.toString(",", isHeader); }
+	public String toString(boolean isHeader) {
+		return this.toString(",", isHeader);
+	}
 
-	public String toString(String delim) { return this.toString(delim, false); }
+	public String toString(String delim) {
+		return this.toString(delim, false);
+	}
 
 	public String toString(String delim, boolean isHeader) {
 		if (this.head == null) {

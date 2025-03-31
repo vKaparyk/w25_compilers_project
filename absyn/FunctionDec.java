@@ -12,14 +12,18 @@ public class FunctionDec extends Dec {
 		this.name = func;
 		this.params = params;
 		this.body = body;
-		
+
 		this.funaddr = -1;
 	}
 
-	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) {
+		visitor.visit(this, level, flag);
+	}
 
 	@Override
-	public String toString() { return toString(body instanceof NilExp); }
+	public String toString() {
+		return toString(body instanceof NilExp);
+	}
 
 	public String toString(boolean isPrototype) {
 		return typ.toString() + " " + name + "(" + params.toString(", ", true) + ")" + ((isPrototype) ? ";" : " ...");

@@ -13,8 +13,12 @@ public class CompoundExp extends Exp {
 		this.exps = exps;
 	}
 
-	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) {
+		visitor.visit(this, level, flag);
+	}
 
 	@Override
-	public String toString() { return "{" + decs.toString("; ") + "" + exps.toString("; ") + "}"; }
+	public String toString() {
+		return "{" + decs.toString("; ") + "" + exps.toString("; ") + "}";
+	}
 }

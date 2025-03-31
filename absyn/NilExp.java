@@ -7,8 +7,12 @@ public class NilExp extends Exp {
 		this.dtype = new SimpleDec(row, column, new NameTy(row, column, NameTy.VOID), "null");
 	}
 
-	public void accept(AbsynVisitor visitor, int level, boolean flag) { visitor.visit(this, level, false); }
+	public void accept(AbsynVisitor visitor, int level, boolean flag) {
+		visitor.visit(this, level, flag);
+	}
 
 	@Override
-	public String toString() { return ""; }
+	public String toString() {
+		return "";
+	}
 }
