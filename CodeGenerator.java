@@ -393,13 +393,41 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(IfExp exp, int offset, boolean isAddress) {
-
+		emitComment("-> if");
 		exp.test.accept(this, offset, false);
+
+		int falseJumpLoc = emitSkip(1);  // Reserve space for jump
+
+		emitComment("-> then block");
 		exp.thenpart.accept(this, offset, false);
+		emitComment("<- then block");
 
 		if (!(exp.elsepart instanceof NilExp)) {
+			int exitJumpLoc = emitSkip(1);  // Reserve space for unconditional jump
+			emitComment("if: jump to exit");
+			
+			// Backpatch the original conditional jump
+			emitBackup(falseJumpLoc);
+			emitRM_Abs(RM.JEQ, ac, getHighEmitLoc(), "if: jump to else");
+			emitRestore();
+			
+			// Else part
+			emitComment("-> else block");
 			exp.elsepart.accept(this, offset, false);
+			emitComment("<- else block");
+			
+			// Backpatch the exit jump
+			emitBackup(exitJumpLoc);
+			emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "if: exit");
+			emitRestore();
 		}
+		else {
+			// No else part - just backpatch the conditional jump
+			emitBackup(falseJumpLoc);
+			emitRM_Abs(RM.JEQ, ac, getHighEmitLoc(), "if: jump to exit");
+			emitRestore();
+		}
+		emitComment("<- if");
 	}
 
 	public void visit(IntExp exp, int offset, boolean isAddress) {
