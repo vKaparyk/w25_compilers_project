@@ -7,13 +7,15 @@ import absyn.*;
 public class CodeGenerator implements AbsynVisitor {
 	public boolean failedGeneration = false;
 
-	private final int pc = 7; 	// program counter, stores address of the next instruction to be executed, automatically incremented after each instruction
-	private final int gp = 6;	// global pointer, points to the start of the global data/static memory area
-	private final int fp = 5;	// frame pointer, points to the current stack frame
-	private final int ac = 0;  	// accumulator (primary), register for arithmetic/logical operations
-	private final int ac1 = 1; 	// accumulator (secondary), same as ac, might be used when two operands are needed
+	private final int pc = 7; 		// program counter, stores address of the next instruction to be executed, automatically incremented after each instruction
+	private final int gp = 6;		// global pointer, points to the start of the global data/static memory area
+	private final int fp = 5;		// frame pointer, points to the current stack frame
+	private final int ac = 0;  		// accumulator (primary), register for arithmetic/logical operations
+	private final int ac1 = 1; 		// accumulator (secondary), same as ac, might be used when two operands are needed
 
-	private final int retFO = -1;
+	private final int ofpFO = 0; 	// old frame pointer Frame Offset
+	private final int retFO = -1;	// return address Frame Offset
+	private final int initFO = -2; 	// initial frame offset, points to the first local variable in the current stack frame
 
 	enum RO {
 		HALT, IN, OUT, ADD, SUB, MUL, DIV
@@ -32,7 +34,7 @@ public class CodeGenerator implements AbsynVisitor {
 	int mainEntry; // absolute address for main
 	int globalOffset = 0; // next available loc after global frame
 
-	int ofpFO = 0; // old frame pointer Frame Offset
+	
 
 	int emitLoc = 0; // "number of instructions"; PC but counting as outputting
 	int highEmitLoc = 0; //	for backpatching, TODO: fugure out
