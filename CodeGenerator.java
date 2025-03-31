@@ -285,6 +285,7 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(AssignExp exp, int offset, boolean isAddress) {
+		emitComment("-> Assign");
 		int lhsAddressOffset = offset - 1;
 		exp.lhs.accept(this, lhsAddressOffset, true);
 
@@ -297,6 +298,7 @@ public class CodeGenerator implements AbsynVisitor {
 
 		// Store result at original offset (for expression value)
 		emitRM(RM.ST, ac1, offset, fp, "store result into stack");
+		emitComment("<- Assign");
 	}
 
 	public void visit(BoolExp exp, int offset, boolean isAddress) {
@@ -319,9 +321,9 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM(RM.LDA, ac, 1, pc, "save ret addr into AC");
 
 		int dest_func = -1;
-		if (exp.func == "input")
+		if (exp.func.equals("input"))
 			dest_func = inputEntry;
-		else if (exp.func == "output")
+		else if (exp.func.equals("output"))
 			dest_func = outputEntry;
 		else
 			dest_func = exp.def.funaddr;
@@ -333,8 +335,8 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(CompoundExp exp, int offset, boolean isAddress) {
-		exp.decs.accept(this, offset, false);
-		exp.exps.accept(this, offset, false);
+		exp.decs.accept(this, frameOffset, false);
+		exp.exps.accept(this, frameOffset, false);
 	}
 
 	public void visit(DecList exp, int offset, boolean isAddress) {
@@ -350,9 +352,9 @@ public class CodeGenerator implements AbsynVisitor {
 			exp.head.accept(this, globalOffset, false);
 			if (exp.head instanceof VarDec) {
 				if (exp.head instanceof SimpleDec)
-					globalOffset += 1;
+					globalOffset -= 1;
 				else
-					globalOffset += (((ArrayDec) (exp.head)).size + 1);
+					globalOffset -= (((ArrayDec) (exp.head)).size + 1);
 			}
 
 			exp = exp.tail;
@@ -364,14 +366,14 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
 		// TODO: deal with prototypes
 
-		emitComment("processing function: " + exp.name);
+		emitComment("-> funDec" + exp.name);
 
 		// if main, set main entry accordingly
 		int tempFO = frameOffset;
 		frameOffset = -2;
 		int saveLoc = emitSkip(1);
 
-		if (exp.name == "main" && !(exp.body instanceof NilExp))
+		if (exp.name.equals("main") && !(exp.body instanceof NilExp))
 			mainEntry = getHighEmitLoc();
 		exp.funaddr = getHighEmitLoc();
 
@@ -381,12 +383,13 @@ public class CodeGenerator implements AbsynVisitor {
 
 		exp.body.accept(this, frameOffset, false);
 		frameOffset = tempFO;
-		emitRM(RM.LD, pc, retFO, fp, "load return addr into PC");
+		emitRM(RM.LDA, pc, retFO, fp, "load return addr into PC");
 
 		// backpatch a jump for the defintion
 		emitBackup(saveLoc);
-		emitRM_Abs(RM.LD, pc, getHighEmitLoc(), "skip function execution");
+		emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "skip function execution");
 		emitRestore();
+		emitComment("<- funDec" + exp.name);
 	}
 
 	public void visit(IndexVar exp, int offset, boolean isAddress) {
@@ -615,13 +618,15 @@ public class CodeGenerator implements AbsynVisitor {
 		int loopStart = getHighEmitLoc();
 
 		exp.test.accept(this, offset, false);
+		emitRM(RM.LD, ac, offset, fp, "load test condition");
 
 		int exitJumpLoc = emitSkip(1); // Reserve space for jump
 		emitComment("while: jump to exit");
 
-		exp.body.accept(this, offset, false);
+		exp.body.accept(this, offset - 1, false);
 
 		// Unconditional jump back to test
+		// TODO: maybe loopStart - 1?
 		emitRM_Abs(RM.LDA, pc, loopStart, "while: jump back to test");
 
 		// Backpatch the exit jump
