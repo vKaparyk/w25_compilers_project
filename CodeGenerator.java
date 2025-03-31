@@ -29,7 +29,7 @@ public class CodeGenerator implements AbsynVisitor {
 	private String filename;
 
 	int mainEntry; // absolute address for main
-	int globalOffset; // next available loc after global frame
+	int globalOffset = 0; // next available loc after global frame
 
 	int ofpFO = 0; // old frame pointer Frame Offset
 
@@ -172,7 +172,7 @@ public class CodeGenerator implements AbsynVisitor {
 		}
 	}
 
-	public void emitRM(RM op, int r, int a, String c) {
+	public void emitRM_Abs(RM op, int r, int a, String c) {
 		// TODO: is it actually that offset, and not just a?
 		emitRM(op, r, a - (emitLoc + 1), pc, c);
 	}
@@ -231,7 +231,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRO(RO.OUT, ac, "output");
 		emitRM(RM.LD, pc, -1, fp, "return to caller");
 		emitBackup(skip);
-		emitRM(RM.LDA, pc, getHighEmitLoc(), "jump around i/o code");
+		emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "jump around i/o code");
 		emitRestore();
 		emitComment("End of standard prelude.");
 
@@ -242,7 +242,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM(RM.ST, fp, globalOffset + ofpFO, fp, "push ofp");
 		emitRM(RM.LDA, fp, globalOffset, fp, "push frame");
 		emitRM(RM.LDA, ac, 1, pc, "load ac with ret ptr");
-		emitRM(RM.LDA, pc, mainEntry, "jump to main loc");
+		emitRM_Abs(RM.LDA, pc, mainEntry, "jump to main loc");
 		emitRM(RM.LD, fp, ofpFO, fp, "pop frame");
 		emitRO(RO.HALT, "end program");
 	}
@@ -272,7 +272,14 @@ public class CodeGenerator implements AbsynVisitor {
 
 	public void visit(CallExp exp, int offset, boolean isAddress) {
 		// TODO: holy fucking shit
+
+		// implementation: 11w:51/"Call Sequence"
+
+		// implement
+		// call sequence: green
 		exp.args.accept(this, offset, false);
+		// call sequence: blue
+
 	}
 
 	public void visit(CompoundExp exp, int offset, boolean isAddress) {
@@ -290,12 +297,12 @@ public class CodeGenerator implements AbsynVisitor {
 			if (!(exp.head instanceof VarDec))
 				inGlobalScope = false;
 
-			exp.head.accept(this, offset, false);
+			exp.head.accept(this, globalOffset, false);
 			if (exp.head instanceof VarDec) {
 				if (exp.head instanceof SimpleDec)
-					offset -= 1;
+					globalOffset += 1;
 				else
-					offset -= (((ArrayDec) (exp.head)).size + 1);
+					globalOffset += (((ArrayDec) (exp.head)).size + 1);
 			}
 
 			exp = exp.tail;
@@ -305,16 +312,21 @@ public class CodeGenerator implements AbsynVisitor {
 
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
 		// TODO: funaddr
+		// TODO: deal with prototypes
+
+		// if main, set main entry accordingly
 
 		exp.typ.accept(this, offset, false);
 		// implementation
-		// push frame pointer
-		// set ofp
-		// set new fp
+		// 		push frame pointer
+		//  ST ac, retFO (fp)       - astore return address into ret
+		// 		set ofp
+		// 		set new fp
 		exp.params.accept(this, offset, false);
-
 		exp.body.accept(this, offset, false);
+		// LD pc, retFO (fp)    - return to caller
 
+		// backpatch a jump for the defintion
 	}
 
 	public void visit(IndexVar exp, int offset, boolean isAddress) {
