@@ -1,5 +1,6 @@
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import absyn.*;
 
@@ -221,15 +222,15 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("Jump around i/o routines here");
 		// input
 		emitComment("code for input routine");
-		emitRM(RM.ST, ac, -1, fp, "store return");
+		emitRM(RM.ST, ac, retFO, fp, "store return");
 		emitRO(RO.IN, ac, "input");
-		emitRM(RM.LD, pc, -1, fp, "return to caller");
+		emitRM(RM.LD, pc, retFO, fp, "return to caller");
 		// input
 		emitComment("code for output routine");
-		emitRM(RM.ST, ac, -1, fp, "store return");
+		emitRM(RM.ST, ac, retFO, fp, "store return");
 		emitRM(RM.LD, ac, -2, fp, "load output value");
 		emitRO(RO.OUT, ac, "output");
-		emitRM(RM.LD, pc, -1, fp, "return to caller");
+		emitRM(RM.LD, pc, retFO, fp, "return to caller");
 		emitBackup(skip);
 		emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "jump around i/o code");
 		emitRestore();
@@ -271,15 +272,24 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(CallExp exp, int offset, boolean isAddress) {
-		// TODO: holy fucking shit
+		int curr_offset = offset - 2;
 
-		// implementation: 11w:51/"Call Sequence"
-
-		// implement
-		// call sequence: green
-		exp.args.accept(this, offset, false);
-		// call sequence: blue
-
+		ArrayList<Exp> all_args = exp.args.createIterable();
+		for (Exp arg : all_args) {
+			arg.accept(this, curr_offset, isAddress);
+			emitRM(RM.ST, ac, curr_offset, fp, "store arg" + arg.toString() + "to stack");
+			// TODO: if varexp w/ Array
+			//		pass in array address, instead of acxtqaul array contents
+			curr_offset -= 1;
+		}
+		emitRM(RM.ST, fp, offset, fp, "store old FP");
+		emitRM(RM.LDA, fp, offset, fp, "push new FP");
+		emitRM(RM.LDA, ac, 1, pc, "save ret addr into AC");
+		// TODO: what if call to impout() or output()
+		// TODO: indirect recursion logixc, what the fuck
+		emitRM_Abs(RM.LDA, pc, exp.def.funaddr, "jump to function call");
+		emitRM(RM.LD, fp, 0, fp, "load old FP");
+		// TODO: check if has return type, via exp.def != void
 	}
 
 	public void visit(CompoundExp exp, int offset, boolean isAddress) {
@@ -311,22 +321,29 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
-		// TODO: funaddr
 		// TODO: deal with prototypes
 
 		// if main, set main entry accordingly
+		int tempFO = frameOffset;
+		frameOffset = -2;
+		int saveLoc = emitSkip(1);
 
-		exp.typ.accept(this, offset, false);
-		// implementation
-		// 		push frame pointer
-		//  ST ac, retFO (fp)       - astore return address into ret
-		// 		set ofp
-		// 		set new fp
-		exp.params.accept(this, offset, false);
-		exp.body.accept(this, offset, false);
-		// LD pc, retFO (fp)    - return to caller
+		if (exp.name == "main" && !(exp.body instanceof NilExp))
+			mainEntry = getHighEmitLoc();
+		exp.funaddr = getHighEmitLoc();
+
+		emitRM(RM.ST, ac, retFO, fp, "store rturn address into ret");
+		exp.typ.accept(this, frameOffset, false);
+		exp.params.accept(this, frameOffset, false);
+
+		exp.body.accept(this, frameOffset, false);
+		frameOffset = tempFO;
+		emitRM(RM.LD, pc, retFO, fp, "load return addr into PC");
 
 		// backpatch a jump for the defintion
+		emitBackup(saveLoc);
+		emitRM_Abs(RM.LD, pc, getHighEmitLoc(), "skip function execution");
+		emitRestore();
 	}
 
 	public void visit(IndexVar exp, int offset, boolean isAddress) {
@@ -402,8 +419,12 @@ public class CodeGenerator implements AbsynVisitor {
 		}
 
 		while (exp != null) {
-
 			exp.head.accept(this, offset, false);
+			if (exp.head instanceof SimpleDec) {
+				offset -= 1;
+				frameOffset -= 1;
+			}
+			// TODO: arraydec
 			exp = exp.tail;
 		}
 	}

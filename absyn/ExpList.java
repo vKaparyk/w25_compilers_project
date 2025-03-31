@@ -1,5 +1,7 @@
 package absyn;
 
+import java.util.ArrayList;
+
 public class ExpList extends Absyn {
 	public Exp head;
 	public ExpList tail;
@@ -56,5 +58,16 @@ public class ExpList extends Absyn {
 		}
 
 		return true;
+	}
+
+	public ArrayList<Exp> createIterable() {
+		ExpList tmp = this;
+		ArrayList<Exp> l = new ArrayList<>();
+
+		while (tmp != null) {
+			l.add(tmp.head);
+			tmp = tmp.tail;
+		}
+		return l;
 	}
 }
