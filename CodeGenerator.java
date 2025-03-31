@@ -37,6 +37,9 @@ public class CodeGenerator implements AbsynVisitor {
 	int emitLoc = 0; // "number of instructions"; PC but counting as outputting
 	int highEmitLoc = 0; //	for backpatching, TODO: fugure out
 
+	int inputEntry = 0;
+	int outputEntry = 0;
+
 	int frameOffset = -2; // bottom of allocated variables in frame; "next empty stop (probably)" after allocated variables; non-temporary
 							// points to where temporraies willl start
 							// frameOffset: size that the current frame is taking up; ends up pointing to where remporaries will start
@@ -222,6 +225,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("Jump around i/o routines here");
 		// input
 		emitComment("code for input routine");
+		inputEntry = getEmitLoc();
 		emitRM(RM.ST, ac, retFO, fp, "store return");
 		emitRO(RO.IN, ac, "input");
 		emitRM(RM.LD, pc, retFO, fp, "return to caller");
@@ -278,18 +282,25 @@ public class CodeGenerator implements AbsynVisitor {
 		for (Exp arg : all_args) {
 			arg.accept(this, curr_offset, isAddress);
 			emitRM(RM.ST, ac, curr_offset, fp, "store arg" + arg.toString() + "to stack");
-			// TODO: if varexp w/ Array
-			//		pass in array address, instead of acxtqaul array contents
+			// TODO: pass in array address, instead of acxtqaul array contents
 			curr_offset -= 1;
 		}
 		emitRM(RM.ST, fp, offset, fp, "store old FP");
 		emitRM(RM.LDA, fp, offset, fp, "push new FP");
 		emitRM(RM.LDA, ac, 1, pc, "save ret addr into AC");
-		// TODO: what if call to impout() or output()
-		// TODO: indirect recursion logixc, what the fuck
-		emitRM_Abs(RM.LDA, pc, exp.def.funaddr, "jump to function call");
+
+		int dest_func = -1;
+		if (exp.func == "input")
+			dest_func = inputEntry;
+		else if (exp.func == "output")
+			dest_func = outputEntry;
+		else
+			dest_func = exp.def.funaddr;
+		// TODO: indirect recursion logixc ghere, what the fuck
+		emitRM_Abs(RM.LDA, pc, dest_func, "jump to function call");
 		emitRM(RM.LD, fp, 0, fp, "load old FP");
-		// TODO: check if has return type, via exp.def != void
+		if (!exp.def.isVoid())
+			emitRM(RM.ST, ac, offset, fp, "store return value into stack offset");
 	}
 
 	public void visit(CompoundExp exp, int offset, boolean isAddress) {
