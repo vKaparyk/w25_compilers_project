@@ -7,11 +7,11 @@ import absyn.*;
 public class CodeGenerator implements AbsynVisitor {
 	public boolean failedGeneration = false;
 
-	private final int pc = 7;
-	private final int gp = 6;
-	private final int fp = 5;
-	private final int ac = 0;
-	private final int ac1 = 1;
+	private final int pc = 7; 	// program counter, stores address of the next instruction to be executed, automatically incremented after each instruction
+	private final int gp = 6;	// global pointer, points to the start of the global data/static memory area
+	private final int fp = 5;	// frame pointer, points to the current stack frame
+	private final int ac = 0;  	// accumulator (primary), register for arithmetic/logical operations
+	private final int ac1 = 1; 	// accumulator (secondary), same as ac, might be used when two operands are needed
 
 	private final int retFO = -1;
 
@@ -125,7 +125,7 @@ public class CodeGenerator implements AbsynVisitor {
 	 * 
 	 * @param op str: {LD, LDA, LDC, ST, JLT, JLE, JGT, JGE, JEQ, JNE}
 	 * @param r  int: src register number
-	 * @param d  int: memory offset
+	 * @param d  int: displacement / memory offset
 	 * @param s  int: register (holding value) for offset
 	 * @param c  str: comment
 	 */
@@ -220,6 +220,8 @@ public class CodeGenerator implements AbsynVisitor {
 
 		// generate the i/o routines
 		emitComment("Jump around i/o routines here");
+		int savedLoc = emitSkip(1);
+
 		// input
 		emitComment("code for input routine");
 		emitRM(RM.ST, ac, retFO, fp, "store return");
@@ -234,12 +236,14 @@ public class CodeGenerator implements AbsynVisitor {
 		emitBackup(skip);
 		emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "jump around i/o code");
 		emitRestore();
-		emitComment("End of standard prelude.");
 
+		emitComment("End of standard prelude.");
+		
 		// make a request to the visit method for DecList
 		trees.accept(this, 0, false);
 
 		// generate finale
+		emitComment("Finale");
 		emitRM(RM.ST, fp, globalOffset + ofpFO, fp, "push ofp");
 		emitRM(RM.LDA, fp, globalOffset, fp, "push frame");
 		emitRM(RM.LDA, ac, 1, pc, "load ac with ret ptr");
@@ -301,7 +305,7 @@ public class CodeGenerator implements AbsynVisitor {
 		if (exp.head == null) {
 			return;
 		}
-
+		
 		inGlobalScope = true;
 		while (exp != null) {
 			if (!(exp.head instanceof VarDec))
@@ -318,6 +322,8 @@ public class CodeGenerator implements AbsynVisitor {
 			exp = exp.tail;
 			inGlobalScope = true;
 		}
+
+
 	}
 
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
