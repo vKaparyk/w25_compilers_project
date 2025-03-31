@@ -7,6 +7,7 @@ import absyn.*;
 public class CodeGenerator implements AbsynVisitor {
 	public boolean failedGeneration = false;
 
+	// @formatter:off
 	private final int pc = 7; 		// program counter, stores address of the next instruction to be executed, automatically incremented after each instruction
 	private final int gp = 6;		// global pointer, points to the start of the global data/static memory area
 	private final int fp = 5;		// frame pointer, points to the current stack frame
@@ -16,6 +17,7 @@ public class CodeGenerator implements AbsynVisitor {
 	private final int ofpFO = 0; 	// old frame pointer Frame Offset
 	private final int retFO = -1;	// return address Frame Offset
 	private final int initFO = -2; 	// initial frame offset, points to the first local variable in the current stack frame
+	// @formatter:on
 
 	enum RO {
 		HALT, IN, OUT, ADD, SUB, MUL, DIV
@@ -33,8 +35,6 @@ public class CodeGenerator implements AbsynVisitor {
 
 	int mainEntry; // absolute address for main
 	int globalOffset = 0; // next available loc after global frame
-
-	
 
 	int emitLoc = 0; // "number of instructions"; PC but counting as outputting
 	int highEmitLoc = 0; //	for backpatching, TODO: fugure out
@@ -217,23 +217,20 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("C-Minus Compilation to TM Code");
 		emitComment("File: " + filename);
 		emitComment("Standard prelude:");
-
 		emitRM(RM.LD, gp, 0, ac, "load gp with maxaddress");
 		emitRM(RM.LDA, fp, 0, gp, "copy gp to fp");
 		emitRM(RM.ST, ac, 0, ac, "clear location 0");
-		int skip = emitSkip(1);
 
 		// generate the i/o routines
 		emitComment("Jump around i/o routines here");
-		int savedLoc = emitSkip(1);
-
+		int skip = emitSkip(1);
 		// input
 		emitComment("code for input routine");
 		inputEntry = getEmitLoc();
 		emitRM(RM.ST, ac, retFO, fp, "store return");
 		emitRO(RO.IN, ac, "input");
 		emitRM(RM.LD, pc, retFO, fp, "return to caller");
-		// input
+		// output
 		emitComment("code for output routine");
 		emitRM(RM.ST, ac, retFO, fp, "store return");
 		emitRM(RM.LD, ac, -2, fp, "load output value");
@@ -242,9 +239,8 @@ public class CodeGenerator implements AbsynVisitor {
 		emitBackup(skip);
 		emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "jump around i/o code");
 		emitRestore();
-
 		emitComment("End of standard prelude.");
-		
+
 		// make a request to the visit method for DecList
 		trees.accept(this, 0, false);
 
@@ -318,7 +314,7 @@ public class CodeGenerator implements AbsynVisitor {
 		if (exp.head == null) {
 			return;
 		}
-		
+
 		inGlobalScope = true;
 		while (exp != null) {
 			if (!(exp.head instanceof VarDec))
@@ -335,7 +331,6 @@ public class CodeGenerator implements AbsynVisitor {
 			exp = exp.tail;
 			inGlobalScope = true;
 		}
-
 
 	}
 
