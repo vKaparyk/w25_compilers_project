@@ -80,6 +80,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 		if (func_dec == null) {
 			report_error("function undefined", exp);
+			exp.dtype = new FunctionDec(exp.row, exp.column, new NameTy(exp.row, exp.column, NameTy.VOID), "le bad",
+					new VarDecList(null, null), new NilExp(exp.row, exp.column));
 			return;
 		}
 
