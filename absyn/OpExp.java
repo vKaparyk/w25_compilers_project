@@ -29,29 +29,29 @@ public class OpExp extends Exp {
 
 		NameTy op_exp_dec = null;
 		switch (op) {
-			case OpExp.PLUS:
-			case OpExp.MINUS:
-			case OpExp.TIMES:
-			case OpExp.DIV:
-			case OpExp.UMINUS:
-			case OpExp.LT:
-			case OpExp.LTE:
-			case OpExp.GT:
-			case OpExp.GTE:
-			case OpExp.EQ: // recent addition: EQ are relational for simplictic purposes of C-; as per Son
-							// on 3/17/2025
-			case OpExp.NEQ: // recent addition: NEQ are relational for simplictic purposes of C-; as per Son
-							// on 3/17/2025
-				op_exp_dec = new NameTy(row, column, NameTy.INT);
-				break;
-			case OpExp.NOT:
-			case OpExp.AND:
-			case OpExp.OR:
-				op_exp_dec = new NameTy(row, column, NameTy.BOOL);
-				break;
-			default:
-				op_exp_dec = new NameTy(row, column, NameTy.VOID);
-				break;
+		case OpExp.PLUS:
+		case OpExp.MINUS:
+		case OpExp.TIMES:
+		case OpExp.DIV:
+		case OpExp.UMINUS:
+		case OpExp.LT:
+		case OpExp.LTE:
+		case OpExp.GT:
+		case OpExp.GTE:
+			op_exp_dec = new NameTy(row, column, NameTy.INT);
+			break;
+		case OpExp.EQ: // recent addition: EQ are relational for simplictic purposes of C-; as per Son
+						// on 3/17/2025
+		case OpExp.NEQ: // recent addition: NEQ are relational for simplictic purposes of C-; as per Son
+						// on 3/17/2025
+		case OpExp.NOT:
+		case OpExp.AND:
+		case OpExp.OR:
+			op_exp_dec = new NameTy(row, column, NameTy.BOOL);
+			break;
+		default:
+			op_exp_dec = new NameTy(row, column, NameTy.VOID);
+			break;
 		}
 		this.dtype = new SimpleDec(row, column, op_exp_dec, op_exp_dec.toString());
 
@@ -66,50 +66,50 @@ public class OpExp extends Exp {
 		StringBuilder s = new StringBuilder();
 		s.append(left.toString());
 		switch (op) {
-			case PLUS:
-				s.append(" + ");
-				break;
-			case MINUS:
-				s.append(" - ");
-				break;
-			case TIMES:
-				s.append(" * ");
-				break;
-			case DIV:
-				s.append(" / ");
-				break;
-			case EQ:
-				s.append(" == ");
-				break;
-			case NEQ:
-				s.append(" != ");
-				break;
-			case LT:
-				s.append(" < ");
-				break;
-			case LTE:
-				s.append(" <= ");
-				break;
-			case GT:
-				s.append(" > ");
-				break;
-			case GTE:
-				s.append(" >= ");
-				break;
-			case NOT:
-				s.append("~");
-				break;
-			case AND:
-				s.append(" && ");
-				break;
-			case OR:
-				s.append(" || ");
-				break;
-			case UMINUS:
-				s.append("-");
-				break;
-			default:
-				break;
+		case PLUS:
+			s.append(" + ");
+			break;
+		case MINUS:
+			s.append(" - ");
+			break;
+		case TIMES:
+			s.append(" * ");
+			break;
+		case DIV:
+			s.append(" / ");
+			break;
+		case EQ:
+			s.append(" == ");
+			break;
+		case NEQ:
+			s.append(" != ");
+			break;
+		case LT:
+			s.append(" < ");
+			break;
+		case LTE:
+			s.append(" <= ");
+			break;
+		case GT:
+			s.append(" > ");
+			break;
+		case GTE:
+			s.append(" >= ");
+			break;
+		case NOT:
+			s.append("~");
+			break;
+		case AND:
+			s.append(" && ");
+			break;
+		case OR:
+			s.append(" || ");
+			break;
+		case UMINUS:
+			s.append("-");
+			break;
+		default:
+			break;
 		}
 		s.append(right.toString());
 		return s.toString();
