@@ -42,12 +42,12 @@ public class CodeGenerator implements AbsynVisitor {
 	int inputEntry = 0;
 	int outputEntry = 0;
 
-	int frameOffset = -2; // bottom of allocated variables in frame; "next empty stop (probably)" after
-							// allocated variables; non-temporary
-							// points to where temporraies willl start
-							// frameOffset: size that the current frame is taking up; ends up pointing to
-							// where remporaries will start
-							// OR where new frame will be created
+	int frameOffset = initFO; // bottom of allocated variables in frame; "next empty stop (probably)" after
+								// allocated variables; non-temporary
+								// points to where temporraies willl start
+								// frameOffset: size that the current frame is taking up; ends up pointing to
+								// where remporaries will start
+								// OR where new frame will be created
 
 	// TODO: possible problem that ocmes up later; we'll see
 	PrintWriter code;
@@ -187,7 +187,6 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void emitRM_Abs(RM op, int r, int a, String c) {
-		// TODO: is it actually that offset, and not just a?
 		emitRM(op, r, a - (emitLoc + 1), pc, c);
 	}
 
@@ -302,7 +301,10 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(BoolExp exp, int offset, boolean isAddress) {
-
+		emitComment("-> BoolExp");
+		emitRM(RM.LDC, ac, ((exp.value) ? 1 : 0), 0, "load truth into AC");
+		emitRM(RM.ST, ac, offset, fp, "store truth on stack");
+		emitComment("<- BoolExp");
 	}
 
 	public void visit(CallExp exp, int offset, boolean isAddress) {
@@ -310,6 +312,7 @@ public class CodeGenerator implements AbsynVisitor {
 
 		ArrayList<Exp> all_args = exp.args.createIterable();
 		for (Exp arg : all_args) {
+			// TODO: maybe isAddress true?
 			arg.accept(this, curr_offset, isAddress);
 			emitRM(RM.ST, ac, curr_offset, fp, "store arg " + arg.toString() + " to stack");
 			// TODO: if varexp w/ Array
@@ -366,7 +369,7 @@ public class CodeGenerator implements AbsynVisitor {
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
 		// TODO: deal with prototypes
 
-		emitComment("-> funDec" + exp.name);
+		emitComment("-> funDec " + exp.name);
 
 		// if main, set main entry accordingly
 		int tempFO = frameOffset;
@@ -389,7 +392,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitBackup(saveLoc);
 		emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "skip function execution");
 		emitRestore();
-		emitComment("<- funDec" + exp.name);
+		emitComment("<- funDec " + exp.name);
 	}
 
 	public void visit(IndexVar exp, int offset, boolean isAddress) {
@@ -405,6 +408,7 @@ public class CodeGenerator implements AbsynVisitor {
 		}
 		while (expList != null) {
 			expList.head.accept(this, offset, false);
+			offset -= 1;
 			expList = expList.tail;
 		}
 	}
@@ -562,9 +566,12 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(ReturnExp exp, int offset, boolean isAddress) {
-		offset++;
-
+		emitComment("-> ReturnExp");
 		exp.exp.accept(this, offset, false);
+
+		emitRM(RM.LD, ac, offset, fp, "load value to return"); // keeping retval in AC
+		emitRM(RM.LD, pc, retFO, fp, "load old retval into pc");
+		emitComment("<- ReturnExp");
 	}
 
 	public void visit(SimpleDec exp, int offset, boolean isAddress) {

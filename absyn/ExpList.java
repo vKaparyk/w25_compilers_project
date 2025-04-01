@@ -67,7 +67,8 @@ public class ExpList extends Absyn {
 	public ArrayList<Exp> createIterable() {
 		ExpList tmp = this;
 		ArrayList<Exp> l = new ArrayList<>();
-
+		if (tmp.head == null)
+			return l;
 		while (tmp != null) {
 			l.add(tmp.head);
 			tmp = tmp.tail;

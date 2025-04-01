@@ -1,2 +1,38 @@
-this doc will be used to keep the notes in order.
-preferred format: date, followed by jot notes of stuffs
+features of CodeGenerator:
+  - global variables
+    - simpleDec and ArrayDec
+      - TODO: handle error: arraydec size is WAY TOO BIG
+    - if local variables are declared and referred to; will not update global variables
+  - assignExp
+    - for now, only simpleVar as LHS
+      - TODO: indexVar to work
+  - chain instructions into each other
+    - z = x - x/y*y
+  - CallExp
+    - can call functions
+    - can have return value from that function
+    - TODO: need to be able to pass in arrays
+    - input/output works
+  - FunDec
+    - can decalre functions and call then
+    - TODO: function prototypes
+    - TODO: recursion
+  - SimpleVar
+    - global and local declarations
+  - OpExp
+    - primitive operations (+, -, /, *)
+    - unary operations (~(true), -(1))
+    - comparistons (eq, neq, gte)
+  - IfExp
+    - chainable test condition
+    - regular if body
+    - optional else block
+  - WhileExp
+    - chainable test condition
+    - has body that actually loops
+    - will stop if condition is met
+  - IndexVar
+    - TODO: holy fucking shit
+  - ReturnExp
+    - can have a return value
+    - early function stop
