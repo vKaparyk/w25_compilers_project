@@ -37,10 +37,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			exp.typ.typ = NameTy.INT;
 		}
 
-		if (exp.size < 1) {
-			report_error("invalid size of the array", exp);
-		}
-
 		Sym s = new Sym(exp.name, exp, level);
 		if (!symbolTable.addVariable(s)) {
 			report_error("redeclaration of variable \'" + exp.name + "\'", exp);
@@ -340,7 +336,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(SimpleVar exp, int level, boolean flag) {
-		exp.def = (SimpleDec) symbolTable.lookupVariable(exp.name).def;
+		exp.def = (VarDec) symbolTable.lookupVariable(exp.name).def;
 	}
 
 	public void visit(VarDecList exp, int level, boolean flag) {
@@ -390,9 +386,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	// Helpers
 	// defaults to error
-	public void report_error(String erorr, Absyn obj) { report_error(erorr, obj, 1); }
+	public void report_error(String erorr, Absyn obj) {
+		report_error(erorr, obj, 1);
+	}
 
-	public void report_warning(String erorr, Absyn obj) { report_error(erorr, obj, 2); }
+	public void report_warning(String erorr, Absyn obj) {
+		report_error(erorr, obj, 2);
+	}
 
 	// report error w/ level
 	public void report_error(String erorr, Absyn obj, int level) {
@@ -458,11 +458,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		return lhs.dtype.typ.typ == rhs.dtype.typ.typ && lhs.dtype.isArray() == rhs.dtype.isArray();
 	}
 
-	public boolean isVoid(Dec dtype) { return dtype.isVoid(); }
+	public boolean isVoid(Dec dtype) {
+		return dtype.isVoid();
+	}
 
-	public boolean isBool(Dec dtype) { return dtype.isBool(); }
+	public boolean isBool(Dec dtype) {
+		return dtype.isBool();
+	}
 
-	public boolean isInt(Dec dtype) { return dtype.isInt(); }
+	public boolean isInt(Dec dtype) {
+		return dtype.isInt();
+	}
 
 	public void checkForMain() {
 		// TODO: check all functions have implementation
