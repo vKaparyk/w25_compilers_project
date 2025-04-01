@@ -27,9 +27,6 @@ public class CodeGenerator implements AbsynVisitor {
 		LD, LDA, LDC, ST, JLT, JLE, JGT, JGE, JEQ, JNE
 	}
 
-	private final int NO_REGS = 8;
-	private final int C_REG = 7;
-
 	private boolean inGlobalScope;
 	private String filename;
 
@@ -37,7 +34,7 @@ public class CodeGenerator implements AbsynVisitor {
 	int globalOffset = 0; // next available loc after global frame
 
 	int emitLoc = 0; // "number of instructions"; PC but counting as outputting
-	int highEmitLoc = 0; // for backpatching, TODO: fugure out
+	int highEmitLoc = 0; // for backpatching
 
 	int inputEntry = 0;
 	int outputEntry = 0;
@@ -71,7 +68,7 @@ public class CodeGenerator implements AbsynVisitor {
 	/**
 	 * Emit Register-Only (Register-To-Register) instruction
 	 * 
-	 * @param op str: {ADD, SUB, MUL, DIV} r,s,t;
+	 * @param op str: {HALT}; {IN, OUT} r; {ADD, SUB, MUL, DIV} r,s,t;
 	 * @param r  int: src register number
 	 * @param s  int: LHS operand register number
 	 * @param t  int: RHS operand register number
@@ -110,27 +107,6 @@ public class CodeGenerator implements AbsynVisitor {
 		if (highEmitLoc < emitLoc) {
 			highEmitLoc = emitLoc;
 		}
-	}
-
-	/**
-	 * Emit Register-Only (Register-To-Register) instruction
-	 * 
-	 * @param op str: {IN, OUT}
-	 * @param r  int: src register number
-	 * @param c  str: comment
-	 */
-	public void emitRO(RO op, int r, String c) {
-		emitRO(op, r, 0, 0, c);
-	}
-
-	/**
-	 * Emit Register-Only (Register-To-Register) instruction
-	 * 
-	 * @param op str: HALT
-	 * @param c  str: comment
-	 */
-	public void emitRO(RO op, String c) {
-		emitRO(op, 0, 0, 0, c);
 	}
 
 	/**
@@ -243,14 +219,14 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("code for input routine");
 		inputEntry = getHighEmitLoc();
 		emitRM(RM.ST, ac, retFO, fp, "store return");
-		emitRO(RO.IN, ac, "input");
+		emitRO(RO.IN, ac, 0, 0, "input");
 		emitRM(RM.LD, pc, retFO, fp, "return to caller");
 		// output
 		emitComment("code for output routine");
 		outputEntry = getHighEmitLoc();
 		emitRM(RM.ST, ac, retFO, fp, "store return");
 		emitRM(RM.LD, ac, -2, fp, "load output value");
-		emitRO(RO.OUT, ac, "output");
+		emitRO(RO.OUT, ac, 0, 0, "output");
 		emitRM(RM.LD, pc, retFO, fp, "return to caller");
 		emitBackup(skip);
 		emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "jump around i/o code");
@@ -267,7 +243,7 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM(RM.LDA, ac, 1, pc, "load ac with ret ptr");
 		emitRM_Abs(RM.LDA, pc, mainEntry, "jump to main loc");
 		emitRM(RM.LD, fp, ofpFO, fp, "pop frame");
-		emitRO(RO.HALT, "end program");
+		emitRO(RO.HALT, 0, 0, 0, "end program");
 	}
 
 	/**************** Absyn Visitor **********************/
@@ -275,12 +251,11 @@ public class CodeGenerator implements AbsynVisitor {
 	// absyn functions
 	public void visit(ArrayDec exp, int offset, boolean isAddress) {
 		exp.nestLevel = inGlobalScope ? 0 : 1;
-		exp.offset = offset;
-
-		emitRM(RM.ST, ac1, -1 + offset + (exp.size * -1), fp, "store ac1 contents into temp");
-		emitRM(RM.LDC, ac1, exp.size, 0, "get array size into ac1");
-		emitRM(RM.ST, ac1, offset - exp.size, fp, "store aray size into stack");
-		emitRM(RM.LD, ac1, -1 + offset + (exp.size * -1), fp, "load contents of ac1 from temp back");
+		exp.offset = (offset - exp.size + ((exp.size == 0) ? 0 : 1));
+		if (exp.size != 0) { // is defined normally
+			emitRM(RM.LDC, ac, exp.size, 0, "get array size into ac1");
+			emitRM(RM.ST, ac, offset - exp.size, fp, "store aray size into stack");
+		}
 	}
 
 	public void visit(AssignExp exp, int offset, boolean isAddress) {
@@ -312,11 +287,7 @@ public class CodeGenerator implements AbsynVisitor {
 
 		ArrayList<Exp> all_args = exp.args.createIterable();
 		for (Exp arg : all_args) {
-			// TODO: maybe isAddress true?
 			arg.accept(this, curr_offset, isAddress);
-			emitRM(RM.ST, ac, curr_offset, fp, "store arg " + arg.toString() + " to stack");
-			// TODO: if varexp w/ Array
-			// pass in array address, instead of acxtqaul array contents
 			curr_offset -= 1;
 		}
 		emitRM(RM.ST, fp, offset, fp, "store old FP");
@@ -373,7 +344,7 @@ public class CodeGenerator implements AbsynVisitor {
 
 		// if main, set main entry accordingly
 		int tempFO = frameOffset;
-		frameOffset = -2;
+		frameOffset = initFO;
 		int saveLoc = emitSkip(1);
 
 		if (exp.name.equals("main") && !(exp.body instanceof NilExp))
@@ -386,7 +357,7 @@ public class CodeGenerator implements AbsynVisitor {
 
 		exp.body.accept(this, frameOffset, false);
 		frameOffset = tempFO;
-		emitRM(RM.LDA, pc, retFO, fp, "load return addr into PC");
+		emitRM(RM.LD, pc, retFO, fp, "load return addr into PC");
 
 		// backpatch a jump for the defintion
 		emitBackup(saveLoc);
@@ -396,10 +367,37 @@ public class CodeGenerator implements AbsynVisitor {
 	}
 
 	public void visit(IndexVar exp, int offset, boolean isAddress) {
-		// TODO: offset
-		// TODO: nestLevel
-		// TODO: implementation details: 11w:16
-		exp.index.accept(this, offset, false);
+		emitComment("-> IndexVar");
+		exp.index.accept(this, offset - 1, false);
+		emitRM(RM.LD, ac, offset - 1, fp, "load index");
+
+		emitRM(((ArrayDec) exp.def).size == 0 ? RM.LD : RM.LDA, ac1, exp.def.offset, (exp.def.nestLevel == 0) ? gp : fp,
+				"load array address");
+
+		emitRM(RM.LD, ac1, -1, ac1, "load array size");
+
+		// handle error
+		emitRM(RM.JGE, ac, 3, pc, "jump over error on non-negative index");
+		emitRM(RM.LDC, ac, -1000000, 0, "\"display large negative value for 'out of range below\"");
+		emitRM(RM.ST, ac, offset, fp, "\"display large negative value for 'out of range below\"");
+		emitRO(RO.HALT, 0, 0, 0, "error: negative index");
+
+		emitRO(RO.SUB, ac, ac, ac1, "prep for JLT");
+		emitRM(RM.JLT, ac, 3, pc, "jump over error on index < size");
+		emitRM(RM.LDC, ac, -2000000, 0, "\"display large negative value for 'out of range above\"");
+		emitRM(RM.ST, ac, offset, fp, "\"display large negative value for 'out of range above\"");
+		emitRO(RO.HALT, 0, 0, 0, "error: index out of bounds");
+
+		// error handling done
+		emitRM(((ArrayDec) exp.def).size == 0 ? RM.LD : RM.LDA, ac1, exp.def.offset, (exp.def.nestLevel == 0) ? gp : fp,
+				"load array address");
+		emitRM(RM.LD, ac, offset - 1, fp, "load index");
+
+		emitRO(RO.ADD, ac1, ac1, ac, "addr + index => arr[i]");
+
+		emitRM((isAddress) ? RM.LDA : RM.LD, ac, 0, ac1, "load return into ac");
+		emitRM(RM.ST, ac, offset, fp, "store return address into offset");
+		emitComment("<- IndexVar");
 	}
 
 	public void visit(ExpList expList, int offset, boolean isAddress) {
@@ -408,7 +406,6 @@ public class CodeGenerator implements AbsynVisitor {
 		}
 		while (expList != null) {
 			expList.head.accept(this, offset, false);
-			offset -= 1;
 			expList = expList.tail;
 		}
 	}
@@ -512,7 +509,6 @@ public class CodeGenerator implements AbsynVisitor {
 			emitComment("<- op");
 			return;
 		case OpExp.DIV:
-			// TODO: what if div by 0
 			emitRO(RO.DIV, ac, ac, ac1, "op /");
 			emitRM(RM.ST, ac, offset, fp, "store result in offset");
 			emitComment("<- op");
@@ -583,34 +579,24 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("-> id");
 		emitComment("looking up id: " + exp.name);
 
-		if (isAddress) {
-			emitRM(RM.LDA, ac, exp.def.offset, exp.def.nestLevel == 0 ? gp : fp, "load id address");
-		} else {
-			emitRM(RM.LD, ac, exp.def.offset, exp.def.nestLevel == 0 ? gp : fp, "load id value");
-		}
+		emitRM((exp.def instanceof ArrayDec || isAddress) ? RM.LDA : RM.LD, ac, exp.def.offset,
+				(exp.def.nestLevel == 0) ? gp : fp,
+				"load id " + ((exp.def instanceof ArrayDec || isAddress) ? "address" : "value"));
+
 		emitRM(RM.ST, ac, offset, fp, "store id into stack");
-
-		// TODO: store into stack
-		// TODO: check if isAddress, store value or actual address
 		emitComment("<- id");
-
-		// TODO: implemetntion 11w:42
-		// TODO: offset
-		// TODO: nestLevel(?)
 	}
 
 	public void visit(VarDecList exp, int offset, boolean isAddress) {
-		if (exp.head == null) {
+		if (exp.head == null)
 			return;
-		}
 
 		while (exp != null) {
-			exp.head.accept(this, offset, false);
-			if (exp.head instanceof SimpleDec) {
-				offset -= 1;
+			exp.head.accept(this, frameOffset, false);
+			if (exp.head instanceof ArrayDec)
+				frameOffset -= (((ArrayDec) exp.head).size + 1);
+			else
 				frameOffset -= 1;
-			}
-			// TODO: arraydec
 			exp = exp.tail;
 		}
 	}
@@ -633,7 +619,6 @@ public class CodeGenerator implements AbsynVisitor {
 		exp.body.accept(this, offset - 1, false);
 
 		// Unconditional jump back to test
-		// TODO: maybe loopStart - 1?
 		emitRM_Abs(RM.LDA, pc, loopStart, "while: jump back to test");
 
 		// Backpatch the exit jump
