@@ -1,6 +1,7 @@
 /* 2.cm
  * moderately complex program without errors
  * input a number and the program will output the Fibonacci sequence up to that number
+ * alt use: showcase accessing array at index; and/or runtime error (index out of bounds)
  */
 
 
@@ -27,8 +28,12 @@ void printFibonacci(int n) {
 
 void main(void) {
     int num;
-
+    int arr[10];
+    
     num = input();
+
+    arr_acc = input();          // will be used for IndexVar and index errors
+    arr[arr_acc] = 5;
 
     // Print Fibonacci sequence
     printFibonacci(num);
