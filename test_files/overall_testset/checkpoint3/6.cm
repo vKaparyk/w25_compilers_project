@@ -1,0 +1,22 @@
+/* 6.cm
+ * A bad version of gcd.cm with a variable redefinition, undefined variable, and bad variable assigned with incorrect type
+ * compute the greatest common divisor called gcd
+ */
+
+
+int y;
+
+int gcd(int u, int v) {
+  if (v == 0) return u;
+  else return gcd(v, u - u/v*v);
+}
+
+void main(void) {
+  int x;
+  bool x;                             // variable redefinition
+  x = input();
+  y = 10;
+  z = 10;                             // undefined variable 'z'
+  y = true;                           // assigning bool to int
+  output(gcd(x, y));                  
+}

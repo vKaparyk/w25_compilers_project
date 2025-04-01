@@ -1,0 +1,37 @@
+/* 2.cm
+ * moderately complex program without errors
+ * input a number and the program will output the Fibonacci sequence up to that number
+ */
+
+
+// Function to print Fibonacci sequence up to 'n'
+void printFibonacci(int n) {
+    int a;
+    int b;
+    int next;
+
+    a = 0;
+    b = 1;
+
+    output(a);
+    output(b);
+
+    next = a + b;
+    while (next <= n) {
+        output(next);
+        a = b;
+        b = next;
+        next = a + b;
+    }
+}
+
+void main(void) {
+    int num;
+
+    num = input();
+
+    // Print Fibonacci sequence
+    printFibonacci(num);
+
+    return;
+}

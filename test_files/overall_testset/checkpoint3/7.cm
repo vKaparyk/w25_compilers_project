@@ -1,0 +1,20 @@
+/* .cm
+ * A bad version of gcd.cm with a function redefinition, incorrect function parameters, incorrect return type
+ * compute the greatest common divisor called gcd
+ */
+
+int y;
+
+int gcd(int u, int v) {
+  if (v == 0) return u;
+  else return gcd(v, u - u/v*v) == 0;
+}
+
+void main(void) {
+  int x;
+  bool z;
+  x = input2();
+  y = 10;
+  z = 1 == 1;
+  output(gcd(x, y, z));
+}

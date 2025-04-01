@@ -1,0 +1,77 @@
+/* 3.cm
+ * complex program without errors
+ * program starts offering choice, 1 for binary search, 2 for GCD of 2 numbers
+ */
+
+
+int binarySearch(int arr[], int low, int high, int x)
+{
+    if (high >= low) {
+        int mid;
+        mid = low + (high - low) / 2;
+
+        // elem found
+        if (arr[mid] == x) 
+            return mid;
+
+        // search in left subarray
+        if (arr[mid] > x) 
+            return binarySearch(arr, low, mid - 1, x);
+
+        //search in right subarray
+        return binarySearch(arr, mid + 1, high, x);
+    }
+
+    // elem not found
+    return -1;
+}
+
+
+int gcd(int u, int v) { 
+   if (v == 0) return u; 
+   else return gcd(v, u - u/v*v); 
+   /* note that u - u/v*v = u mod v */ 
+}
+
+
+void main(void)
+{
+
+    int choice;
+    choice = input();
+
+
+    if (choice == 1) { // do binary search
+        int arr[10];
+        int len;
+        int i;
+        int result; 
+        int x;
+
+        x = input();
+
+        len = 10;
+
+        i = 0; 
+        while (i < len) { 
+            arr[i] = input(); 
+            i = i + 1; 
+        }
+        result = binarySearch(arr, 0, len - 1, x);
+        output(result);
+    }
+    else {
+        if (choice == 2) {
+            int x;  
+            int y;
+
+            x = input();
+            y = input();
+            output(gcd(x, y));
+        }
+        else {
+            output(-1);
+        }
+    }
+    return;
+}

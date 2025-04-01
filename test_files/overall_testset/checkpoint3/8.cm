@@ -1,0 +1,26 @@
+/* 8.cm
+ * A bad version of gcd.cm with comparison of different, accessing array with incorrect type, passing in parameter with wrong type
+ * compute the greatest common divisor called gcd
+ */
+
+
+ int y;
+
+int gcd(int u, int v) {
+  bool b;
+  b = false;
+  if (b == 0) return u;                         // comparison of different types
+  else return gcd(v, u - u/v*v);
+}
+
+void main(void) {
+  int x;
+  int arr[10];
+  bool b;
+
+  b = true;
+  arr[b];                                       // accessing array with incorrect type
+  x = input();
+  y = 10;   
+  output(gcd(x, b));                            // parameter with wrong type
+}

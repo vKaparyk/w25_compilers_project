@@ -1,0 +1,20 @@
+/* 5.cm
+ * A bad version of gcd.cm with a parameter error, bad condition test, and missing index for IndexVar
+ * compute the greatest common divisor called gcd
+ */
+
+
+int gcd(int u int v) {                      // missing comma in parameter list
+  if (v == 0) return u;
+  else return gcd(v, u - u/v*v);
+}
+
+void main(void) {
+  int a;
+  int arr[2];
+  while (3 < 4 < 5) { a = 3;}               // bad condition test
+
+  arr[] = input();                          // missing index for IndexVar
+  arr[1] = input();         
+  output(gcd(arr[0], arr[1]));
+}       

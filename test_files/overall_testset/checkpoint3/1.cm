@@ -1,0 +1,18 @@
+/* 1.cm
+ * simple program
+ * input number, outputs 1 if even, 0 if odd
+ */
+
+void main(void) {
+    int num;
+
+    num = input();
+
+    if (num - num/2*2 == 0) {
+        output(1);
+    }
+    else {
+        output(0);
+    }
+}
+
