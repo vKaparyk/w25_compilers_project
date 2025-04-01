@@ -351,13 +351,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	public void visit(VarExp exp, int level, boolean flag) {
 		level++;
-		exp.variable.accept(this, level, false);
 		Sym s = symbolTable.lookupVariable(exp.variable.name);
 		if (s == null) {
 			report_error(exp.variable.name + " not defined", exp);
 			exp.dtype = new SimpleDec(exp.row, exp.column, new NameTy(exp.row, exp.column, NameTy.VOID), "undefined");
 			return;
 		}
+		exp.variable.accept(this, level, false);
 		Dec dtype = s.getDef();
 		if (exp.variable instanceof IndexVar)
 			exp.dtype = new SimpleDec(dtype.row, dtype.column, dtype.typ, dtype.name);
