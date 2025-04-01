@@ -83,8 +83,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			return;
 		}
 
-		exp.def = (FunctionDec) func_dec.def;
-
 		if (exp.dtype == null) {
 			exp.dtype = new SimpleDec(func_dec.def.row, func_dec.def.column, func_dec.def.typ,
 					func_dec.def.typ.toString());
@@ -96,6 +94,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		// if (func_dec.name.equals("input") || func_dec.name.equals("output"))
 		// report_error(func_dec.name + "() call not allowed", exp);
 
+		exp.def = (FunctionDec) func_dec.def;
 	}
 
 	public void visit(CompoundExp exp, int level, boolean flag) {
@@ -336,7 +335,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(SimpleVar exp, int level, boolean flag) {
-		exp.def = (VarDec) symbolTable.lookupVariable(exp.name).def;
+
 	}
 
 	public void visit(VarDecList exp, int level, boolean flag) {
@@ -363,6 +362,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			exp.dtype = new SimpleDec(dtype.row, dtype.column, dtype.typ, dtype.name);
 		else
 			exp.dtype = dtype;
+
+		exp.variable.def = (VarDec) symbolTable.lookupVariable(exp.variable.name).def;
 	}
 
 	public void visit(WhileExp exp, int level, boolean flag) {
