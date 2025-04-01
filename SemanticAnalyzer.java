@@ -213,7 +213,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public void visit(IndexVar exp, int level, boolean flag) {
 		level++;
 		exp.index.accept(this, level, false);
-		exp.def = (ArrayDec) symbolTable.lookupVariable(exp.name).def;
 		if (!isInt(exp.index.dtype) || exp.index.dtype.isArray())
 			report_type_error(exp.index, exp);
 	}
@@ -365,7 +364,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		else
 			exp.dtype = dtype;
 
-		exp.variable.def = (VarDec) symbolTable.lookupVariable(exp.variable.name).def;
+		// If cariable is IndexVar but retrieved definition is not arraydec, kys
+		// int y;
+		// y[2] = test_func(y);               // supposed to be bad
+		exp.variable.def = (VarDec) dtype;
 	}
 
 	public void visit(WhileExp exp, int level, boolean flag) {

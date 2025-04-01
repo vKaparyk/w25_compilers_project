@@ -29,7 +29,7 @@ class Sym {
 					s.append(simpleDec.typ.toString());
 				} else if (params.head instanceof ArrayDec) {
 					ArrayDec arrayDec = (ArrayDec) params.head;
-					s.append(arrayDec.typ.toString() + "[]");
+					s.append(arrayDec.typ.toString() + "[" + arrayDec.size + "]");
 				}
 				if (params.tail != null)
 					s.append(", ");
@@ -49,7 +49,9 @@ class Sym {
 		return s.toString();
 	}
 
-	public Dec getDef() { return def; }
+	public Dec getDef() {
+		return def;
+	}
 }
 
 class SymbolTable {
@@ -59,9 +61,13 @@ class SymbolTable {
 	Stack<HashMap<String, Sym>> variableScopes = new Stack<>();
 	HashMap<String, Sym> functionScopes = new HashMap<>();
 
-	void enterScope() { variableScopes.push(new HashMap<>()); }
+	void enterScope() {
+		variableScopes.push(new HashMap<>());
+	}
 
-	void exitScope() { variableScopes.pop(); }
+	void exitScope() {
+		variableScopes.pop();
+	}
 
 	boolean addVariable(Sym symbol) {
 		if (variableScopes.peek().containsKey(symbol.name)) {
@@ -95,7 +101,9 @@ class SymbolTable {
 		return null; // Not found
 	}
 
-	public Sym lookupFunction(String name) { return functionScopes.get(name); }
+	public Sym lookupFunction(String name) {
+		return functionScopes.get(name);
+	}
 
 	void printTopScope(int level) {
 		String space = "";
