@@ -476,8 +476,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void checkForMain() {
-		// TODO: check all functions have implementation
-
 		for (String funcName : symbolTable.functionScopes.keySet()) {
 			if (((FunctionDec) symbolTable.lookupFunction(funcName).def).body instanceof NilExp) {
 				report_error("function prototype defined, but not implemented",

@@ -13,8 +13,6 @@ features of CodeGenerator:
     - input/output works
   - FunDec
     - can decalre functions and call then
-    - TODO: function prototypes
-    - TODO: recursion
   - SimpleVar
     - global and local declarations
   - OpExp

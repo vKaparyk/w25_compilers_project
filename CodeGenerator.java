@@ -45,8 +45,6 @@ public class CodeGenerator implements AbsynVisitor {
 								// frameOffset: size that the current frame is taking up; ends up pointing to
 								// where remporaries will start
 								// OR where new frame will be created
-
-	// TODO: possible problem that ocmes up later; we'll see
 	PrintWriter code;
 
 	/********************* Workers *********************/
@@ -549,7 +547,6 @@ public class CodeGenerator implements AbsynVisitor {
 			emitRM(RM.JGE, ac, 2, pc, "jump to true on GTE");
 			break;
 		case OpExp.AND:
-			// TODO: short-circuit?
 			emitRO(RO.MUL, ac, ac, ac1, "multiply ac and ac1; on false, ac will be 0");
 			emitRM(RM.JNE, ac, 2, pc, "and: jump if true");
 			break;
