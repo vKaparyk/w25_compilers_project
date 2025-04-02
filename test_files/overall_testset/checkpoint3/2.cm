@@ -5,7 +5,7 @@
  */
 
 
-// Function to print Fibonacci sequence up to 'n'
+ // Function to print Fibonacci sequence up to 'n'
 void printFibonacci(int n) {
     int a;
     int b;
@@ -28,8 +28,10 @@ void printFibonacci(int n) {
 
 void main(void) {
     int num;
+
+    int arr_acc;
     int arr[10];
-    
+
     num = input();
 
     arr_acc = input();          // will be used for IndexVar and index errors
