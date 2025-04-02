@@ -478,6 +478,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public void checkForMain() {
 		// TODO: check all functions have implementation
 
+		for (String funcName : symbolTable.functionScopes.keySet()) {
+			if (((FunctionDec) symbolTable.lookupFunction(funcName).def).body instanceof NilExp) {
+				report_error("function prototype defined, but not implemented",
+						((FunctionDec) symbolTable.lookupFunction(funcName).def));
+			}
+		}
+
 		if (symbolTable.lookupFunction("main") == null) {
 			invalid_symbol_tabling = true;
 			System.err.println(filename + ":1:1:error: main() not defined");
