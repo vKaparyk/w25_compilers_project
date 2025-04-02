@@ -300,9 +300,12 @@ public class CodeGenerator implements AbsynVisitor {
 		else if (exp.func.equals("output"))
 			dest_func = outputEntry;
 		else
-			dest_func = exp.def.funaddr;
-		// TODO: indirect recursion logixc ghere, what the fuck
-		emitRM_Abs(RM.LDA, pc, dest_func, "jump to function call");
+			dest_func = exp.def.funaddr.funaddr;
+
+		if (dest_func == -1)
+			exp.def.backpatchLocs.add(emitSkip(1)); // if function not enountered, backpatch
+		else
+			emitRM_Abs(RM.LDA, pc, dest_func, "jump to function call");
 		emitRM(RM.LD, fp, 0, fp, "load old FP");
 		if (!exp.def.isVoid())
 			emitRM(RM.ST, ac, offset, fp, "store return value into stack offset");
@@ -337,28 +340,42 @@ public class CodeGenerator implements AbsynVisitor {
 
 	}
 
+	public void visit(ExpList expList, int offset, boolean isAddress) {
+		if (expList.head == null) {
+			return;
+		}
+		while (expList != null) {
+			expList.head.accept(this, offset, false);
+			expList = expList.tail;
+		}
+	}
+
 	public void visit(FunctionDec exp, int offset, boolean isAddress) {
-		// TODO: deal with prototypes
+		if (exp.body instanceof NilExp)
+			return;
 
 		emitComment("-> funDec " + exp.name);
-
 		// if main, set main entry accordingly
 		int tempFO = frameOffset;
 		frameOffset = initFO;
 		int saveLoc = emitSkip(1);
 
-		if (exp.name.equals("main") && !(exp.body instanceof NilExp))
-			mainEntry = getHighEmitLoc();
-		exp.funaddr = getHighEmitLoc();
-
-		emitRM(RM.ST, ac, retFO, fp, "store return address into ret");
 		exp.typ.accept(this, frameOffset, false);
 		exp.params.accept(this, frameOffset, false);
 
+		if (exp.name.equals("main") && !(exp.body instanceof NilExp))
+			mainEntry = getHighEmitLoc();
+		exp.funaddr.funaddr = getHighEmitLoc();
+		for (int backpatch : exp.backpatchLocs) {
+			emitBackup(backpatch);
+			emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "jump to func" + exp.name);
+			emitRestore();
+		}
+		emitRM(RM.ST, ac, retFO, fp, "store return address into ret");
 		exp.body.accept(this, frameOffset, false);
-		frameOffset = tempFO;
 		emitRM(RM.LD, pc, retFO, fp, "load return addr into PC");
 
+		frameOffset = tempFO;
 		// backpatch a jump for the defintion
 		emitBackup(saveLoc);
 		emitRM_Abs(RM.LDA, pc, getHighEmitLoc(), "skip function execution");
@@ -398,16 +415,6 @@ public class CodeGenerator implements AbsynVisitor {
 		emitRM((isAddress) ? RM.LDA : RM.LD, ac, 0, ac1, "load return into ac");
 		emitRM(RM.ST, ac, offset, fp, "store return address into offset");
 		emitComment("<- IndexVar");
-	}
-
-	public void visit(ExpList expList, int offset, boolean isAddress) {
-		if (expList.head == null) {
-			return;
-		}
-		while (expList != null) {
-			expList.head.accept(this, offset, false);
-			expList = expList.tail;
-		}
 	}
 
 	public void visit(IfExp exp, int offset, boolean isAddress) {
@@ -579,9 +586,11 @@ public class CodeGenerator implements AbsynVisitor {
 		emitComment("-> id");
 		emitComment("looking up id: " + exp.name);
 
-		emitRM((exp.def instanceof ArrayDec || isAddress) ? RM.LDA : RM.LD, ac, exp.def.offset,
-				(exp.def.nestLevel == 0) ? gp : fp,
-				"load id " + ((exp.def instanceof ArrayDec || isAddress) ? "address" : "value"));
+		if ((exp.def instanceof ArrayDec && ((ArrayDec) exp.def).size != 0) || isAddress)
+			emitRM(RM.LDA, ac, exp.def.offset, (exp.def.nestLevel == 0) ? gp : fp, "load id address");
+		else
+			emitRM(RM.LD, ac, exp.def.offset, (exp.def.nestLevel == 0) ? gp : fp,
+					"load id " + ((exp.def instanceof ArrayDec) ? "address" : "value"));
 
 		emitRM(RM.ST, ac, offset, fp, "store id into stack");
 		emitComment("<- id");

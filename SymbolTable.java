@@ -88,7 +88,15 @@ class SymbolTable {
 			return false;
 		}
 		// @formatter:on
-		functionScopes.put(functionSymbol.name, functionSymbol);
+
+		Sym fuc = lookupFunction(functionSymbol.name);
+		if (fuc != null) {
+			((FunctionDec) fuc.def).body = ((FunctionDec) functionSymbol.def).body;
+			((FunctionDec) fuc.def).params = ((FunctionDec) functionSymbol.def).params;
+			((FunctionDec) fuc.def).funaddr = ((FunctionDec) functionSymbol.def).funaddr;
+		} else
+			functionScopes.put(functionSymbol.name, functionSymbol);
+
 		return true;
 	}
 

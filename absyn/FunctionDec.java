@@ -1,9 +1,21 @@
 package absyn;
 
+import java.util.ArrayList;
+
 public class FunctionDec extends Dec {
+	public class IntWrapper {
+		public int funaddr;
+
+		public IntWrapper(int i) {
+			funaddr = i;
+		}
+	}
+
 	public VarDecList params;
 	public Exp body;
-	public int funaddr;
+	public IntWrapper funaddr = new IntWrapper(-1);
+
+	public ArrayList<Integer> backpatchLocs = new ArrayList<Integer>();
 
 	public FunctionDec(int row, int column, NameTy result, String func, VarDecList params, Exp body) {
 		this.row = row;
@@ -12,8 +24,6 @@ public class FunctionDec extends Dec {
 		this.name = func;
 		this.params = params;
 		this.body = body;
-
-		this.funaddr = -1;
 	}
 
 	public void accept(AbsynVisitor visitor, int level, boolean flag) {

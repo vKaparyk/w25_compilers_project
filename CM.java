@@ -12,12 +12,12 @@ class CM {
 	public static String getPathWithoutExtension(String filename) {
 		Path path = Paths.get(filename);
 		String fileName = path.getFileName().toString();
-	
+
 		// Remove the extension from the file name
 		int lastDotIndex = fileName.lastIndexOf('.');
 		String fileNameWithoutExtension = (lastDotIndex == -1) ? fileName // No extension found
 				: fileName.substring(0, lastDotIndex);
-	
+
 		// Reconstruct the full path without the extension
 		Path parentPath = path.getParent();
 		if (parentPath != null) {
@@ -36,9 +36,6 @@ class CM {
 		String fileName = "";
 
 		// Parse optional flags
-		// TODO: verify only 1 flag can appear total (project Overview.pdf; cmd-line
-		// options)
-		// TODO: what if no flags
 		for (int i = 0; i < argv.length; i++) {
 			switch (argv[i]) {
 			case "-a":
@@ -101,12 +98,11 @@ class CM {
 				String tmFile = getPathWithoutExtension(fileName) + ".tm";
 
 				visitor = new CodeGenerator(tmFile);
-				((CodeGenerator)visitor).visit(result);
-				((CodeGenerator)visitor).closeWriter();
+				((CodeGenerator) visitor).visit(result);
+				((CodeGenerator) visitor).closeWriter();
 
 				if (((CodeGenerator) visitor).failedGeneration) {
-					System.err.println(
-							"Errors encountered during assembly generation. exiting.");
+					System.err.println("Errors encountered during assembly generation. exiting.");
 					return;
 				}
 			}
