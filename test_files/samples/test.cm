@@ -1,24 +1,72 @@
-int x;
-int y[10];
-int z;
+void test_func(int b[]);
+void test_func2(int a[]);
 
-// void main(void) {}
-
-
-void main(void) {
-    int x;
-    int y;
-    int z;
-    
-    x = 10;
-    y = 2;
-    z = x - x/y*y;
-
-    output(z);
+void test_func(int b[]) {
+    test_func2(b);
 }
 
-// simpledec
-// functiondec
-// call
+void test_func2(int a[]) {
+    a[2] = 3;
+}
 
-// assignexp
+void main(void) {
+    int arr[5];
+    test_func(arr);
+    output(arr[2]);
+}
+
+
+// int x;
+// int z[6];
+
+// // int gcd(int u, int v) {
+// //     if (v == 0) return u;
+// //     else return gcd(v, u - u / v * v) == 0;
+// // }
+// int test_func(int c) {
+//     int x;
+//     x = c + 10;
+//     return x;
+// }
+
+// void test_func2(int c[]) {
+//     c[1] = 4 + 2;
+// }
+
+// void main(void) {
+//     int y[5];
+//     x = 5;
+
+//     y[2] = 3;
+//     //               \/ right here, in explist of test_func
+//     output(test_func(y[2]));
+//     test_func2(z);
+//     output(z[0]);
+//     output(z[1]);
+//     test_func2(y);
+//     output(y[1]);
+//     output(y[2]);
+//     // { TODO: aaaaaaaaaaaaaaaaaaaaaa
+//     //     int y;
+//     //     y[2] = test_func(y);
+//     // }
+
+//     // y[-1] = 3;   // TODO: check
+//     // y[5] = 3;   // TODO: check
+// }
+
+// // 
+// // void main(void) {
+// //     int x;
+// //     int y;
+// //     x = 10;
+// //     y = test_func(x);
+// //     output(y);
+// // 
+// //     while (x < 15){
+// //         output(x);
+// //         x = x + 1;
+// //     }
+// // 
+// //     output(x);
+// // }
