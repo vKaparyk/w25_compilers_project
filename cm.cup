@@ -154,7 +154,12 @@ simple_var_dec       ::= type_specifier:t ID:i
                         :}
                         ;
 array_var_dec        ::= type_specifier:t ID:i LBRACKET NUM:n RBRACKET
-                        {: RESULT = new ArrayDec(t.row, t.column, t, i, n); :}
+                        {: 
+                           if (n < 1){
+                              parser.report_error("invalid array size:   < 1", new Symbol(sym.NUM, tleft, tright));
+                           }
+                           RESULT = new ArrayDec(t.row, t.column, t, i, n); 
+                        :}
                         | type_specifier:t ID:i LBRACKET NUM:n
                         {: 
                            parser.report_error("expected ]", new Symbol(sym.NUM, nleft, nright));
