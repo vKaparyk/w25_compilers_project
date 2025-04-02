@@ -8,7 +8,14 @@ void main(void) {
 
     num = input();
 
-    if (num - num/2*2 == 0) {
+    {                       // nested block with variable redefinition
+        int num;
+        num = input();
+        output(num);
+    }
+    output(num);           // original number is still the same
+
+    if (num - num / 2 * 2 == 0) {
         output(1);
     }
     else {
